@@ -736,14 +736,75 @@ function mentalizeAll(){
 	}
 }
 
+function tooltipContent(itemType, buttonType){
+	var spend = '';
+	var produce = '';
+
+	if (buttonType == "mentalize" && itemType && items[itemType]) {
+		spend = '-1 <span class="mind">Mind</span>';
+		produce = '+1 <span class="'+itemType+'">'+items[itemType].idea+'</span>';
+		if (itemType == "mentalize") produce += '<br>+1 <span class="recursion">Recursion</span>';
+	} else if (buttonType == "reify" && itemType && items[itemType]) {
+		spend = '-1 <span class="matter">Matter</span>';
+		produce = '+1 <span class="'+itemType+'">'+items[itemType].thing+'</span>';
+		if (itemType == "reify") produce += '<br>+10 <span class="recursion">Recursion</span>';
+	} else if (buttonType == "pulverize" && itemType && items[itemType]) {
+		spend = '-1 <span class="strength">Strength</span>';
+		produce = '+1 <span class="'+itemType+'">'+items[itemType].dust+'</span>';
+		if (itemType == "pulverize") produce += '<br>+100 <span class="recursion">Recursion</span>';
+	} else if (buttonType == "purify" && itemType && items[itemType]) {
+		var purifiedKey = items[itemType].purified;
+		var purifiedName = purifiedKey && items[purifiedKey] ? items[purifiedKey].idea : purifiedKey;
+		spend = '-1 <span class="recursion">Recursion</span>';
+		produce = '+1 <span class="'+(purifiedKey||'')+'">'+purifiedName+'</span>';
+		if (itemType == "purify") produce += '<br>+10000 <span class="recursion">Recursion</span>';
+	} else if (buttonType == "mentAll") {
+		var n = $('.logMessage.active').not('.machineU').not('.unlock').length;
+		spend = '-'+n+' <span class="mind">Mind</span>';
+		produce = '+'+n+' <span class="idealSubstance">Ideal Substance</span>';
+	} else if (buttonType == "reifyMax") {
+		var total = totalImpureIdeas();
+		spend = '-'+total+' <span class="matter">Matter</span>';
+		produce = '+'+total+' Things';
+	} else if (buttonType == "pulverizeMax") {
+		var total = totalImpureThings();
+		spend = '-'+total+' <span class="strength">Strength</span>';
+		produce = '+'+total+' Dusts';
+	} else if (buttonType == "mentalizeMax") {
+		spend = '-'+activeLogCounter+' <span class="mind">Mind</span>';
+		produce = '&rarr; Ideas';
+	} else if (buttonType == "purifyMax") {
+		var total = totalImpureIdeas();
+		spend = '-'+total+' <span class="recursion">Recursion</span>';
+		produce = '&rarr; purified Ideas';
+	} else {
+		return '';
+	}
+
+	return '<div class="btn-tooltip-spend">'+spend+'</div><div class="btn-tooltip-produce">'+produce+'</div>';
+}
+
+function showBtnTooltip(el, itemType, buttonType) {
+	var content = tooltipContent(itemType, buttonType);
+	if (!content) return;
+	var rect = el.getBoundingClientRect();
+	var scrollTop = window.scrollY || document.documentElement.scrollTop;
+	$('#btn-tooltip').html(content).css({ top: 0, left: rect.right + 8 }).show();
+	var tipHeight = $('#btn-tooltip').outerHeight();
+	$('#btn-tooltip').css('top', rect.top + scrollTop + rect.height / 2 - tipHeight / 2);
+}
+
 function button(appendTo, itemType, buttonType){
-	$(appendTo).append('<div class="button '+buttonType+'">'+buttons[buttonType].label+'</div></div>')
+	$(appendTo).append('<div class="button '+buttonType+'" data-btn-type="'+buttonType+'" data-item-type="'+(itemType||'')+'">'+buttons[buttonType].label+'</div></div>')
 	$(appendTo + ' .button').on( "click", function() {
 		if(buttons[buttonType].action == "want"){
 			logMessage("want");
 	if(showStatus.log == "locked"){
 		showStatus.log = "unlocked"
 		$('#log').fadeIn();
+		updatePowerCounter("mind");
+		updatePowerCounter("matter");
+		updatePowerCounter("strength");
 	}
 }
 if(buttons[buttonType].action == "mentalize"){
@@ -786,4 +847,15 @@ $(document).bind('keydown', function (event) {
 	if (event.key == "f") {
 		logMessage("respect");
 	}
+});
+
+$(function() {
+	$('body').append('<div id="btn-tooltip" style="display:none;"></div>');
+	$(document).on('mouseenter', '.button[data-btn-type]', function() {
+		var btnType = $(this).data('btn-type');
+		var itemType = $(this).data('item-type') || null;
+		showBtnTooltip(this, itemType, btnType);
+	}).on('mouseleave', '.button[data-btn-type]', function() {
+		$('#btn-tooltip').hide();
+	});
 });

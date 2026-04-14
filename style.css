@@ -211,6 +211,44 @@ body {
 	transition: 0.2s ease-in-out;
 }
 
+#btn-tooltip {
+	position: absolute;
+	background: #FAFBFA;
+	border: 1px solid #333;
+	border-radius: 2px;
+	padding: 5px 9px;
+	white-space: nowrap;
+	z-index: 1000;
+	font-size: 12px;
+	line-height: 1.6;
+	pointer-events: none;
+}
+
+#btn-tooltip::before {
+	content: '';
+	position: absolute;
+	right: 100%;
+	top: 50%;
+	transform: translateY(-50%);
+	border: 5px solid transparent;
+	border-right-color: #333;
+}
+
+#btn-tooltip::after {
+	content: '';
+	position: absolute;
+	right: calc(100% - 1px);
+	top: 50%;
+	transform: translateY(-50%);
+	border: 5px solid transparent;
+	border-right-color: #FAFBFA;
+}
+
+.btn-tooltip-spend,
+.btn-tooltip-produce {
+	color: #333;
+}
+
 .item .button {
 	margin-left: 5px;
 }
