@@ -530,12 +530,14 @@ function buildAllItems(){
 	itemCounter = {
 		idea: ideas,
 		thing: things,
-		dust: dusts
+		dust: dusts,
+		liquid: liquids
 	}
 	$.each(itemCounter, function(key, type){
 		$.each(type, function(id){
 			if(type[id] != 0){
-				itemBuild(key+'s', id);	
+				itemBuild(key+'s', id);
+				itemUnlock[key+'s'][id] = "unlocked";
 			}
 		});
 	});
@@ -552,7 +554,7 @@ function pay(type, token, price){
 }
 
 function acquire(type, item, amount){
-	if (itemUnlock[type][item] == "locked" && window[type][item] == 0){
+	if ($('.item.'+type+'.'+item).length == 0){
 		itemUnlock[type][item] = "unlocked";
 		itemBuild(type, item);
 	}
@@ -562,13 +564,15 @@ function acquire(type, item, amount){
 }
 
 function itemBuild(type, id){
-	if (type != "dusts"){
+	if (type != "dusts" && type != "liquids"){
 		append = '#'+type+' #'+items[id].type;
 	} else if (type == "dusts"){
 		append = '#things #dusts'
+	} else if (type == "liquids"){
+		append = '#things #liquids'
 	}
 	$(append).append('<div class="item '+type+' '+id+'"><span class="name">' + items[id][type.slice(0, -1)] + ' </span><span class="counter"><span class="rate" style="display:none">+<span class="number"></span>/s</span> <span class="amount"></span></span></div>');
-	if (items[id].type == "impure" && type != "dusts" && items[id].rarity != "unique"){
+	if (items[id].type == "impure" && type != "dusts"  && type != "liquids" && items[id].rarity != "unique"){
 		button('.'+type+'.' + id, id, nextAction[type]);
 	}
 	updateCounter(type, id);
