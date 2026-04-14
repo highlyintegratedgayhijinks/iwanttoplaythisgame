@@ -713,10 +713,10 @@ function pulverize(id, amount){
 }
 
 function mentalizeAll(){
-	var counter = $('.logMessage.active').not('.machineU').not('.unlock').length;
+	var counter = $('.logMessage.active').not('.machineU').not('.unlock').not('.mentAll').length;
 	if (counter > 0 && counter <= ideas.mind){
-		$('.logMessage.active .button').not('.machineU .button').not('.unlock .button').remove();
-		$('.logMessage.active').not('.machineU').not('unlock').addClass("inactive").removeClass("active");
+		$('.logMessage.active .button').not('.machineU .button').not('.unlock .button').not('.mentAll .button').remove();
+		$('.logMessage.active').not('.machineU').not('.unlock').not('.mentAll').addClass("inactive").removeClass("active");
 		pay("ideas", "mind", counter)
 		acquire("ideas", "idealSubstance", counter)
 		logMessage("mentAll");
