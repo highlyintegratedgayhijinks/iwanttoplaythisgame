@@ -1,5 +1,6 @@
 function settings(){
     buildSettings();
+    $('#wipeSave').on("click", function() { wipeSave(); });
     var settingsStatus = "hidden";
 
     $('#header').append('<div id="settingsButton" class="settings"></div>');
@@ -7,13 +8,22 @@ function settings(){
         showSettings();
     });
 
+    function wipeSave(){
+        if (confirm("Wipe save and restart? This cannot be undone.")) {
+            localStorage.removeItem('gameState');
+            location.reload();
+        }
+    }
+
     function buildSettings(){
         $('#container').prepend(`
         <div id="settings" style="display: none">
         <div id="settingspanel" class="box">
-            <div class="header"><strong>Settings</strong></div>				
-            <div class="content"></div>
-        </div> 
+            <div class="header"><strong>Settings</strong></div>
+            <div class="content">
+                <div id="wipeSave" class="button">Wipe Save</div>
+            </div>
+        </div>
         <div id="stats" class="box">
             <div class="header"><strong>Stats</strong></div>
             <div class="content"></div>
