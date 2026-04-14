@@ -95,7 +95,7 @@ function startVar(){
 }
 
 function updateState(){
-	logCount: state.logCount;
+	logCount = state.logCount;
 	machineStatus = state.machineStatus;
 	showStatus = state.showStatus;
 	buyableStatus = state.buyableStatus;
@@ -113,6 +113,7 @@ function updateState(){
 // LOCAL STORAGE //
 
 function updateLocalStorage(){
+	state.logCount = logCount;
 	localStorage.setItem('gameState', JSON.stringify(state));
 }
 
@@ -123,9 +124,9 @@ function loadState(){
 	};
 }
 
-/*$( window ).on("unload", function() {
+$( window ).on("unload", function() {
 	updateLocalStorage();
-});*/
+});
 
 // READY //
 
