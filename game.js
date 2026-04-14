@@ -1,3 +1,5 @@
+const baseRate = { mind: 0.3, matter: 0.3, strength: 0.3 };
+
 function powerStart() {
 	$.each(power, function(token){
 		updatePowerCounter(token);
@@ -339,12 +341,14 @@ function populateSelector(selector, kind){
 /* GENERATORS */
 
 function updatePowerCounter(token){
+	var base = (showStatus && showStatus.log == "unlocked" && baseRate[token] !== undefined) ? baseRate[token] : 0;
+	var total = power[token] + base;
 	$('.subMachine.'+token+' .info').html(Math.floor(power[token]));
-	if (power[token] > 0){	
+	if (total > 0){
 		$('.item.'+token+' .rate').show();
-		$('.item.'+token+' .rate .number').html(Math.floor(power[token]));
+		$('.item.'+token+' .rate .number').html(Number.isInteger(total) ? total : total.toFixed(1));
 	} else {
-		$('.item.'+token+' .rate').hide();	
+		$('.item.'+token+' .rate').hide();
 	}
 }
 
@@ -378,6 +382,11 @@ function spendFuel(token){
 }
 
 function autoIncrease(){
+	if (showStatus.log == "unlocked") {
+		acquire("ideas", "mind", 0.3);
+		acquire("things", "matter", 0.3);
+		acquire("ideas", "strength", 0.3);
+	}
 	acquire("ideas", "mind", power.mind);
 	acquire("things", "matter", power.matter);
 	acquire("ideas", "strength", power.strength);
@@ -396,7 +405,9 @@ function loop(){
 	setInterval(function(){
 		logClear();
 	}, 10000)
-
+	setInterval(function(){
+		updateLocalStorage();
+	}, 30000)
 }
 
 function impureStatus(){
