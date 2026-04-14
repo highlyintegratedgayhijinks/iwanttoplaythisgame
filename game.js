@@ -468,17 +468,33 @@ function getLucky(){
 	}
 }
 
+function purify(id, amount){
+	if (pay("ideas", "recursion", amount) && pay("ideas", id, amount) == true){
+
+		if (amount < 100){
+			for (var i = 0; i < amount; i++) {
+				logMessage("purify");
+			}
+		} else {
+			logMessageTooMany("purify");
+		}
+		acquire("ideas", items[id].purified, amount)
+
+		if (id == "purify") {
+			acquire("ideas", "recursion", 10000)
+		}
+	}
+}
+
 /* MAX */
 
 function purifyMax(){
 	$.each(ideas, function(id, amount){
 		if(amount > 0 && items[id].type == "impure"){
-			logMessage("purify");
-	acquire("ideas", items[id].purified, amount);
-			pay("ideas", id, amount)
+			purify(id, amount);
 	}
 });
-	}
+}
 
 	function reifyMax(){
 		$.each(ideas, function(id, amount){
