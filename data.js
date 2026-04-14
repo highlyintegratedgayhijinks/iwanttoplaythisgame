@@ -3,6 +3,7 @@ const items = {
 		idea: "The idea of wanting to play this game",
 		thing: "The material reification of the idea of wanting to play this game",
 		dust: "Willing dust",
+		liquid: "Willing liquid",
 		machineCostA: [10, "ideas", "will"],
 		machineCostB: [25, "dusts", "want"],		
 		type: "impure",
@@ -82,6 +83,12 @@ const items = {
 		rarity: "unique",
 		purified: "progress"
 	},
+	mentAll: {
+		idea: "The idea of collapsing everything into a generic idea",
+		type: "impure",
+		rarity: "unique",
+		purified: "abstraction"
+	},
 	mind: {
 		idea: "Mind",
 		type: "pure",
@@ -160,6 +167,10 @@ const items = {
 	},
 	progress: {
 		idea: "Progress",
+		type: "pure"
+	},
+	abstraction: {
+		idea: "Abstraction",
 		type: "pure"
 	},
 	fortitude: {
@@ -264,9 +275,21 @@ const items = {
 		type: "pure",
 		subtype: "alchemified"
 	},
-	thing: {
-		thing: "Thing",
-		ingredients: ["matter", "mind"],
+	magma: {
+		thing: "Magma",
+		ingredients: ["earth", "fire"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	dream: {
+		idea: "Dream",
+		ingredients: ["air", "thought"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	light: {
+		thing: "Light",
+		ingredients: ["fire", "purity"],
 		type: "pure",
 		subtype: "alchemified"
 	},
@@ -434,14 +457,6 @@ const buyables = {
 		machine: "mentalize",
 		unlocks: "autoStrength",
 	},
-	purifierUnlock: {
-		name: "Unlock Purifier",
-		cost: [250, "ideas", "idealSubstance"],
-		class: "unlock",
-		subclass: "submachine",
-		machine: "mentalize",
-		unlocks: "purifier",
-	},
 	autoWillUnlock: {
 		name: "Unlock WillGen",
 		cost: [40, "dusts", "want"],
@@ -454,7 +469,7 @@ const buyables = {
 		name: "Unlock PurifyMax",
 		class: "unlock",
 		subclass: "button",
-		cost: [250, "ideas", "purity"],
+		cost: [250, "ideas", "idealSubstance"],
 		machine: "mentalize",
 	},	
 	reifyMaxUnlock: {
@@ -573,14 +588,6 @@ const buyables = {
 }
 
 const subMachines = {
-	purifier: {
-		name: "Purifier",
-		desc: "Purify impure ideas.",
-		machine: "mentalize",
-		type: "idea",
-		token: "mind",
-		class: "purifier"
-	},
 	autoMind: {
 		name: "MindGen",
 		desc: "Generate Mind.",
@@ -667,9 +674,11 @@ const fuelCost = {
 var ideas = {};
 var things = {};
 var dusts = {};
+var liquids = {};
 
 var itemCounter = {
 	idea: ideas,
 	thing: things,
-	dust: dusts
+	dust: dusts,
+	liquid: liquids
 }
