@@ -111,7 +111,13 @@
 }
 
 .entropy {
-	color: rgb(81, 20, 105);
+	color: rgb(81, 20, 105)
+}
+
+.entropy .name {
+	background: linear-gradient(to right, rgb(81, 20, 105), transparent);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
 }
 
 .alchemize {
