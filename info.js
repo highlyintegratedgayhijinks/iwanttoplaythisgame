@@ -53,16 +53,29 @@ function info(){
         things: {
             title: "Things info",
             content: {
-                facts: {
-                    text: "Lorem ipsum"
+                purethingsinfo: {
+                    title: "Pure things",
+                    text: "These things are pure and cannot be pulverized or otherwise modified. I think."
                 },
-                facts2: {
-                    title: "Title",
-                    text: "Lorem ipsum"
+                impurethingsinfo: {
+                    title: "Impure things",
+                    text: "These things are impure. They can be pulverized, liquified..."
                 },
-                facts3: {
-                    title: "Another Title",
-                    text: "Lorem ipsum"
+                dustsinfo: {
+                    title: "Dusts",
+                    text: "You can pulverize impure ideas into these fine dusts. These are often used as a currency for using some machines."
+                },
+                pulverizeinfo: {
+                    title: "Pulverize",
+                    text: "You can pulverize impure ideas by using your <span class='strength'>Strength</span>. With 1 <span class='strength'>Strength</span> you will pulverize one thing."
+                },
+                pulverizeMaxinfo: {
+                    title: "PulverizeMax",
+                    text: "With this button you will pulverize every impure thing available, if you have enough <span class='strength'>Strength</span>."
+                },
+                pulverizeAutoinfo: {
+                    title: "AutoPulverize",
+                    text: "By turning this on, you will automatically PulverizeMax each second, by spending <span class='will'>Will</span>. You will still also spend <span class='strength'>Strength</span>, of course."
                 }
             }
         }   
