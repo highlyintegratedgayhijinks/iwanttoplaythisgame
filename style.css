@@ -8,8 +8,21 @@ body {
 }
 
 #header {
-	text-align: center;
+	position: relative;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 	height: 30px;
+}
+
+#headerButtons {
+	position: absolute;
+	right: 0;
+	top: 50%;
+	transform: translateY(-50%);
+	display: flex;
+	gap: 10px;
+	align-items: center;
 }
 
 #container {
@@ -40,7 +53,7 @@ body {
 #wrapper .box {
 	width: 33.33%;
 	overflow-y: scroll;
-	height: calc(100vh - 200px - 70px);
+	height: calc(100vh - 215px - 70px);
 	position: relative;
 }
 
@@ -58,6 +71,10 @@ body {
 	margin-bottom: 10px;
 }
 
+.section:not(:has(.item)) {
+	margin-bottom: 0;
+}
+
 .section .title {
 	color: #ccc;
 	font-size: 14px;
@@ -67,21 +84,25 @@ body {
 	border-bottom: 1px solid #ccc;
 }
 
+.section .title:only-child {
+	display: none;
+}
+
 #machines {
 	width: 100%;
 	margin-left: 0px;
-	height: 200px;
+	height: 215px;
 	overflow: hidden;
 }
 
 #machines .content {
 	display: flex;
 	height: 100%;
+	gap: 10px;
 }
 
 .machineUnlock.box {
 	width: 33.33%;
-	margin-left: 10px;
 	text-align: center;
 	cursor: pointer;
 	margin-top: 0;
@@ -90,7 +111,6 @@ body {
 
 .machine.box {
 	width: 33.33%;
-	margin-left: 10px;
 	text-align: center;
 	padding: 10px;
 	margin-top: 0;
@@ -104,15 +124,12 @@ body {
 	gap: 10px;
 }
 
-.machine.box:hover {
+.machine.box:hover,
+.machine.box.dropdown-open {
 	width: 100%;
 	transition: width 0.5s;
 }
 
-.machineUnlock.box:first-child,
-.machine.box.want {
-	margin-left: 0px;
-}
 
 .machineUnlock.box .title,
 .machine.box .title  {
@@ -249,6 +266,26 @@ body {
 	color: #333;
 }
 
+.btn-tooltip-spend.cant-afford,
+.cost-number.cant-afford {
+	color: #c33;
+}
+
+.tile.cant-afford .cost,
+.machineUnlock .cost > span.cant-afford,
+.tile.cant-afford .cost-number,
+.machineUnlock .cost > span.cant-afford .cost-number {
+	text-decoration: dotted underline #c33;
+}
+
+#btn-tooltip.cant-afford {
+	border-color: #c33;
+}
+
+#btn-tooltip.cant-afford::before {
+	border-right-color: #c33;
+}
+
 .item .button {
 	margin-left: 5px;
 }
@@ -286,7 +323,7 @@ body {
   background-color: transparent;
   width: 180px;
   min-width: 180px;
-  height: 130px;
+  height: 145px;
   perspective: 1000px; /* Remove this if you don't want the 3D effect */
 }
 
@@ -310,13 +347,27 @@ body {
 .card-front, .card-back {
   position: absolute;
  	padding: 10px;
-  width: 160px;
+  width: 100%;
   height: 100%;
+  box-sizing: border-box;
   -webkit-backface-visibility: hidden; /* Safari */
   backface-visibility: hidden;
 }
 
 .card-front {
+	text-align: center;
+	display: flex;
+	flex-direction: column;
+}
+
+.card-front .machinery {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+}
+
+.card-front .machinery > .button:last-child {
+	margin-top: auto;
 }
 
 .card-back {
@@ -330,7 +381,7 @@ body {
 
 .submachine .name {
 	font-weight: 900;
-	margin-bottom: 5px;
+	margin-bottom: 1px;
 }
 
 .submachine .collapse {
@@ -360,7 +411,7 @@ body {
 
 .submachine .settings:after {
 	font-family: 'Material Symbols Outlined';
-	content: '\e8b8';
+	content: '\e88e';
 
 	font-variation-settings:
 	'FILL' 0,
@@ -391,17 +442,17 @@ body {
 }
 
 .submachine.collapsed {
-	width: 40px;
-	min-width: 40px;
-	height: 130px;
+	width: 40px !important;
+	min-width: 40px !important;
+	height: 145px;
 	cursor: pointer;
 	position: relative;
 }
 
 .submachine.collapsed .card-front,
 .submachine.collapsed .card-back {
-	width: 40px;
-	min-width: 40px;
+	width: 40px !important;
+	min-width: 40px !important;
 }
 
 .submachine.collapsed .machinery > * {
@@ -490,9 +541,11 @@ body {
 	color: #ccc;
 }
 
+
 .rate {
 	color: #ccc;
 }
+
 
 .counter {
 	float: right;
@@ -519,6 +572,7 @@ body {
 	border-radius: 2px;
 	margin: 5px auto;
 	box-sizing: border-box;
+	background-color: white;
 }
 
 .fuelDraw {
@@ -543,6 +597,10 @@ body {
 
 .strength .fuelDraw {
 	background-color: firebrick;
+}
+
+.distillery .fuelDraw {
+	background-color: dodgerblue;
 }
 
 .clicker.on:after {
@@ -573,20 +631,135 @@ body {
 	color: #FFF;
 }
 
-.selector {
+.custom-select {
+	position: relative;
+	display: inline-block;
+	min-width: 70px;
+	max-width: 120px;
 	font-family: 'EB Garamond';
-	max-width: 70px;
+	cursor: pointer;
+	vertical-align: middle;
+}
+
+.custom-select.inline {
+	display: inline-block;
+}
+
+.custom-select .selected {
+	padding: 2px 16px 2px 4px;
+	border-bottom: 1px solid #999;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	position: relative;
+	font-weight: 700;
+	font-size: 14px;
+}
+
+.custom-select .selected.placeholder {
+	color: #aaa;
+	font-weight: 400;
+}
+
+.custom-select .selected::after {
+	content: '\25BE';
+	position: absolute;
+	right: 3px;
+	top: 50%;
+	transform: translateY(-50%);
+	font-size: 10px;
+	color: #999;
+}
+
+.selectors {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	white-space: nowrap;
+}
+
+.custom-select .options {
+	display: none;
+}
+
+.options.open {
+	display: block;
+	position: fixed;
+	top: auto;
+	min-width: 100px;
+	max-height: 150px;
+	overflow-y: auto;
+	background: white;
+	border: 1px solid black;
+	z-index: 2147483647;
+}
+
+.options .option {
+	padding: 3px 6px;
+	white-space: nowrap;
+	font-weight: 700;
+	font-size: 14px;
+	cursor: pointer;
+}
+
+.options .option:hover {
+	background: #eee;
 }
 
 #result {
 	font-weight: 700;
-	margin: 5px;
+	font-size: 14px;
+	margin: 3px 5px;
+}
+
+.oracle .selectors {
+	justify-content: center;
+}
+
+.oracle-result {
+	font-weight: 700;
+	font-size: 14px;
+	margin: 3px 5px;
+}
+
+.oracle-label {
+	font-weight: normal;
+	max-height: 120px;
+	overflow-y: auto;
+}
+
+.oracle-gauge {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: 0px 4px;
+	font-size: 10px;
+	padding: 0 10px;
+	margin-top: 0;
+}
+
+.oracle-gauge .gaugeDraw {
+	flex: 1;
+	min-width: 60%;
+	height: 6px;
+	margin: 0;
+	border-width: 1px;
+}
+
+.oracle-gauge .button.small {
+	padding: 0px 6px;
+	font-size: 10px;
+	margin: 0;
+}
+
+.oracle .fuelDraw {
+	background-color: navy;
 }
 
 #settingsButton {
 	width: 24px;
 	height: 24px;
-	float: right;
 	cursor: pointer;
 	font-family: 'Material Symbols Outlined';
 	font-size: 24px;
@@ -606,6 +779,159 @@ body {
 	content: '\e5cd';
 }
 
+#treeButton {
+	width: 24px;
+	height: 24px;
+	cursor: pointer;
+	font-family: 'Material Symbols Outlined';
+	font-size: 24px;
+
+	font-variation-settings:
+	'FILL' 0,
+	'wght' 200,
+	'GRAD' 0,
+	'opsz' 24
+}
+
+#treeButton.tree:after {
+	content: '\e0ad';
+}
+
+#treeButton.back:after {
+	content: '\e5cd';
+}
+
+#treePage {
+	position: relative;
+	width: 100%;
+	height: calc(100vh - 60px);
+	max-height: calc(100vh - 60px);
+	background: #F1F1F0;
+	border: 1px solid #333;
+	border-radius: 2px;
+	margin-top: 10px;
+	overflow: hidden;
+	box-sizing: border-box;
+}
+
+#treeCanvas {
+	width: 100%;
+	height: 100%;
+	display: block;
+}
+
+#treePanel {
+	display: none;
+	position: absolute;
+	bottom: 15px;
+	right: 15px;
+	width: 260px;
+	max-height: calc(100% - 30px);
+	overflow-y: auto;
+	background: rgba(250,251,250,0.95);
+	border: 1px solid #333;
+	border-radius: 2px;
+	padding: 14px 16px;
+	font-family: 'EB Garamond';
+	font-size: 13px;
+	color: #333;
+	z-index: 50;
+	line-height: 1.5;
+	box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+	pointer-events: none;
+}
+
+.panelType {
+	color: #bbb;
+	font-size: 10px;
+}
+
+.panelLabel {
+	color: #888;
+	font-size: 11px;
+}
+
+.panelHeader {
+	font-size: 15px;
+	font-weight: 700;
+	margin-bottom: 2px;
+}
+
+.panelCat {
+	font-size: 10px;
+	font-variant: small-caps;
+	color: #999;
+	margin-bottom: 10px;
+}
+
+.panelSection {
+	font-size: 10px;
+	font-variant: small-caps;
+	color: #aaa;
+	margin-top: 8px;
+	margin-bottom: 4px;
+	border-bottom: 1px solid #eee;
+}
+
+.panelItem {
+	padding: 2px 0;
+	font-size: 12px;
+}
+
+#treeLegend {
+	position: absolute;
+	bottom: 15px;
+	left: 15px;
+	background: rgba(250,251,250,0.92);
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 10px 14px;
+	font-family: 'EB Garamond';
+	font-size: 12px;
+	color: #555;
+}
+
+.legendTitle {
+	font-size: 10px;
+	font-variant: small-caps;
+	color: #aaa;
+	margin-bottom: 2px;
+}
+
+.legendItem {
+	margin: 3px 0;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.legendRect {
+	width: 16px;
+	height: 10px;
+	border-radius: 2px;
+	border: 1.5px solid;
+	display: inline-block;
+	flex-shrink: 0;
+}
+
+.legendLine {
+	width: 20px;
+	height: 2px;
+	display: inline-block;
+	flex-shrink: 0;
+}
+
+.legendLine.dashed {
+	background: repeating-linear-gradient(
+		to right,
+		currentColor 0px,
+		currentColor 4px,
+		transparent 4px,
+		transparent 7px
+	) !important;
+	height: 2px;
+}
+
 #settings {
 	box-sizing: border-box;
 	display: flex;
@@ -616,7 +942,7 @@ body {
 	width: 33.33%;
 	overflow-y: scroll;
 	margin-left: 10px;
-	height: calc(100vh - 200px - 70px);
+	height: calc(100vh - 215px - 70px);
 	position: relative;
 	display: flex;
 	flex-direction: column;
@@ -624,6 +950,120 @@ body {
 
 #settings .box:first-child {
 	margin-left: 0px;
+}
+
+.abstraction-letter {
+	display: inline-block;
+	color: magenta;
+	animation: abstractionColor 1s infinite;
+	font-weight: 700;
+}
+
+@keyframes abstractionColor {
+	0%, 80% {
+		color: magenta;
+	}
+	85%, 95% {
+		color: cyan;
+	}
+	100% {
+		color: magenta;
+	}
+}
+
+
+body.no-animations *,
+body.no-animations *::before,
+body.no-animations *::after {
+	animation-duration: 0s !important;
+	transition-duration: 0s !important;
+}
+
+body.no-animations .fuelDraw {
+	transition: none !important;
+}
+
+#settingspanel .setting {
+	margin-bottom: 8px;
+}
+
+#settingspanel select {
+	font-family: 'EB Garamond';
+	font-size: 13px;
+}
+
+#settingspanel label {
+	cursor: pointer;
+	font-size: 14px;
+}
+
+#wipeSave {
+	border-color: firebrick;
+	color: firebrick;
+}
+
+.dialog-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0, 0, 0, 0.3);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 2000;
+}
+
+.dialog-box {
+	background: #FAFBFA;
+	border: 1px solid #333;
+	border-radius: 2px;
+	padding: 20px 24px;
+	max-width: 340px;
+	font-family: 'EB Garamond';
+	font-size: 15px;
+	color: #333;
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.dialog-message {
+	margin-bottom: 16px;
+	line-height: 1.5;
+}
+
+.dialog-buttons {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+}
+
+.dialog-cancel {
+	border-color: #ccc;
+	color: #888;
+}
+
+.dialog-confirm {
+	border-color: #333;
+}
+
+#importExportArea {
+	width: 100%;
+	font-family: monospace;
+	font-size: 11px;
+	resize: vertical;
+	box-sizing: border-box;
+	border: 1px solid #ccc;
+	border-radius: 2px;
+	padding: 5px;
+}
+
+#stats .stat {
+	margin-bottom: 5px;
+}
+
+#stats .stat .counter {
+	float: right;
 }
 
 #settings #credits .content {
@@ -644,4 +1084,819 @@ body {
 	display: inline;
 	width: 100px;
 	margin-top: 20px;
+}
+
+
+#finalMachines {
+	display: flex;
+	gap: 10px;
+	width: 100%;
+	position: relative;
+}
+
+#particleCanvas {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	pointer-events: none;
+	z-index: 10;
+}
+
+.finalMachine {
+	flex: 1;
+	display: none;
+}
+
+.finalMachine.fm-done {
+	pointer-events: none;
+}
+
+.finalMachine.fm-done .fm-gauge-side,
+.finalMachine.fm-done .fm-bottom-gauge,
+.finalMachine.fm-done .fm-triangle-content,
+.finalMachine.fm-done .fm-triangle-btn {
+	display: none;
+}
+
+.finalMachine.fm-done .fm-gauge-circle-side .fm-gauge-label,
+.finalMachine.fm-done .fm-gauge-circle-side .fm-gauge-name,
+.finalMachine.fm-done .fm-gauge-circle-side .button {
+	display: none;
+}
+
+.finalMachine.fm-done .fm-triangle-shape {
+	fill: transparent;
+}
+
+.finalMachine.fm-done .fm-circle-gauge {
+	background: transparent;
+}
+
+.finalMachine .header {
+	justify-content: center;
+	border-bottom: none;
+	padding-bottom: 0;
+	margin-bottom: 5px;
+	position: relative;
+	z-index: 1;
+}
+
+.has-final-machines #wrapper .box {
+	height: calc(100vh - 215px - 70px - 440px);
+}
+
+#finalMachines .box {
+	height: 420px;
+	overflow: hidden;
+	margin-top: 0;
+	position: relative;
+}
+
+#enminder.box { background-color: #eef0fa; }
+#slab.box, #altar.box { background-color: #eefaef; }
+#ensouler.box { background-color: #faeeee; }
+
+.finalMachine .content {
+	height: calc(100% - 35px);
+}
+
+.fm-layout {
+	display: flex;
+	align-items: center;
+	height: 100%;
+	gap: 10px;
+	padding: 0 50px;
+	box-sizing: border-box;
+}
+
+#enminder .fm-layout {
+	padding-left: 50px;
+	padding-right: 15px;
+}
+
+#enminder .fm-center {
+	margin-left: -60px;
+}
+
+#ensouler .fm-layout {
+	padding-left: 15px;
+	padding-right: 50px;
+}
+
+#altar .fm-layout {
+	padding-left: 15px;
+	padding-right: 15px;
+}
+
+#ensouler .fm-center {
+	margin-right: -60px;
+}
+
+
+.fm-gauge-side {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 30px;
+	padding: 10px 0;
+	box-sizing: border-box;
+}
+
+.fm-gauge-side:first-child,
+.fm-gauge-circle-side:first-child {
+	left: 15px;
+}
+
+.fm-gauge-side:last-child,
+.fm-gauge-circle-side:last-child {
+	right: 15px;
+}
+
+.fm-gauge-circle-side {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 80px;
+	min-width: 80px;
+	height: 90px;
+}
+
+.fm-gauge-circle-side .fm-gauge-label,
+.fm-gauge-circle-side .fm-gauge-name,
+.fm-gauge-circle-side .button {
+	position: absolute;
+	left: 50%;
+	transform: translateX(-50%);
+	white-space: nowrap;
+}
+
+.fm-gauge-circle-side .fm-gauge-label {
+	top: calc(100% + 4px);
+}
+
+.fm-gauge-circle-side .fm-gauge-name {
+	top: calc(100% + 18px);
+}
+
+.fm-gauge-circle-side .button {
+	top: calc(100% + 34px);
+}
+
+.fm-circle-gauge {
+	width: 90px;
+	height: 90px;
+	min-width: 90px;
+	min-height: 90px;
+	border-radius: 50%;
+	border: 1.5px solid #333;
+	background: white;
+	box-sizing: border-box;
+	flex-shrink: 0;
+	overflow: hidden;
+	position: relative;
+	clip-path: circle(50%);
+}
+
+.fm-circle-fill {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 0%;
+	transition: height 1s;
+}
+
+.fm-circle-fill.empty::before,
+.fm-circle-fill.empty::after {
+	display: none;
+}
+
+.fm-circle-fill::before {
+	content: '';
+	position: absolute;
+	top: -10px;
+	left: -50%;
+	width: 200%;
+	height: 20px;
+	background: inherit;
+	border-radius: 43%;
+	animation: liquid-wave1 1.8s ease-in-out infinite;
+}
+
+.fm-circle-fill::after {
+	content: '';
+	position: absolute;
+	top: -8px;
+	left: -50%;
+	width: 200%;
+	height: 18px;
+	background: inherit;
+	border-radius: 38%;
+	opacity: 0.6;
+	animation: liquid-wave2 1.4s ease-in-out infinite;
+}
+
+@keyframes liquid-wave1 {
+	0% { transform: translateX(-10%) rotate(-2deg); }
+	50% { transform: translateX(25%) rotate(4deg); }
+	100% { transform: translateX(-10%) rotate(-2deg); }
+}
+
+@keyframes liquid-wave2 {
+	0% { transform: translateX(15%) rotate(3deg); }
+	50% { transform: translateX(-15%) rotate(-3deg); }
+	100% { transform: translateX(15%) rotate(3deg); }
+}
+
+.liquor-fill {
+	background-color: gold;
+}
+
+.mana-fill {
+	background-color: purple;
+}
+
+.fm-bottom-gauge {
+	position: absolute;
+	bottom: 15px;
+	left: 15px;
+	right: 15px;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 13px;
+}
+
+.fm-bottom-gauge.right {
+	flex-direction: row;
+}
+
+.fm-bottom-gauge.left {
+	flex-direction: row;
+}
+
+.fm-bottom-gauge-bar {
+	flex: 1;
+}
+
+.fm-bottom-gauge-bar .gaugeDraw {
+	width: 100%;
+	height: 10px;
+	margin: 0;
+}
+
+.fm-bottom-gauge.right .fuelDraw {
+	float: right;
+}
+
+.fm-bottom-gauge.left .fuelDraw {
+	float: left;
+}
+
+.fm-bottom-gauge-info {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	white-space: nowrap;
+}
+
+.fm-preserver-tube {
+	position: absolute;
+	top: 48px;
+	left: 120px;
+	width: 220px;
+	height: 6px;
+	background: white;
+	border: 1.5px solid black;
+	z-index: 0;
+	transform-origin: left center;
+	transform: rotate(48deg);
+	overflow: hidden;
+}
+
+.fm-tube-flow-fill {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 0%;
+	height: 100%;
+	background-color: sienna;
+}
+
+.fm-flesh-controls {
+	position: absolute;
+	bottom: 15px;
+	left: 15px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	font-size: 13px;
+}
+
+.fm-create-controls {
+	position: absolute;
+	top: 15px;
+	right: 15px;
+	z-index: 2;
+}
+
+.altar-stickman-canvas {
+	display: block;
+	width: 100%;
+}
+
+.altar-human-info {
+	position: absolute;
+	right: 130px;
+	top: 50%;
+	transform: translateY(-50%);
+	text-align: center;
+}
+
+.altar-human-name {
+	font-size: 22px;
+	font-weight: bold;
+	font-variant: small-caps;
+	margin-bottom: 10px;
+}
+
+.altar-human-modifiers {
+	font-size: 13px;
+	color: #666;
+	margin-bottom: 15px;
+}
+
+.fm-create-progress {
+	font-size: 36px;
+	font-weight: bold;
+	color: #333;
+}
+
+.fm-tank-gauge {
+	position: absolute;
+	top: 15px;
+	left: 45px;
+	display: flex;
+	flex-direction: column;
+	z-index: 2;
+	align-items: center;
+}
+
+.fm-tank {
+	width: 90px;
+	height: 55px;
+	border-radius: 12px;
+	border: 1.5px solid #333;
+	background: white;
+	overflow: hidden;
+	position: relative;
+}
+
+.fm-tank-fill {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 0%;
+	background-color: sienna;
+	transition: height 1s;
+}
+
+.fm-bowl-gauge {
+	position: absolute;
+	bottom: 15px;
+	right: 45px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+#dustParticles {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
+
+#dustParticles canvas {
+	width: 100% !important;
+	height: 100% !important;
+}
+
+
+.fm-bowl {
+	width: 80px;
+	height: 40px;
+	border-radius: 0 0 40px 40px;
+	border: 1.5px solid #333;
+	border-top: none;
+	background: white;
+	overflow: hidden;
+	position: relative;
+}
+
+
+.fm-bowl-gauge .fm-gauge-label,
+.fm-bowl-gauge .fm-gauge-name,
+.fm-tank-gauge .fm-gauge-label,
+.fm-tank-gauge .fm-gauge-name {
+	margin-top: 2px;
+	white-space: nowrap;
+}
+
+.fm-gauge-bar {
+	flex: 1;
+	width: 100%;
+	min-height: 0;
+}
+
+.fm-gauge-bar .gaugeDraw.vertical {
+	display: block;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	position: relative;
+}
+
+.fm-gauge-bar .gaugeDraw.vertical .fuelDraw {
+	display: block;
+	width: 100%;
+	height: 0%;
+	float: none;
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	transition: height 1s;
+}
+
+.fm-gauge-label {
+	font-size: 11px;
+	margin-top: 6px;
+	white-space: nowrap;
+}
+
+.fm-gauge-name {
+	font-size: 12px;
+	font-weight: bold;
+	margin-top: 2px;
+}
+
+.fm-gauge-side .button {
+	margin-top: 4px;
+}
+
+.fm-triangle-btn {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	z-index: 1;
+	white-space: nowrap;
+}
+
+.fm-triangle-btn.right {
+	right: -30px;
+	transform: translate(100%, -50%);
+}
+
+.fm-triangle-btn.left {
+	left: -30px;
+	transform: translate(-100%, -50%);
+}
+
+.fm-center {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	min-width: 0;
+}
+
+.fm-center > .button {
+	margin-top: 10px;
+}
+
+.fm-slot-side {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 60px;
+	min-width: 60px;
+	font-size: 12px;
+}
+
+.fm-connector {
+	flex: 1;
+	height: 12px;
+	background-color: white;
+	border: 1.5px solid black;
+	margin-left: -40px;
+	margin-right: -40px;
+	z-index: 0;
+	position: relative;
+	overflow: hidden;
+}
+
+.fm-connector-flow {
+	position: absolute;
+	top: 0;
+	width: 0%;
+	height: 100%;
+	transition: width 1s;
+}
+
+.mind-flow {
+	left: 0;
+}
+
+.soul-flow {
+	right: 0;
+}
+
+.fm-slot {
+	width: 50px;
+	height: 50px;
+	border-radius: 50%;
+	border: 1.5px solid #333;
+	background-color: white;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	font-size: 11px;
+	line-height: 1.2;
+	position: relative;
+	z-index: 1;
+}
+
+.fm-slot-label {
+	font-weight: bold;
+	font-size: 10px;
+}
+
+.fm-flesh-gauge {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	min-height: 0;
+	position: relative;
+	z-index: 1;
+	transform: translateY(20px) scale(1.2);
+}
+
+.fm-flesh-silhouette {
+	flex: 1;
+	width: 110px;
+	min-height: 0;
+}
+
+.fm-flesh-pedestal {
+	fill: #e8e8e8;
+	stroke: black;
+	stroke-width: 1.5;
+	vector-effect: non-scaling-stroke;
+}
+
+.fm-flesh-bg {
+	fill: white;
+}
+
+.fm-flesh-fill {
+	fill: #c4756b;
+}
+
+.fm-flesh-clip {
+	transition: y 1s, height 1s;
+}
+
+.fm-flesh-decay {
+	fill: #5a7a3a;
+}
+
+.fm-flesh-outline {
+	fill: none;
+	stroke: black;
+	vector-effect: non-scaling-stroke;
+	stroke-width: 1;
+}
+
+.fm-flesh-label {
+	font-size: 14px;
+	font-weight: bold;
+	margin-top: 4px;
+}
+
+.fm-triangle-wrap {
+	position: relative;
+	height: 220px;
+	aspect-ratio: 87 / 104;
+}
+
+.fm-triangle {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	height: 100%;
+	overflow: visible;
+}
+
+.fm-triangle-fill {
+	fill: #b8c4e0;
+}
+
+#ensouler .fm-triangle-fill {
+	fill: #e0b8b8;
+}
+
+.fm-triangle-shape {
+	fill: #e8e0d8;
+	stroke: #333;
+	stroke-width: 1.5;
+	vector-effect: non-scaling-stroke;
+}
+
+.fm-triangle-content {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	z-index: 1;
+}
+
+.fm-triangle.right ~ .fm-triangle-content {
+	left: 38%;
+}
+
+.fm-triangle.left ~ .fm-triangle-content {
+	left: 62%;
+}
+
+.fm-section {
+	margin-bottom: 8px;
+	width: 100%;
+	text-align: center;
+}
+
+.fm-label {
+	font-size: 13px;
+	margin-bottom: 4px;
+}
+
+.enminder-fuel {
+	background-color: purple;
+}
+
+.enminder-lightning {
+	background-color: yellow;
+}
+
+.ensouler-fuel {
+	background-color: gold;
+}
+
+.ensouler-life {
+	background-color: limegreen;
+}
+
+.altar-fuel {
+	background-color: sienna;
+}
+
+.altar-dust {
+	background-color: tan;
+}
+
+.distillery-gauge {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: 0px 4px;
+	font-size: 10px;
+	margin-top: 0;
+}
+
+.distillery-gauge .gaugeDraw {
+	flex: 1;
+	min-width: 60%;
+	height: 6px;
+	margin: 0;
+	border-width: 1px;
+}
+
+.distillery-gauge .button.small {
+	padding: 0px 6px;
+	font-size: 10px;
+	margin: 0;
+	line-height: 1;
+	height: auto;
+}
+
+.alchemy-dust-gauge {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: 0px 4px;
+	font-size: 10px;
+	margin-top: 0;
+}
+
+.alchemy-dust-gauge .gaugeDraw {
+	flex: 1;
+	min-width: 60%;
+	height: 6px;
+	margin: 0;
+	border-width: 1px;
+}
+
+.alchemy-dust-gauge .button.small {
+	padding: 0px 6px;
+	font-size: 10px;
+	margin: 0;
+	line-height: 1;
+	height: auto;
+}
+
+.alchemy-dust-gauge.mentalize .fuelDraw { background-color: navy; }
+.alchemy-dust-gauge.pulverize .fuelDraw { background-color: DimGray; }
+.alchemy-dust-gauge.purify .fuelDraw { background-color: Goldenrod; }
+.alchemy-dust-gauge.alchemize .fuelDraw { background-color: rgb(2, 35, 14); }
+
+.submachine.forge {
+	width: 360px;
+	min-width: 360px;
+}
+
+.submachine.forge .card-front,
+.submachine.forge .card-back {
+	width: 340px;
+}
+
+.submachine.forge .custom-select {
+	flex: 1;
+	min-width: 0;
+	max-width: none;
+}
+
+.distill-pct {
+	font-size: 11px;
+	color: #999;
+}
+
+.selector.disabled,
+.button.disabled {
+	opacity: 0.4;
+	pointer-events: none;
+}
+
+#humansButton {
+	width: 24px;
+	height: 24px;
+	cursor: pointer;
+	font-family: 'Material Symbols Outlined';
+	font-size: 24px;
+
+	font-variation-settings:
+	'FILL' 0,
+	'wght' 200,
+	'GRAD' 0,
+	'opsz' 24
+}
+
+#humansButton.humansIcon:after {
+	content: '\e84e';
+}
+
+#humansButton.back:after {
+	content: '\e5cd';
+}
+
+#humansPage {
+	position: relative;
+	width: 100%;
+	height: calc(100vh - 60px);
+	max-height: calc(100vh - 60px);
+	background: #FAFBFA;
+	border: 1px solid #333;
+	border-radius: 2px;
+	margin-top: 10px;
+	overflow: hidden;
+	box-sizing: border-box;
+}
+
+#humansCanvas {
+	width: 100%;
+	height: 100%;
+	display: block;
 }

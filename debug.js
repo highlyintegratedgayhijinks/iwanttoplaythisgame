@@ -5,6 +5,13 @@ function earn(){
 			type[id] = type[id] + 1500;
 		});
 	});
+	// Ensure all liquids are earned too
+	$.each(items, function(id, item){
+		if(item.liquid){
+			if(!liquids[id]) liquids[id] = 0;
+			liquids[id] += 1500;
+		}
+	});
 	buildAllItems();
 }
 
@@ -47,7 +54,30 @@ $(document).bind('keydown', function (event) {
 		$.each(buyables, function(id){
 			buyableStatus[id] = "unlocked";
 		});
+		// Unlock all item types (ideas, things, dusts)
+		$.each(itemUnlock, function(type){
+			$.each(itemUnlock[type], function(id){
+				itemUnlock[type][id] = "unlocked";
+			});
+		});
+		// Give some of every pure idea, thing, dust, and liquid
+		$.each(items, function(id, item){
+			if (item.idea && item.type === "pure") ideas[id] = (ideas[id] || 0) + 100;
+			if (item.thing && item.type === "pure") things[id] = (things[id] || 0) + 100;
+			if (item.dust && item.type === "impure") dusts[id] = (dusts[id] || 0) + 100;
+			if (item.liquid && item.type === "pure") liquids[id] = (liquids[id] || 0) + 100;
+		});
+		// Mark all facts seen
+		if (typeof seenFacts !== "undefined") {
+			$.each(actions, function(id){ seenFacts[id] = true; });
+		}
+		// Unlock all machines
+		$.each(machineStatus, function(id){
+			machineStatus[id] = "unlocked";
+		});
 		unlock();
+		buildAllItems();
+		updateLocalStorage();
 	}
 });
 

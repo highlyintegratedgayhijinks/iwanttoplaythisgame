@@ -61,7 +61,8 @@
 	color: OliveDrab;
 }
 
-.shadow {
+.shadow,
+.shadow .counter {
 	color: transparent;
 	text-shadow: 0 0 1.5px rgba(10,10,10,1);
 }
@@ -114,7 +115,8 @@
 	color: rgb(81, 20, 105)
 }
 
-.entropy .name {
+.entropy .name,
+.entropy .counter {
 	background: linear-gradient(to right, rgb(81, 20, 105), transparent);
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
@@ -129,7 +131,11 @@
 }
 
 #pure .name,
-#pure .counter {
+#pure .counter,
+#artifact .name,
+#artifact .counter,
+#liquids .name,
+#liquids .counter {
 	font-weight: 900;
 }
 
@@ -221,6 +227,350 @@
 
 .awe {
 	background: linear-gradient(Blue, DodgerBlue);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+
+.dream {
+	background: linear-gradient(90deg,
+		rgba(173, 216, 255, 0.8),
+		rgba(200, 170, 255, 0.7),
+		rgba(255, 180, 220, 0.6),
+		rgba(180, 255, 230, 0.7),
+		rgba(173, 216, 255, 0.8)
+	);
+	background-size: 300% 100%;
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	animation: dream-shift 4s ease-in-out infinite;
+}
+
+@keyframes dream-shift {
+	0% { background-position: 0% 50%; }
+	50% { background-position: 100% 50%; }
+	100% { background-position: 0% 50%; }
+}
+
+.spark-container {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	pointer-events: none;
+	overflow: visible;
+}
+
+.spark-particle {
+	position: absolute;
+	border-radius: 50%;
+	animation: spark-flare 0.6s ease-out forwards;
+	box-shadow: 0 0 3px 1px rgba(255, 200, 50, 0.8);
+}
+
+@keyframes spark-flare {
+	0% {
+		opacity: 1;
+		transform: scale(1);
+	}
+	50% {
+		opacity: 0.8;
+		transform: scale(1.5);
+	}
+	100% {
+		opacity: 0;
+		transform: scale(0) translateY(-4px);
+	}
+}
+
+.decay {
+	color: rgb(81, 20, 105);
+}
+
+.decay .name,
+.decay .counter,
+.decay.option,
+.decay.selected {
+	position: relative;
+	display: inline-block;
+}
+
+
+.decay .dust-canvas {
+	position: absolute;
+	top: 0;
+	left: 0;
+	pointer-events: none;
+}
+
+.magma .name,
+.magma .counter,
+.magma.option,
+.magma.selected,
+.magma#result,
+.magma#text {
+	background: linear-gradient(90deg,
+		#1a0000,
+		#8B0000,
+		#FF4500,
+		#FF8C00,
+		#FF4500,
+		#8B0000,
+		#1a0000
+	);
+	background-size: 300% 100%;
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	animation: magma-flow 4s ease-in-out infinite;
+}
+
+@keyframes magma-flow {
+	0% { background-position: 0% 50%; }
+	50% { background-position: 100% 50%; }
+	100% { background-position: 0% 50%; }
+}
+
+.fear {
+	color: #4B0082;
+	animation: fear-tremble 0.1s linear infinite;
+}
+
+@keyframes fear-tremble {
+	0%, 100% { transform: translate(0, 0); }
+	25% { transform: translate(-0.5px, 0.5px); }
+	50% { transform: translate(0.5px, -0.5px); }
+	75% { transform: translate(-0.5px, -0.5px); }
+}
+
+.light {
+	background: linear-gradient(90deg,
+		#ff6666,
+		#ffaa33,
+		#ffee44,
+		#44dd44,
+		#4499ff,
+		#9955ff,
+		#ff6666
+	);
+	background-size: 200% 100%;
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	animation: light-prismatic 6s linear infinite;
+}
+
+@keyframes light-prismatic {
+	0% { background-position: 0% 50%; }
+	100% { background-position: 200% 50%; }
+}
+
+/* Things */
+.steam { color: #B0C4DE; }
+.mud { color: #8B6914; }
+.storm { color: #4A6FA5; }
+.blood { color: #8B0000; }
+.marrow { color: #D2B48C; }
+.breath { color: #A8D8EA; }
+.flesh { color: #E8BEAC; }
+
+/* Ideas */
+.consciousness { color: #7B68EE; }
+.reason { color: #5F9EA0; }
+.imagination { color: #DA70D6; }
+.corruption { color: #556B2F; }
+.passion { color: #DC143C; }
+.innocence { color: #FFD700; }
+.devotion { color: #4169E1; }
+.grief { color: #696969; }
+.sacrifice { color: #800020; }
+
+/* Essences */
+.rationalMindEssence { color: #4682B4; }
+.creativeMindEssence { color: #FF6347; }
+.madMindEssence { color: #9932CC; }
+.braveSoulEssence { color: #B22222; }
+.lovingSoulEssence { color: #FF69B4; }
+.darkSoulEssence { color: #2F2F2F; }
+
+.separate { color: OliveDrab; }
+.abstraction { color: CadetBlue; }
+
+.life {
+	background: linear-gradient(CadetBlue, OliveDrab, MediumVioletRed);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+
+/* Liquids */
+.liquor {
+	background: linear-gradient(navy, OliveDrab);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+.mana {
+	background: linear-gradient(Goldenrod, rgb(2, 35, 14));
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+.preserver {
+	background: linear-gradient(forestgreen, rgb(84, 79, 72));
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+
+/* Tier 1 alchemized things */
+.crystal {
+	background: linear-gradient(gold, Sienna);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+.obsidian {
+	background: linear-gradient(#444, OrangeRed);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+.clay {
+	background: linear-gradient(MediumVioletRed, Sienna);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+.incense {
+	background: linear-gradient(DarkTurquoise, OrangeRed);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+.relic {
+	background: linear-gradient(rgb(81, 20, 105), Sienna);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+.stone {
+	background: linear-gradient(BlueViolet, Sienna);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+.wax {
+	background: linear-gradient(gold, OrangeRed);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+.lightning {
+	background: linear-gradient(OrangeRed, LightSkyBlue);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+.dust {
+	background: linear-gradient(Sienna, LightSkyBlue);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+
+/* Tier 2 alchemized things */
+.lens {
+	background: linear-gradient(DarkTurquoise, rgba(200, 170, 255, 0.8));
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+.vessel {
+	background: linear-gradient(rgb(81, 20, 105), gold);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+.monolith {
+	background: linear-gradient(BlueViolet, gold);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+
+/* New alchemized things/ideas */
+.ash {
+	background: linear-gradient(OrangeRed, #444);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+.resonance {
+	background: linear-gradient(LightSkyBlue, DarkTurquoise);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+.soil {
+	background: linear-gradient(Sienna, rgb(81, 20, 105));
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+.dew {
+	background: linear-gradient(DeepSkyBlue, gold);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+.splinter {
+	background: linear-gradient(Sienna, #444);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+.glyph {
+	background: linear-gradient(DarkTurquoise, MediumVioletRed);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+.halo {
+	background: linear-gradient(OrangeRed, gold);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+.mist {
+	background: linear-gradient(DeepSkyBlue, LightSkyBlue);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+.seed {
+	background: linear-gradient(Sienna, MediumVioletRed);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+
+/* Artifacts */
+.ember {
+	background: linear-gradient(OrangeRed, DarkTurquoise, #444);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+.echo {
+	background: linear-gradient(LightSkyBlue, rgba(200, 170, 255, 0.8), magenta);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+.root {
+	background: linear-gradient(Sienna, BlueViolet, OliveDrab);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+.tear {
+	background: linear-gradient(DeepSkyBlue, #696969, #FFD700);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+.shard {
+	background: linear-gradient(Sienna, #4B0082, gold);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+.sigil {
+	background: linear-gradient(DarkTurquoise, rgb(226, 14, 84), OrangeRed);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+.crown {
+	background: linear-gradient(OrangeRed, DarkTurquoise, Blue);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+.veil {
+	background: linear-gradient(DeepSkyBlue, DodgerBlue, #4A6FA5);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+.wreath {
+	background: linear-gradient(Sienna, OliveDrab, CadetBlue);
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
 }

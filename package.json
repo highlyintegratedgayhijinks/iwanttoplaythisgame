@@ -1,0 +1,25 @@
+{
+  "name": "iwanttoplaythisgame",
+  "version": "1.0.0",
+  "main": "data.js",
+  "scripts": {
+    "test": "npx playwright test --reporter=list",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/highlyintegratedgayhijinks/iwanttoplaythisgame.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/highlyintegratedgayhijinks/iwanttoplaythisgame/issues"
+  },
+  "homepage": "https://github.com/highlyintegratedgayhijinks/iwanttoplaythisgame#readme",
+  "description": "",
+  "devDependencies": {
+    "@playwright/test": "^1.59.1"
+  }
+}

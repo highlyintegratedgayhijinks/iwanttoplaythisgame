@@ -1,20 +1,8 @@
 const items = {
-	want: {
-		idea: "The idea of wanting to play this game",
-		thing: "The material reification of the idea of wanting to play this game",
-		dust: "Willing dust",
-		liquid: "Willing liquid",
-		machineCostA: [10, "ideas", "will"],
-		machineCostB: [25, "dusts", "want"],		
-		type: "impure",
-		purified: "will",
-		machine: "Heart Complex",
-	},
 	mentalize: {
 		idea: "The idea of mentalizing something",
 		thing: "The material reification of the idea of mentalizing",
 		dust: "Mental dust",
-		machine: "Mind machine",
 		machineCostA: [1000, "ideas", "recursion"],
 		machineCostB: [10, "dusts", "mentalize"],
 		type: "impure",
@@ -33,6 +21,16 @@ const items = {
 		purified: "primaMateria",
 		machine: "Matter Lab",
 		clicker: true,
+	},
+	want: {
+		idea: "The idea of wanting to play this game",
+		thing: "The material reification of the idea of wanting to play this game",
+		dust: "Willing dust",
+		machineCostA: [10, "ideas", "will"],
+		machineCostB: [25, "dusts", "want"],
+		type: "impure",
+		purified: "will",
+		machine: "Heart Complex",
 	},
 	pulverize: {
 		idea: "The idea of pulverizing something",
@@ -293,9 +291,336 @@ const items = {
 		type: "pure",
 		subtype: "alchemified"
 	},
+	steam: {
+		thing: "Steam",
+		ingredients: ["water", "fire"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	mud: {
+		thing: "Mud",
+		ingredients: ["water", "earth"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	storm: {
+		thing: "Storm",
+		ingredients: ["water", "air"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	blood: {
+		thing: "Blood",
+		ingredients: ["storm", "light"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	marrow: {
+		thing: "Marrow",
+		ingredients: ["mud", "magma"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	breath: {
+		thing: "Breath",
+		ingredients: ["steam", "storm"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	flesh: {
+		thing: "Flesh",
+		ingredients: ["blood", "marrow", "breath"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	consciousness: {
+		idea: "Consciousness",
+		ingredients: ["spark", "idea"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	reason: {
+		idea: "Reason",
+		ingredients: ["philosophy", "problemSolving"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	imagination: {
+		idea: "Imagination",
+		ingredients: ["dream", "madness"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	corruption: {
+		idea: "Corruption",
+		ingredients: ["evil", "decay"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	passion: {
+		idea: "Passion",
+		ingredients: ["fortitude", "spark"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	innocence: {
+		idea: "Innocence",
+		ingredients: ["faith", "light"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	devotion: {
+		idea: "Devotion",
+		ingredients: ["loyalty", "awe"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	grief: {
+		idea: "Grief",
+		ingredients: ["fear", "death"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	sacrifice: {
+		idea: "Sacrifice",
+		ingredients: ["faith", "death"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	rationalMindEssence: {
+		idea: "Rational Mind Essence",
+		ingredients: ["consciousness", "reason", "light"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	creativeMindEssence: {
+		idea: "Creative Mind Essence",
+		ingredients: ["consciousness", "imagination", "fire"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	madMindEssence: {
+		idea: "Mad Mind Essence",
+		ingredients: ["consciousness", "corruption", "storm"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	braveSoulEssence: {
+		idea: "Brave Soul Essence",
+		ingredients: ["passion", "sacrifice", "magma"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	lovingSoulEssence: {
+		idea: "Loving Soul Essence",
+		ingredients: ["devotion", "innocence", "air"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	darkSoulEssence: {
+		idea: "Dark Soul Essence",
+		ingredients: ["corruption", "grief", "void"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	life: {
+		idea: "Life",
+		ingredients: ["creation", "divinity", "destruction"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	liquor: {
+		liquid: "Liquor",
+		type: "pure",
+		distilled: true,
+		ingredients: ["mentalize", "separate"],
+	},
+	mana: {
+		liquid: "Mana",
+		type: "pure",
+		distilled: true,
+		ingredients: ["purify", "alchemize"],
+	},
+	preserver: {
+		liquid: "Preserver",
+		type: "pure",
+		distilled: true,
+		ingredients: ["reify", "destroy"],
+	},
+	crystal: {
+		thing: "Crystal",
+		ingredients: ["purity", "earth"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	obsidian: {
+		thing: "Obsidian",
+		ingredients: ["shadow", "fire"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	clay: {
+		thing: "Clay",
+		ingredients: ["will", "earth"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	incense: {
+		thing: "Incense",
+		ingredients: ["thought", "fire"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	relic: {
+		thing: "Relic",
+		ingredients: ["entropy", "earth"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	stone: {
+		thing: "Stone",
+		ingredients: ["strength", "earth"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	wax: {
+		thing: "Wax",
+		ingredients: ["purity", "fire"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	lightning: {
+		thing: "Lightning",
+		ingredients: ["fire", "air"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	dust: {
+		thing: "Dust",
+		ingredients: ["earth", "air"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	lens: {
+		thing: "Lens",
+		ingredients: ["incense", "dream"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	vessel: {
+		thing: "Vessel",
+		ingredients: ["relic", "light"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	monolith: {
+		thing: "Monolith",
+		ingredients: ["stone", "wax"],
+		type: "pure",
+		subtype: "alchemified"
+	},
 	luck: {
 		idea: "Luck",
 		type: "pure",
+	},
+	ash: {
+		thing: "Ash",
+		ingredients: ["fire", "shadow"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	resonance: {
+		idea: "Resonance",
+		ingredients: ["air", "thought"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	soil: {
+		thing: "Soil",
+		ingredients: ["earth", "entropy"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	dew: {
+		thing: "Dew",
+		ingredients: ["water", "purity"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	splinter: {
+		thing: "Splinter",
+		ingredients: ["earth", "shadow"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	glyph: {
+		thing: "Glyph",
+		ingredients: ["thought", "will"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	halo: {
+		thing: "Halo",
+		ingredients: ["fire", "purity"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	mist: {
+		thing: "Mist",
+		ingredients: ["water", "air"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	seed: {
+		thing: "Seed",
+		ingredients: ["earth", "will"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	ember: {
+		thing: "Ember",
+		ingredients: ["ash", "spark", "thought"],
+		type: "artifact"
+	},
+	echo: {
+		thing: "Echo",
+		ingredients: ["resonance", "dream", "recursion"],
+		type: "artifact"
+	},
+	root: {
+		thing: "Root",
+		ingredients: ["soil", "loyalty", "faith"],
+		type: "artifact"
+	},
+	tear: {
+		thing: "Tear",
+		ingredients: ["dew", "grief", "innocence"],
+		type: "artifact"
+	},
+	shard: {
+		thing: "Shard",
+		ingredients: ["splinter", "fear", "crystal"],
+		type: "artifact"
+	},
+	sigil: {
+		thing: "Sigil",
+		ingredients: ["glyph", "evil", "obsidian"],
+		type: "artifact"
+	},
+	crown: {
+		thing: "Crown",
+		ingredients: ["halo", "philosophy", "awe"],
+		type: "artifact"
+	},
+	veil: {
+		thing: "Veil",
+		ingredients: ["mist", "madness", "storm"],
+		type: "artifact"
+	},
+	wreath: {
+		thing: "Wreath",
+		ingredients: ["seed", "creation", "mud"],
+		type: "artifact"
 	}
 }
 const actions = {
@@ -537,6 +862,14 @@ const buyables = {
 		machine: "mentalize",
 		unlocks: "alcheminder",
 	},
+	oracleUnlock: {
+		name: "Unlock Athenaeum",
+		class: "unlock",
+		subclass: "submachine",
+		cost: [25, "ideas", "idea"],
+		machine: "mentalize",
+		unlocks: "oracle",
+	},
 	alchematterUnlock: {
 		name: "Unlock Alchematter",
 		class: "unlock",
@@ -577,14 +910,70 @@ const buyables = {
 		machine: "reify",
 		unlocks: "destructor",
 	},
-	empowererUnlock: {
-		name: "Unlock Empowerer",
+	distilleryUnlock: {
+		name: "Unlock Distillery",
 		class: "unlock",
 		subclass: "submachine",
-		cost: [100, "ideas", "fortitude"],
+		cost: [100, "ideas", "problemSolving"],
+		machine: "reify",
+		unlocks: "distillery",
+	},
+	mindForgeUnlock: {
+		name: "Unlock Mind Forge",
+		class: "unlock",
+		subclass: "submachine",
+		cost: [10, "things", "crystal"],
 		machine: "mentalize",
-		unlocks: "empowerer",
-	}			
+		unlocks: "mindForge",
+	},
+	soulForgeUnlock: {
+		name: "Unlock Soul Forge",
+		class: "unlock",
+		subclass: "submachine",
+		cost: [10, "things", "obsidian"],
+		machine: "want",
+		unlocks: "soulForge",
+	},
+	fleshForgeUnlock: {
+		name: "Unlock Flesh Forge",
+		class: "unlock",
+		subclass: "submachine",
+		cost: [10, "things", "clay"],
+		machine: "reify",
+		unlocks: "fleshForge",
+	},
+	lifeForgeUnlock: {
+		name: "Unlock Life Forge",
+		class: "unlock",
+		subclass: "submachine",
+		cost: [10, "things", "obsidian"],
+		machine: "want",
+		unlocks: "lifeForge",
+	},
+	enminderUnlock: {
+		name: "Unlock Enminder",
+		class: "unlock",
+		subclass: "finalMachine",
+		cost: [10, "things", "lens"],
+		machine: "mentalize",
+		unlocks: "enminder",
+	},
+	ensoulerUnlock: {
+		name: "Unlock Ensouler",
+		class: "unlock",
+		subclass: "finalMachine",
+		cost: [10, "things", "vessel"],
+		machine: "want",
+		unlocks: "ensouler",
+	},
+	altarUnlock: {
+		name: "Unlock Altar",
+		class: "unlock",
+		subclass: "finalMachine",
+		cost: [10, "things", "monolith"],
+		machine: "reify",
+		unlocks: "altar",
+	},
 }
 
 const subMachines = {
@@ -624,7 +1013,13 @@ const subMachines = {
 		name: "Alcheminder",
 		desc: "Alchemize ideas.",
 		machine: "mentalize",
-		class: "alchemy"	
+		class: "alchemy"
+	},
+	oracle: {
+		name: "Athenaeum",
+		desc: "Study an element to learn what it pairs with.",
+		machine: "mentalize",
+		class: "oracle"
 	},
 	alchematter: {
 		name: "Alchematter",
@@ -634,7 +1029,7 @@ const subMachines = {
 	},
 	alchemizer: {
 		name: "Alchemizer",
-		desc: "Alchemize ideas and things.",
+		desc: "Combine an idea with a thing.",
 		machine: "want",
 		class: "alchemy"	
 	},
@@ -654,13 +1049,37 @@ const subMachines = {
 		name: "Destructor",
 		desc: "Destroy anything.",
 		machine: "reify",
-		class: "destructor"	
+		class: "destructor"
 	},
-	empowerer: {
-		name: "Empowerer",
-		desc: "Empower stuff.",
+	distillery: {
+		name: "Distillery",
+		desc: "Distill dusts into liquids using water.",
+		machine: "reify",
+		class: "distillery"
+	},
+	mindForge: {
+		name: "Mind Forge",
+		desc: "Forge Mind Essences from tier 2 ideas.",
 		machine: "mentalize",
-		class: ""	
+		class: "forge"
+	},
+	soulForge: {
+		name: "Soul Forge",
+		desc: "Forge Soul Essences from tier 2 ideas.",
+		machine: "want",
+		class: "forge"
+	},
+	fleshForge: {
+		name: "Flesh Forge",
+		desc: "Forge Flesh from tier 2 materials.",
+		machine: "reify",
+		class: "forge"
+	},
+	lifeForge: {
+		name: "Life Forge",
+		desc: "Create Life from creation, divinity and destruction.",
+		machine: "want",
+		class: "forge"
 	},
 }
 
