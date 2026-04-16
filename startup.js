@@ -1,5 +1,9 @@
 // VARIABLES //
 
+var prestigeState = null;
+var maxButtonUses = 0;
+var modifierIntervals = {};
+
 function startVar(){
 	$.each(itemCounter, function(type, types){
 		$.each(items, function(id, item){
@@ -85,6 +89,10 @@ function startVar(){
 	oracleGaugeSize = 25;
 	consultingActive = null;
 
+	theOracleGauge = { dream: 0 };
+	theOracleGaugeSize = 100;
+	divinedRiddles = {};
+
 	alchemyDustGauge = { mentalize: 0, pulverize: 0, purify: 0, alchemize: 0 };
 	alchemyDustGaugeSize = 100;
 
@@ -97,8 +105,44 @@ function startVar(){
 	humanCreated = null;
 	humansUnlocked = [];
 
+	altarArtifact = null;
+
+	atelierFuel = { imagination: 0 };
+	chapelFuel = { blessedOil: 0 };
+	abyssFuel = { evil: 0 };
+
+	writerGauge = { ink: 0 };
+	writerGaugeSize = 25;
+	writingActive = null;
+
+	learnerGauge = { separate: 0 };
+	learnerGaugeSize = 25;
+	learningActive = null;
+	bookProgress = {};
+
 	logCount = 0;
 	logEntries = [];
+
+	// Prestige state (persists across resets)
+	if (!prestigeState) {
+		prestigeState = {
+			runNumber: 1,
+			createdHumans: [],
+			craftedArtifacts: [],
+			activeModifiers: [],
+			prestigeResources: {
+				clarity: 0, courage: 0, leather: 0, elixir: 0,
+				canvas: 0, paint: 0, masterpiece: 0,
+				blessedOil: 0, spirit: 0,
+				gold: 0, beads: 0,
+				goo: 0, failure: 0, sin: 0
+			}
+		};
+	}
+
+	// Modifier runtime state
+	maxButtonUses = 0;
+	modifierIntervals = {};
 
 	state = {
 		logCount: logCount,
@@ -119,6 +163,8 @@ function startVar(){
 		logEntries: logEntries,
 		distilleryGauge: distilleryGauge,
 		oracleGauge: oracleGauge,
+		theOracleGauge: theOracleGauge,
+		divinedRiddles: divinedRiddles,
 		alchemyDustGauge: alchemyDustGauge,
 		finalMachineStatus: finalMachineStatus,
 		altarFuel: altarFuel,
@@ -128,7 +174,14 @@ function startVar(){
 		ensouledSoul: ensouledSoul,
 		humanCreated: humanCreated,
 		humansUnlocked: humansUnlocked,
-		seenNames: seenNames
+		altarArtifact: altarArtifact,
+		seenNames: seenNames,
+		atelierFuel: atelierFuel,
+		chapelFuel: chapelFuel,
+		abyssFuel: abyssFuel,
+		writerGauge: writerGauge,
+		learnerGauge: learnerGauge,
+		bookProgress: bookProgress
 	}
 }
 
@@ -154,6 +207,8 @@ function updateState(){
 	seenNames = state.seenNames || {};
 	distilleryGauge = state.distilleryGauge || { water: 0 };
 	oracleGauge = state.oracleGauge || { mentalize: 0 };
+	theOracleGauge = state.theOracleGauge || { dream: 0 };
+	divinedRiddles = state.divinedRiddles || {};
 	alchemyDustGauge = state.alchemyDustGauge || { mentalize: 0, pulverize: 0, purify: 0, alchemize: 0 };
 	finalMachineStatus = state.finalMachineStatus || {};
 	altarFuel = state.altarFuel || state.slabFuel || { preserver: 0, dust: 0 };
@@ -186,7 +241,14 @@ function updateState(){
 	ensouledSoul = state.ensouledSoul || null;
 	humanCreated = state.humanCreated || null;
 	humansUnlocked = state.humansUnlocked || [];
+	altarArtifact = state.altarArtifact || null;
 	liquids = state.liquids || {};
+	atelierFuel = state.atelierFuel || { imagination: 0 };
+	chapelFuel = state.chapelFuel || { blessedOil: 0 };
+	abyssFuel = state.abyssFuel || { evil: 0 };
+	writerGauge = state.writerGauge || { ink: 0 };
+	learnerGauge = state.learnerGauge || { separate: 0 };
+	bookProgress = state.bookProgress || {};
 }
 
 // LOCAL STORAGE //
@@ -202,9 +264,102 @@ function updateLocalStorage(){
 	state.ensouledSoul = ensouledSoul;
 	state.humanCreated = humanCreated;
 	state.humansUnlocked = humansUnlocked;
+	state.altarArtifact = altarArtifact;
 	state.seenNames = seenNames;
 	state.finalMachineStatus = finalMachineStatus;
+	state.atelierFuel = atelierFuel;
+	state.chapelFuel = chapelFuel;
+	state.abyssFuel = abyssFuel;
+	state.writerGauge = writerGauge;
+	state.learnerGauge = learnerGauge;
+	state.bookProgress = bookProgress;
 	localStorage.setItem('gameState', JSON.stringify(state));
+	savePrestigeState();
+}
+
+function savePrestigeState(){
+	// Sync current run's prestige resources into prestigeState
+	var pr = prestigeState.prestigeResources;
+	$.each(pr, function(key){
+		if (ideas[key] !== undefined) pr[key] = ideas[key];
+		else if (things[key] !== undefined) pr[key] = things[key];
+		else if (liquids[key] !== undefined) pr[key] = liquids[key];
+		else if (dusts[key] !== undefined) pr[key] = dusts[key];
+	});
+	localStorage.setItem('prestigeState', JSON.stringify(prestigeState));
+}
+
+function loadPrestigeState(){
+	var saved = localStorage.getItem('prestigeState');
+	if (saved) {
+		prestigeState = JSON.parse(saved);
+		// Ensure new keys exist
+		if (!prestigeState.prestigeResources) prestigeState.prestigeResources = {};
+		var defaults = {
+			clarity: 0, courage: 0, leather: 0, elixir: 0,
+			canvas: 0, paint: 0, masterpiece: 0,
+			blessedOil: 0, spirit: 0,
+			gold: 0, beads: 0,
+			goo: 0, failure: 0, sin: 0
+		};
+		$.each(defaults, function(key, val){
+			if (prestigeState.prestigeResources[key] === undefined)
+				prestigeState.prestigeResources[key] = val;
+		});
+		if (!prestigeState.createdHumans) prestigeState.createdHumans = [];
+		if (!prestigeState.craftedArtifacts) prestigeState.craftedArtifacts = [];
+		if (!prestigeState.activeModifiers) prestigeState.activeModifiers = [];
+		if (!prestigeState.runNumber) prestigeState.runNumber = 1;
+	}
+}
+
+function restorePrestigeResources(){
+	// Inject prestige resources from prestigeState into live game counters
+	var pr = prestigeState.prestigeResources;
+	$.each(pr, function(key, val){
+		if (items[key] && items[key].idea) ideas[key] = (ideas[key] || 0) + val;
+		else if (items[key] && items[key].thing) things[key] = (things[key] || 0) + val;
+		else if (items[key] && items[key].liquid) liquids[key] = (liquids[key] || 0) + val;
+		else if (items[key] && items[key].dust) dusts[key] = (dusts[key] || 0) + val;
+	});
+}
+
+function prestigeReset(){
+	// Save current Human to prestige state
+	if (humanCreated) {
+		var profile = getProfileForHuman();
+		if (profile && prestigeState.createdHumans.indexOf(profile.name) === -1) {
+			prestigeState.createdHumans.push(profile.name);
+			// Map human name to modifier key
+			var modMap = {
+				'The Commander': 'commander', 'The Hero': 'hero',
+				'The Berserker': 'berserker', 'The Healer': 'healer',
+				'The Artist': 'artist', 'The Saint': 'saint',
+				'The Tyrant': 'tyrant', 'The Trickster': 'trickster',
+				'The Demon': 'demon'
+			};
+			var modKey = modMap[profile.name];
+			if (modKey && prestigeState.activeModifiers.indexOf(modKey) === -1) {
+				prestigeState.activeModifiers.push(modKey);
+			}
+		}
+	}
+
+	prestigeState.runNumber++;
+	savePrestigeState();
+
+	// Clear run state — set flag to prevent unload handler from re-saving
+	prestigeResetting = true;
+	localStorage.removeItem('gameState');
+
+	// Clear modifier intervals
+	$.each(modifierIntervals, function(key, interval){
+		if (interval) clearInterval(interval);
+	});
+	modifierIntervals = {};
+
+	// Reload
+	location.reload();
 }
 
 function loadState(){
@@ -214,8 +369,10 @@ function loadState(){
 	};
 }
 
+var prestigeResetting = false;
+
 $( window ).on("unload", function() {
-	updateLocalStorage();
+	if (!prestigeResetting) updateLocalStorage();
 });
 
 // READY //
@@ -227,7 +384,15 @@ $( document ).ready(function() {
 function startup(){
 	loop();
 	startVar();
+	loadPrestigeState();
 	loadState();
+	// On prestige runs (2+), auto-show columns and machines
+	if (prestigeState && prestigeState.runNumber > 1 && !localStorage.getItem('gameState')) {
+		showStatus.log = "unlocked";
+		showStatus.ideas = "unlocked";
+		showStatus.things = "unlocked";
+		showStatus.machines = "unlocked";
+	}
 	show();
 	seedSeenNames();
 	buildMachines();
@@ -251,6 +416,12 @@ function startup(){
 	});
 	settings();
 	tree();
+	applyModifiers();
 	info();
 	updateBuyableAffordability();
+	// Spawn walkers and show humans button from prestige state
+	if (window._stickman && window._stickman.refreshWalkers) {
+		window._stickman.refreshWalkers();
+	}
+	if (typeof refreshHumansButton === 'function') refreshHumansButton();
 }

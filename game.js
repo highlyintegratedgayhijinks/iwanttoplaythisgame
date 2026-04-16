@@ -269,11 +269,7 @@ function buildSubMachines(){
 			$(`.subMachine#${sub} .machinery`).append(`
 				<div class="selectors"><div id="selector1" class="selector custom-select"><div class="selected">---</div><div class="options"></div></div> + <div id="selector2" class="selector custom-select"><div class="selected">---</div><div class="options"></div></div></div>
 				<div id="result">???</div>
-				<div class="alchemy-dust-gauge ${fixedDust}" data-dust-type="${fixedDust}">
-					<span class="dust-name ${fixedDust}">${items[fixedDust].dust}</span> <span class="fuel">${alchemyDustGauge[fixedDust]}</span>/<span class="gauge">${alchemyDustGaugeSize}</span>
-					<div class="gaugeDraw"><div class="fuelDraw"></div></div>
-					<div class="button addAlchemyDust small">+10</div>
-				</div>
+				<div class="oracle-gauge ${fixedDust}" data-dust-type="${fixedDust}"><span class="${fixedDust}">${items[fixedDust].dust}</span> <span class="fuel">${alchemyDustGauge[fixedDust]}</span>/<span class="gauge">${alchemyDustGaugeSize}</span> <div class="gaugeDraw"><div class="fuelDraw"></div></div> <div class="button addAlchemyDust small">+10</div></div>
 				<div id="alchemize" class="button"><span id="text">Can't Create</span></div>`);
 			updateAlchemyDustGauge(sub, fixedDust);
 			if(sub == "alchemizer"){
@@ -326,7 +322,7 @@ function buildSubMachines(){
 			$(`.subMachine#${sub} .machinery`).append(`
 			<div class="selectors"><div id="selector1" class="selector custom-select"><div class="selected">---</div><div class="options"></div></div> + <div id="selector2" class="selector custom-select"><div class="selected">---</div><div class="options"></div></div></div>
 			<div id="result">???</div>
-			<div class="distillery-gauge"><span class="water">W</span> <span class="fuel"></span>/<span class="gauge"></span> <div class="gaugeDraw"><div class="fuelDraw"></div></div> <div class="button addWater water small">+10</div></div>
+			<div class="oracle-gauge water"><span class="water">W</span> <span class="fuel"></span>/<span class="gauge"></span> <div class="gaugeDraw"><div class="fuelDraw"></div></div> <div class="button addWater water small">+10</div></div>
 			<div id="distill" class="button"><span id="text">Can't Distill</span></div>`);
 			populateSelector(`#${sub} #selector1`, "dust");
 			populateSelector(`#${sub} #selector2`, "dust");
@@ -432,11 +428,258 @@ function buildSubMachines(){
 				let selected = $(`#${sub} #selector`).data('value');
 				if(selected && canStudy(selected)) consult(selected);
 			});
+
+		} else if(subMachines[sub].class == "binder") {
+			$(`.subMachine#${sub} .machinery`).append(`
+				<div class="text">Bind <span class="paper">Paper</span> + <span class="leather">Leather</span> into a <span class="book">Book</span></div>
+				<div id="bind" class="button"><span id="text">Bind</span></div>`);
+
+			$(`#${sub} #bind`).on("click", function(){
+				bindBook();
+			});
+
+		} else if(subMachines[sub].class == "writer") {
+			$(`.subMachine#${sub} .machinery`).append(`
+				<div class="selectors">
+					<div id="writerBaseSelector" class="selector custom-select"><div class="selected">Paper or Book...</div><div class="options"></div></div> +
+					<div id="writerTopicSelector" class="selector custom-select"><div class="selected">Topic...</div><div class="options"></div></div>
+				</div>
+				<div id="writerResult">???</div>
+				<div class="oracle-gauge ink" data-dust-type="ink"><span class="ink">Ink</span> <span class="fuel">${writerGauge.ink}</span>/<span class="gauge">${writerGaugeSize}</span> <div class="gaugeDraw"><div class="fuelDraw"></div></div> <div class="button addWriterFuel small">+5</div></div>
+				<div id="writeBook" class="button"><span id="text">Can't Write</span></div>`);
+			populateSelector(`#${sub} #writerBaseSelector`, "writerBase");
+
+			updateWriterGauge();
+
+			var $topicSel = $(`#${sub} #writerTopicSelector`);
+			var writerTopics = [
+				{ value: "distillery", label: "Distillation", ingredient: "water" },
+				{ value: "mindForge", label: "Mind", ingredient: "thought" },
+				{ value: "soulForge", label: "Soul", ingredient: "will" },
+				{ value: "fleshForge", label: "Flesh", ingredient: "primaMateria" },
+				{ value: "artifacts", label: "Artifacts", ingredient: "matter" }
+			];
+			$.each(writerTopics, function(i, t){
+				$topicSel.find('.options').append('<div class="option" data-value="' + t.value + '">' + t.label + '</div>');
+			});
+			var $topicOpts = $topicSel.find('.options');
+			$topicOpts.data('parent', $topicSel);
+			$topicSel.find('.selected').on('click', function(e){
+				e.stopPropagation();
+				closeAllDropdowns();
+				var rect = this.getBoundingClientRect();
+				$topicOpts.detach().appendTo('body');
+				$topicOpts.css({ left: rect.left + 'px', bottom: (window.innerHeight - rect.top) + 'px' });
+				$topicOpts.addClass('open');
+				$topicSel.closest('.machine.box').addClass('dropdown-open');
+			});
+
+			$(`#${sub} .addWriterFuel`).on("click", function(){
+				if(writerGauge.ink + 5 <= writerGaugeSize && pay("things", "ink", 5)){
+					writerGauge.ink += 5;
+					updateWriterGauge();
+				}
+			});
+
+			$(`#${sub}`).on("customchange", ".selector", function() {
+				var baseId = $(`#${sub} #writerBaseSelector`).data('value');
+				var topic = $(`#${sub} #writerTopicSelector`).data('value');
+				if(baseId && topic){
+					var prefix = (baseId == "book") ? "Book" : "Scroll";
+					var topicLabel = writerTopics.find(function(t){ return t.value === topic; });
+					$(`#${sub} #writerResult`).html(prefix + " of " + topicLabel.label);
+					$(`#${sub} #writeBook #text`).html('Write');
+				} else {
+					$(`#${sub} #writerResult`).html("???");
+					$(`#${sub} #writeBook #text`).html("Can't Write");
+				}
+			});
+
+			$(`#${sub} #writeBook`).on("click", function(){
+				var baseId = $(`#${sub} #writerBaseSelector`).data('value');
+				var topic = $(`#${sub} #writerTopicSelector`).data('value');
+				if(baseId && topic) writeBook(baseId, topic);
+			});
+
+		} else if(subMachines[sub].class == "learner") {
+			$(`.subMachine#${sub} .machinery`).append(`
+				<div class="selectors text">Study <div id="learnerSelector" class="selector custom-select inline"><div class="selected">Book or Scroll...</div><div class="options"></div></div></div>
+				<div id="learnerResult" class="athenaeum-result">???</div>
+				<div class="oracle-gauge separate" data-dust-type="separate"><span class="separate">${items.separate.dust}</span> <span class="fuel">${learnerGauge.separate}</span>/<span class="gauge">${learnerGaugeSize}</span> <div class="gaugeDraw"><div class="fuelDraw"></div></div> <div class="button addLearnerFuel small">+5</div></div>
+				<div id="study" class="button"><span id="text">Can't Study</span></div>`);
+			populateSelector(`#${sub} #learnerSelector`, "writtenItem");
+
+			updateLearnerGauge();
+
+			$(`#${sub} .addLearnerFuel`).on("click", function(){
+				if(learnerGauge.separate + 5 <= learnerGaugeSize && pay("dusts", "separate", 5)){
+					learnerGauge.separate += 5;
+					updateLearnerGauge();
+				}
+			});
+
+			$(`#${sub}`).on("customchange", ".selector", function() {
+				var selected = $(`#${sub} #learnerSelector`).data('value');
+				$(`#${sub} #learnerResult`).html('???');
+				if(selected && canLearn(selected)){
+					$(`#${sub} #study #text`).html('Study');
+				} else {
+					$(`#${sub} #study #text`).html("Can't Study");
+				}
+			});
+
+			$(`#${sub} #study`).on("click", function(){
+				var selected = $(`#${sub} #learnerSelector`).data('value');
+				if(selected && canLearn(selected)) learnFromBook(selected);
+			});
+
+		} else if(subMachines[sub].class == "athenaeum") {
+			$(`.subMachine#${sub} .machinery`).append(`
+			<div class="selectors text">Study <div id="athenaeumSelector" class="selector custom-select inline"><div class="selected">---</div><div class="options"></div></div></div>
+			<div id="athenaeumResult" class="oracle-result">???</div>
+			<div class="oracle-gauge"><span class="mentalize">${items.mentalize.dust}</span> <span class="fuel">${oracleGauge.mentalize}</span>/<span class="gauge">${oracleGaugeSize}</span> <div class="gaugeDraw"><div class="fuelDraw"></div></div> <div class="button addAthenaeumFuel mentalize small">+5</div></div>
+			<div id="athenaeumStudy" class="button"><span id="text">Can't Study</span></div>`);
+			populateSelector(`#${sub} #athenaeumSelector`, "oracle");
+
+			updateAthenaeumGauge();
+
+			$(`#${sub} .addAthenaeumFuel`).on("click", function(){
+				if(oracleGauge.mentalize + 5 <= oracleGaugeSize && pay("dusts", "mentalize", 5)){
+					oracleGauge.mentalize += 5;
+					updateAthenaeumGauge();
+				}
+			});
+
+			$(`#${sub}`).on("customchange", ".selector", function() {
+				var selected = $(`#${sub} #athenaeumSelector`).data('value');
+				if(selected && canStudy(selected)){
+					$(`#${sub} #athenaeumStudy #text`).html('Study');
+				} else {
+					$(`#${sub} #athenaeumStudy #text`).html("Can't Study");
+				}
+			});
+
+			$(`#${sub} #athenaeumStudy`).on("click", function(){
+				var selected = $(`#${sub} #athenaeumSelector`).data('value');
+				if(selected && canStudy(selected)) consultAthenaeum(selected);
+			});
+
+		} else if(subMachines[sub].class == "articrafter") {
+			$(`.subMachine#${sub} .machinery`).append(`
+			<div class="selectors forge-selectors"><div id="selector1" class="selector custom-select"><div class="selected">---</div><div class="options"></div></div> + <div id="selector2" class="selector custom-select"><div class="selected">---</div><div class="options"></div></div> + <div id="selector3" class="selector custom-select"><div class="selected">---</div><div class="options"></div></div> + <div id="selector4" class="selector custom-select"><div class="selected">---</div><div class="options"></div></div></div>
+			<div id="result">???</div>
+			<div id="articraft" class="button"><span id="text">Can't Craft</span></div>`);
+			populateSelector(`#${sub} #selector1`, "artifactIngredient");
+			populateSelector(`#${sub} #selector2`, "artifactIngredient");
+			populateSelector(`#${sub} #selector3`, "artifactIngredient");
+			populateSelector(`#${sub} #selector4`, "artifactPrestige");
+
+			$(`#${sub}`).on("customchange", ".selector", function() {
+				var rec = artifactRecipe($(`#${sub} #selector1`).data('value'), $(`#${sub} #selector2`).data('value'), $(`#${sub} #selector3`).data('value'), $(`#${sub} #selector4`).data('value'));
+				if(rec){
+					var resultName = isNameKnown(rec) ? items[rec].thing : "Something...";
+					$(`#${sub} #result`).html(resultName).removeClass().addClass(rec);
+					$(`#${sub} #articraft #text`).html('Craft').removeClass().addClass(rec);
+				} else {
+					$(`#${sub} #result`).removeClass().html("???");
+					$(`#${sub} #articraft #text`).removeClass().html("Can't Craft");
+				}
+			});
+
+			$(`#${sub} #articraft`).on("click", function(){
+				var rec = artifactRecipe($(`#${sub} #selector1`).data('value'), $(`#${sub} #selector2`).data('value'), $(`#${sub} #selector3`).data('value'), $(`#${sub} #selector4`).data('value'));
+				if(rec) articraft(rec);
+			});
+
+		} else if(subMachines[sub].class == "atelier") {
+			$(`.subMachine#${sub} .machinery`).append(`
+			<div class="text"><span class="canvas">Canvas</span> + <span class="paint">Paint</span> → <span class="masterpiece">Masterpiece</span></div>
+			<div class="oracle-gauge imagination"><span class="imagination">Imagination</span> <span class="fuel">${atelierFuel.imagination}</span>/<span class="gauge">10</span> <div class="gaugeDraw"><div class="fuelDraw"></div></div> <div class="button addAtelierFuel small">+1</div></div>
+			<div id="atelierCraft" class="button"><span id="text">Can't Craft</span></div>`);
+
+			updateAtelierGauge();
+
+			$(`#${sub} .addAtelierFuel`).on("click", function(){
+				if(atelierFuel.imagination < 10 && pay("ideas", "imagination", 1)){
+					atelierFuel.imagination++;
+					updateAtelierGauge();
+				}
+			});
+
+			$(`#${sub} #atelierCraft`).on("click", function(){
+				atelierCraft();
+				updateAtelierGauge();
+			});
+
+		} else if(subMachines[sub].class == "chapel") {
+			$(`.subMachine#${sub} .machinery`).append(`
+			<div class="text"><span class="faith">Faith</span> + <span class="devotion">Devotion</span> → <span class="spirit">Spirit</span></div>
+			<div class="oracle-gauge blessedOil"><span class="blessedOil">Blessed Oil</span> <span class="fuel">${chapelFuel.blessedOil}</span>/<span class="gauge">10</span> <div class="gaugeDraw"><div class="fuelDraw"></div></div> <div class="button addChapelFuel small">+1</div></div>
+			<div id="chapelCraft" class="button"><span id="text">Can't Craft</span></div>`);
+
+			updateChapelGauge();
+
+			$(`#${sub} .addChapelFuel`).on("click", function(){
+				if(chapelFuel.blessedOil < 10 && pay("liquids", "blessedOil", 1)){
+					chapelFuel.blessedOil++;
+					updateChapelGauge();
+				}
+			});
+
+			$(`#${sub} #chapelCraft`).on("click", function(){
+				chapelCraft();
+				updateChapelGauge();
+			});
+
+		} else if(subMachines[sub].class == "abyss") {
+			$(`.subMachine#${sub} .machinery`).append(`
+			<div class="text"><span class="failAlchemize">Faildust</span> + <span class="goo">Goo</span> + <span class="failure">Failure</span> → <span class="sin">Sin</span></div>
+			<div class="oracle-gauge evil"><span class="evil">Evil</span> <span class="fuel">${abyssFuel.evil}</span>/<span class="gauge">10</span> <div class="gaugeDraw"><div class="fuelDraw"></div></div> <div class="button addAbyssFuel small">+1</div></div>
+			<div id="abyssCraft" class="button"><span id="text">Can't Craft</span></div>`);
+
+			updateAbyssGauge();
+
+			$(`#${sub} .addAbyssFuel`).on("click", function(){
+				if(abyssFuel.evil < 10 && pay("ideas", "evil", 1)){
+					abyssFuel.evil++;
+					updateAbyssGauge();
+				}
+			});
+
+			$(`#${sub} #abyssCraft`).on("click", function(){
+				abyssCraft();
+				updateAbyssGauge();
+			});
 		}
 });
 
+// Book modal handler
+$('#bookPageClose').on("click", function(){ $('#bookPageModal').hide(); });
+
+// Library button in header
+$('#headerButtons').prepend('<div id="libraryButton" class="libraryIcon" style="display:none"></div>');
+$('#libraryButton').on("click", function(){
+	if(libraryPageStatus === 'hidden') openLibrary();
+	else closeLibrary();
+});
+var hasBookProgress = false;
+$.each(bookProgress, function(k, v){ if(v > 0) hasBookProgress = true; });
+if(hasBookProgress) $('#libraryButton').show();
+
 $('.subMachine .collapse').click(function() {
 	$(this).parent().parent().parent().parent().toggleClass("collapsed");
+});
+$(document).on('click', '.fm-collapse', function(e) {
+	e.stopPropagation();
+	var $fm = $(this).closest('.finalMachine');
+	var id = $fm.attr('id');
+	if (id == 'enminder' && enmindingActive) return;
+	if (id == 'ensouler' && ensoulingActive) return;
+	if (id == 'altar' && creatingHuman) return;
+	$fm.toggleClass('fm-collapsed');
+});
+$(document).on('click', '.finalMachine.fm-collapsed', function() {
+	$(this).removeClass('fm-collapsed');
 });
 $('.machine.box').on('mouseenter', function() {
 	if (!$(this).hasClass('dropdown-open')) {
@@ -451,10 +694,10 @@ $( "#wrapper" ).on( "mouseover", function() {
 } );
 }
 
-function selectorPlaceholder(kind){
+function selectorPlaceholder(kind, category){
 	if(kind == "alcheminder") return "Idea...";
 	if(kind == "alchematter") return "Thing...";
-	if(kind == "alchemizer") return "Item...";
+	if(kind == "alchemizer") return category == "idea" ? "Idea..." : "Thing...";
 	if(kind == "alchemaxer") return "Item...";
 	if(kind == "all") return "Item...";
 	if(kind == "dust") return "Dust...";
@@ -464,16 +707,21 @@ function selectorPlaceholder(kind){
 	if(kind == "forgeThingT2") return "Thing...";
 	if(kind == "forgeIdeaT1") return "Idea...";
 	if(kind == "oracle") return "Element...";
-	if(kind == "enminderEssence") return "Mind Essence...";
-	if(kind == "ensoulerEssence") return "Soul Essence...";
+	if(kind == "enminderMind") return "Mind...";
+	if(kind == "ensoulerSoul") return "Soul...";
+	if(kind == "writerBase") return "Paper or Book...";
+	if(kind == "writtenItem") return "Book or Scroll...";
+	if(kind == "artifact") return "Artifact...";
+	if(kind == "artifactIngredient") return "Item...";
+	if(kind == "artifactPrestige") return "Prestige...";
 	return "---";
 }
 
 function itemMatchesSelector(id, item, type, kind){
-	if(kind == "alcheminder" && item[type] && item.type == "pure" && item.subtype != "alchemified" && item.idea && isNameSeen(id)) return true;
-	if(kind == "alchematter" && item[type] && item.type == "pure" && item.subtype != "alchemified" && item.thing && isNameSeen(id)) return true;
-	if(kind == "alchemizer" && item[type] && item.type == "pure" && item.subtype != "alchemified" && isNameSeen(id)) return true;
-	if(kind == "alchemaxer" && item[type] && item.type == "pure" && item.subtype == "alchemified" && isNameSeen(id)) return true;
+	if(kind == "alcheminder" && type == "idea" && item.idea && item.type == "pure" && !item.subtype && !item.prestige && !item.distilled && isNameSeen(id)) return true;
+	if(kind == "alchematter" && type == "thing" && item.thing && item.type == "pure" && !item.subtype && !item.prestige && !item.distilled && isNameSeen(id)) return true;
+	if(kind == "alchemizer" && item[type] && (item.idea || item.thing) && item.type == "pure" && !item.subtype && !item.prestige && !item.distilled && isNameSeen(id)) return true;
+	if(kind == "alchemaxer" && item[type] && (item.idea || item.thing) && item.type == "pure" && !item.prestige && !item.distilled && (!item.subtype || (item.subtype == "alchemified" && isAlchemyTier(id) == 1)) && isNameSeen(id)) return true;
 	if(kind == "all" && item[type] && item.type == "pure" && isNameSeen(id)) return true;
 	if(kind == "dust" && type == "dust" && item.dust && item.type == "impure") return true;
 	if(kind == "forgeIdea" && type == "idea" && item.idea && item.type == "pure" && item.subtype == "alchemified" && isAlchemyTier(id) == 2) return true;
@@ -481,15 +729,21 @@ function itemMatchesSelector(id, item, type, kind){
 	if(kind == "forgeSoulAny" && (type == "idea" || type == "thing") && item[type] && item.type == "pure" && isForgeThirdSlot(id)) return true;
 	if(kind == "forgeThingT2" && type == "thing" && item.thing && item.type == "pure" && item.subtype == "alchemified" && isAlchemyTier(id) == 2 && isForgeIngredient(id)) return true;
 	if(kind == "forgeIdeaT1" && type == "idea" && item.idea && item.type == "pure" && item.subtype == "alchemified" && isAlchemyTier(id) == 1) return true;
-	if(kind == "enminderEssence" && type == "idea" && item.idea && id.includes("MindEssence")) return true;
-	if(kind == "ensoulerEssence" && type == "idea" && item.idea && id.includes("SoulEssence")) return true;
+	if(kind == "enminderMind" && type == "idea" && item.idea && item.subtype == "essence" && id.includes("Mind")) return true;
+	if(kind == "ensoulerSoul" && type == "idea" && item.idea && item.subtype == "essence" && id.includes("Soul")) return true;
 	if(kind == "oracle" && item[type] && item.type == "pure" && isNameSeen(id)) return true;
+	// Book system selectors
+	if(kind == "writerBase" && type == "thing" && (id == "paper" || id == "book") && isNameSeen(id)) return true;
+	if(kind == "writtenItem" && type == "thing" && item.subtype == "book" && item.bookTopic && isNameSeen(id)) return true;
+	if(kind == "artifact" && type == "thing" && item.type == "artifact" && isNameSeen(id)) return true;
+	if(kind == "artifactIngredient" && item[type] && item.type == "pure" && !item.prestige && isNameSeen(id) && isArtifactIngredient(id)) return true;
+	if(kind == "artifactPrestige" && item[type] && item.type == "pure" && item.prestige && isNameSeen(id) && isArtifactIngredient(id)) return true;
 	return false;
 }
 
 function populateSelector(selector, kind, category){
 	let $sel = $(selector);
-	let placeholder = selectorPlaceholder(kind);
+	let placeholder = selectorPlaceholder(kind, category);
 	$sel.data('value', '').data('kind', kind).data('category', category || '');
 	$sel.find('.selected').removeClass().addClass('selected placeholder').text(placeholder);
 	$.each(itemCounter, function(type){
@@ -666,6 +920,30 @@ function impureStatus(){
 			}
 		})
 	});
+}
+
+/* ARTIFACT HELPERS */
+
+function isArtifactIngredient(id) {
+	for (var key in items) {
+		if (items[key].type == "artifact" && items[key].ingredients && items[key].ingredients.indexOf(id) !== -1) return true;
+	}
+	return false;
+}
+
+function artifactRecipe(...ingredients) {
+	var filled = ingredients.filter(function(v){ return v; });
+	if (filled.length < 3) return null;
+	var sorted = filled.slice().sort();
+	for (var key in items) {
+		if (items[key].type == "artifact" && items[key].ingredients) {
+			var recSorted = items[key].ingredients.slice().sort();
+			if (recSorted.length == sorted.length && sorted.every(function(v, i){ return v === recSorted[i]; })) {
+				return key;
+			}
+		}
+	}
+	return null;
 }
 
 /* ALCHEMY */
@@ -858,6 +1136,87 @@ function updateOracleProgress() {
 	}
 }
 
+/* ATHENAEUM */
+
+var athenaeumConsultingActive = null;
+var athenaeumConsultingInterval = null;
+
+function consultAthenaeum(element) {
+	if (athenaeumConsultingActive) return;
+	if (!canStudy(element)) return;
+	if (oracleGauge.mentalize >= oracleGaugeSize) {
+		athenaeumConsultingActive = element;
+		$('#oracle .selector').addClass('disabled');
+		$('#oracle #athenaeumStudy').addClass('disabled');
+		updateAthenaeumProgress();
+		athenaeumConsultingInterval = setInterval(function(){
+			if (oracleGauge.mentalize > 0) {
+				oracleGauge.mentalize--;
+				updateAthenaeumGauge();
+				updateAthenaeumProgress();
+			}
+			if (oracleGauge.mentalize <= 0) {
+				clearInterval(athenaeumConsultingInterval);
+				athenaeumConsultingInterval = null;
+				let pairings = findPairings(athenaeumConsultingActive);
+				let selected = items[athenaeumConsultingActive];
+				let isAlch = selected && selected.subtype == "alchemified" && selected.ingredients && selected.ingredients.length >= 2;
+				let showCreatedFrom = isAlch && (pairings.length == 0 || Math.random() < 0.5);
+				if(showCreatedFrom){
+					let ing = selected.ingredients[Math.floor(Math.random() * selected.ingredients.length)];
+					let t = evalType(ing);
+					let name = items[ing][t.slice(0, -1)];
+					seeName(ing);
+					$('#oracle #athenaeumResult').html(`<span class="oracle-label">Created from</span> <span class="${ing}">${name}</span>`);
+				} else {
+					let p = pairings[Math.floor(Math.random() * pairings.length)];
+					let type = evalType(p.partner);
+					let name = items[p.partner][type.slice(0, -1)];
+					seeName(p.partner);
+					$('#oracle #athenaeumResult').html(`<span class="oracle-label">Pairs with</span> <span class="${p.partner}">${name}</span>`);
+				}
+				athenaeumConsultingActive = null;
+				$('#oracle .selector').removeClass('disabled');
+				$('#oracle #athenaeumStudy').removeClass('disabled');
+			}
+		}, 1000);
+	}
+}
+
+function updateAthenaeumGauge() {
+	var pct = oracleGauge.mentalize / oracleGaugeSize * 100;
+	$('#oracle .fuel').html(oracleGauge.mentalize);
+	$('#oracle .gauge').html(oracleGaugeSize);
+	$('#oracle .fuelDraw').css("width", pct + "%");
+}
+
+function updateAthenaeumProgress() {
+	if (athenaeumConsultingActive) {
+		var pct = Math.floor((1 - oracleGauge.mentalize / oracleGaugeSize) * 100);
+		$('#oracle #athenaeumResult').html('<span class="oracle-pct">' + pct + '%</span>');
+	}
+}
+
+/* PRESTIGE MACHINE GAUGES */
+
+function updateAtelierGauge() {
+	var pct = atelierFuel.imagination / 10 * 100;
+	$('.subMachine.atelier .fuel').html(atelierFuel.imagination);
+	$('.subMachine.atelier .fuelDraw').css("width", pct + "%");
+}
+
+function updateChapelGauge() {
+	var pct = chapelFuel.blessedOil / 10 * 100;
+	$('.subMachine.chapel .fuel').html(chapelFuel.blessedOil);
+	$('.subMachine.chapel .fuelDraw').css("width", pct + "%");
+}
+
+function updateAbyssGauge() {
+	var pct = abyssFuel.evil / 10 * 100;
+	$('.subMachine.abyss .fuel').html(abyssFuel.evil);
+	$('.subMachine.abyss .fuelDraw').css("width", pct + "%");
+}
+
 /* FORGE */
 
 function isAlchemyTier(id) {
@@ -951,9 +1310,9 @@ function distill(item) {
 function updateAlchemyDustGauge(sub, dustType) {
 	var amount = alchemyDustGauge[dustType];
 	var pct = amount / alchemyDustGaugeSize * 100;
-	$(`#${sub} .alchemy-dust-gauge .fuel`).html(amount);
-	$(`#${sub} .alchemy-dust-gauge .gauge`).html(alchemyDustGaugeSize);
-	$(`#${sub} .alchemy-dust-gauge .fuelDraw`).css("width", pct + "%");
+	$(`#${sub} .oracle-gauge .fuel`).html(amount);
+	$(`#${sub} .oracle-gauge .gauge`).html(alchemyDustGaugeSize);
+	$(`#${sub} .oracle-gauge .fuelDraw`).css("width", pct + "%");
 }
 
 function updateDistilleryGauge() {
@@ -972,6 +1331,354 @@ function updateDistilleryProgress() {
 	}
 }
 
+/* BINDER / WRITER / LEARNER */
+
+var writerGauge = { ink: 0 };
+var writerGaugeSize = 25;
+var writingActive = null;
+var writingInterval = null;
+
+var learnerGauge = { separate: 0 };
+var learnerGaugeSize = 25;
+var learningActive = null;
+var learningInterval = null;
+
+var writerTopicMap = {
+	distillery: { ingredient: "water", bookKey: "bookDistillery", scrollKey: "scrollDistillery" },
+	mindForge: { ingredient: "thought", bookKey: "bookMind", scrollKey: "scrollMind" },
+	soulForge: { ingredient: "will", bookKey: "bookSoul", scrollKey: "scrollSoul" },
+	fleshForge: { ingredient: "primaMateria", bookKey: "bookFlesh", scrollKey: "scrollFlesh" },
+	artifacts: { ingredient: "matter", bookKey: "bookArtifacts", scrollKey: "scrollArtifacts" }
+};
+
+var bookPages = {
+	distillery: [
+		{ result: "liquor", ingredients: ["mentalize", "separate"], desc: "When the dust of thought meets the dust of separation within the Distillery's waters, they dissolve into one another and yield a potent Liquor, the liquid residue of a mind taken apart and made whole again." },
+		{ result: "mana", ingredients: ["purify", "alchemize"], desc: "Pour the dust of purity together with the dust of alchemy into the Distillery, and the waters will carry forth Mana, a luminous essence that hums with the memory of transformation itself." },
+		{ result: "preserver", ingredients: ["reify", "destroy"], desc: "The dust of matter and the dust of entropy, when distilled through water, produce the Preserver. It is a heavy, still liquid that holds things exactly as they are, suspending decay in an embrace of permanence." }
+	],
+	mindForge: [
+		{ result: "rationalMind", ingredients: ["consciousness", "reason", "light"], desc: "Bring Consciousness and Reason together in the Mind Forge, and illuminate them with Light. From this union emerges the Rational Mind, a crystalline thought that sees the world as it truly is, stripped of illusion." },
+		{ result: "creativeMind", ingredients: ["consciousness", "imagination", "fire"], desc: "Set Consciousness alongside Imagination in the Mind Forge, and kindle them with Fire. The Creative Mind is born in the blaze, a restless spark that shapes the world not as it is, but as it could become." },
+		{ result: "madMind", ingredients: ["consciousness", "corruption", "storm"], desc: "Let Consciousness be touched by Corruption within the Mind Forge, and unleash a Storm upon the union. What remains is the Mad Mind, a fractured brilliance that sees truths others cannot bear to look upon." }
+	],
+	soulForge: [
+		{ result: "braveSoul", ingredients: ["passion", "sacrifice", "magma"], desc: "Feed Passion and Sacrifice into the Soul Forge, and let Magma be their crucible. From the molten heart of this offering rises the Brave Soul, the burning resolve of one who walks toward danger without flinching." },
+		{ result: "lovingSoul", ingredients: ["devotion", "innocence", "air"], desc: "Place Devotion beside Innocence in the Soul Forge, and let the gentleness of Air carry them into unity. The Loving Soul drifts forth, tender, unwavering, and boundless in its quiet strength." },
+		{ result: "darkSoul", ingredients: ["corruption", "grief", "void"], desc: "When Corruption and Grief are forged together in the presence of the Void, the Soul Forge yields the Dark Soul. It is a heavy, silent thing that has looked into the abyss and chosen to remain." }
+	],
+	fleshForge: [
+		{ result: "flesh", ingredients: ["blood", "marrow", "breath"], desc: "The Flesh Forge demands three offerings: Blood to carry life, Marrow to give it structure, and Breath to set it in motion. Together they weave into Flesh, the vessel through which all mortal things walk the world." }
+	],
+	artifacts: [
+		{ result: "ember", ingredients: ["ash", "spark", "thought", "clarity"], desc: "Gather the Ash of what has burned away, a single Spark of inspiration, a fragment of Thought, and the stillness of Clarity. The Articrafter will press them into the Ember, a glowing remnant that refuses to go cold." },
+		{ result: "echo", ingredients: ["resonance", "dream", "recursion", "spirit"], desc: "Bring Resonance, Dream, Recursion and Spirit to the Articrafter. From their meeting comes the Echo, a sound that repeats long after its source has fallen silent, carrying meaning through the hollows of time." },
+		{ result: "root", ingredients: ["soil", "loyalty", "faith", "leather"], desc: "Offer Soil, Loyalty, Faith and Leather to the Articrafter. The Root takes shape, deep and tenacious. It anchors itself in the earth and will not be moved, drawing strength from the ground beneath." },
+		{ result: "tear", ingredients: ["dew", "grief", "innocence", "elixir"], desc: "Bring Dew, Grief, Innocence and Elixir together in the Articrafter. A single Tear forms, not of sorrow alone, but of the kind of feeling so vast it can only leave the body as water." },
+		{ result: "shard", ingredients: ["splinter", "fear", "crystal", "sin"], desc: "Place a Splinter, Fear, Crystal and Sin upon the Articrafter's table. The Shard emerges, a jagged fragment of something once whole, sharp enough to cut through pretense and lay bare what lies beneath." },
+		{ result: "sigil", ingredients: ["glyph", "evil", "obsidian", "beads"], desc: "Lay down a Glyph, Evil, Obsidian and Beads before the Articrafter. The Sigil is inscribed, a dark mark that binds power into form, ancient and deliberate in its purpose." },
+		{ result: "crown", ingredients: ["halo", "philosophy", "awe", "gold"], desc: "Present a Halo, Philosophy, Awe and Gold to the Articrafter. The Crown is forged, not merely worn upon the head, but upon the spirit, a circle of authority earned through understanding." },
+		{ result: "veil", ingredients: ["mist", "madness", "storm", "courage"], desc: "Gather Mist, Madness, Storm and Courage for the Articrafter. The Veil is woven, thin as breath. It hangs between what is seen and what is hidden, and only the bold may part it." },
+		{ result: "wreath", ingredients: ["seed", "creation", "mud"], desc: "The Articrafter asks only for a Seed, the idea of Creation, and humble Mud. From these simple things the Wreath is formed, a circle of growth that honours the quiet persistence of life beginning again." }
+	]
+};
+
+var bookTopicNames = {
+	distillery: "Distillation",
+	mindForge: "Mind",
+	soulForge: "Soul",
+	fleshForge: "Flesh",
+	artifacts: "Artifacts"
+};
+
+var bookProgress = {};
+
+function bindBook() {
+	if(pay("things", "paper", 1) && pay("things", "leather", 1)) {
+		acquire("things", "book", 1);
+		logMessage("alchemize");
+	}
+}
+
+function writeBook(baseId, topic) {
+	if(writingActive) return;
+	var topicInfo = writerTopicMap[topic];
+	if(!topicInfo) return;
+	if(writerGauge.ink < writerGaugeSize) return;
+	var ingType = evalType(topicInfo.ingredient);
+	if(pay("things", baseId, 1) && pay(ingType, topicInfo.ingredient, 1)) {
+		writingActive = { baseId: baseId, topic: topic };
+		$('.subMachine.writer .selector').addClass('disabled');
+		$('#writeBook').addClass('disabled');
+		updateWriterProgress();
+		writingInterval = setInterval(function(){
+			if(writerGauge.ink > 0) {
+				writerGauge.ink--;
+				updateWriterGauge();
+				updateWriterProgress();
+			}
+			if(writerGauge.ink <= 0) {
+				clearInterval(writingInterval);
+				writingInterval = null;
+				var isBook = (writingActive.baseId == "book");
+				var resultKey = isBook ? topicInfo.bookKey : topicInfo.scrollKey;
+				acquire("things", resultKey, 1);
+				logMessage("alchemize");
+				writingActive = null;
+				$('.subMachine.writer .selector').removeClass('disabled');
+				$('#writeBook').removeClass('disabled');
+			}
+		}, 1000);
+	}
+}
+
+function updateWriterGauge() {
+	var pct = writerGauge.ink / writerGaugeSize * 100;
+	$('.subMachine.writer .oracle-gauge .fuel').html(writerGauge.ink);
+	$('.subMachine.writer .oracle-gauge .gauge').html(writerGaugeSize);
+	$('.subMachine.writer .oracle-gauge .fuelDraw').css("width", pct + "%");
+}
+
+function updateWriterProgress() {
+	if(writingActive) {
+		var pct = Math.floor((1 - writerGauge.ink / writerGaugeSize) * 100);
+		$('.subMachine.writer #writerResult').html('<span class="athenaeum-pct">' + pct + '%</span>');
+	}
+}
+
+function canLearn(bookId) {
+	if(!items[bookId] || !items[bookId].bookTopic) return false;
+	var topic = items[bookId].bookTopic;
+	var pages = bookPages[topic];
+	if(!pages) return false;
+	var progress = bookProgress[topic] || 0;
+	if(progress >= pages.length) return false;
+	return true;
+}
+
+function learnFromBook(bookId) {
+	if(learningActive) return;
+	if(!canLearn(bookId)) return;
+	if(learnerGauge.separate >= learnerGaugeSize) {
+		learningActive = bookId;
+		$('.subMachine.learner .selector').addClass('disabled');
+		$('#study').addClass('disabled');
+		updateLearnerProgress();
+		learningInterval = setInterval(function(){
+			if(learnerGauge.separate > 0) {
+				learnerGauge.separate--;
+				updateLearnerGauge();
+				updateLearnerProgress();
+			}
+			if(learnerGauge.separate <= 0) {
+				clearInterval(learningInterval);
+				learningInterval = null;
+				var item = items[learningActive];
+				var topic = item.bookTopic;
+				var isBook = item.isBook;
+				var pages = bookPages[topic];
+				var progress = bookProgress[topic] || 0;
+				if(progress < pages.length) {
+					var page = pages[progress];
+					page.ingredients.forEach(function(ing){ seeName(ing); });
+					seeName(page.result);
+					bookProgress[topic] = progress + 1;
+					showBookPage(topic, page, progress + 1, pages.length);
+					if(isBook) {
+						// Track book-specific progress for library
+						bookProgress[topic + '_book'] = (bookProgress[topic + '_book'] || 0) + 1;
+						$('#libraryButton').show();
+					}
+					$('.subMachine.learner #learnerResult').html('<span class="athenaeum-label">Page learned!</span>');
+				}
+				// Consume scrolls but not books
+				if(!isBook) {
+					pay("things", learningActive, 1);
+				}
+				learningActive = null;
+				$('.subMachine.learner .selector').removeClass('disabled');
+				$('#study').removeClass('disabled');
+			}
+		}, 1000);
+	}
+}
+
+function itemDisplayName(id) {
+	var item = items[id];
+	if(!item) return id;
+	return item.idea || item.thing || item.liquid || item.dust || id;
+}
+
+function showBookPage(topic, page, pageNum, totalPages) {
+	var topicName = bookTopicNames[topic] || topic;
+	var resultName = itemDisplayName(page.result);
+	$('#bookPageModal .book-page-topic').text("Book of " + topicName);
+	$('#bookPageModal .book-page-title').html(resultName);
+	$('#bookPageModal .book-page-desc').text(page.desc);
+	$('#bookPageModal .book-page-number').text("Page " + pageNum + " of " + totalPages);
+	$('#bookPageModal').css('display', 'flex');
+}
+
+function updateLearnerGauge() {
+	var pct = learnerGauge.separate / learnerGaugeSize * 100;
+	$('.subMachine.learner .oracle-gauge .fuel').html(learnerGauge.separate);
+	$('.subMachine.learner .oracle-gauge .gauge').html(learnerGaugeSize);
+	$('.subMachine.learner .oracle-gauge .fuelDraw').css("width", pct + "%");
+}
+
+function updateLearnerProgress() {
+	if(learningActive) {
+		var pct = Math.floor((1 - learnerGauge.separate / learnerGaugeSize) * 100);
+		$('.subMachine.learner #learnerResult').html('<span class="athenaeum-pct">' + pct + '%</span>');
+	}
+}
+
+/* LIBRARY PAGE */
+
+var libraryPageStatus = 'hidden';
+var libraryOpenBook = null;
+var libraryOpenPage = 0;
+
+var bookSpineColors = {
+	distillery: '#1a5276',
+	mindForge: '#1a6b5a',
+	soulForge: '#6b1a4a',
+	fleshForge: '#6b2a1a',
+	artifacts: '#5a4a1a'
+};
+
+function buildLibraryPage() {
+	$('#container').prepend('<div id="libraryPage" style="display:none"></div>');
+}
+buildLibraryPage();
+
+function openLibrary() {
+	if(typeof closeSettings === 'function') closeSettings();
+	if(typeof closeTree === 'function') closeTree();
+	if(typeof closeHumans === 'function') closeHumans();
+	libraryPageStatus = 'shown';
+	$('#libraryButton').removeClass('libraryIcon').addClass('back');
+	$('#wrapper').hide();
+	$('#machines').hide();
+	$('#finalMachines').hide();
+	$('#stickmanCanvas').hide();
+	$('#libraryPage').show();
+	renderBookcase();
+}
+
+function closeLibrary() {
+	libraryPageStatus = 'hidden';
+	$('#libraryButton').addClass('libraryIcon').removeClass('back');
+	$('#libraryPage').hide();
+	$('#wrapper').show();
+	if(typeof showStatus !== 'undefined' && showStatus.machines === 'unlocked') $('#machines').show();
+	if($('#container').hasClass('has-final-machines')) $('#finalMachines').show();
+	$('#stickmanCanvas').show();
+}
+
+window.closeLibrary = closeLibrary;
+
+function renderBookcase() {
+	var $page = $('#libraryPage');
+	$page.empty();
+	var $case = $('<div class="bookcase"></div>');
+	var $shelf = $('<div class="bookcase-shelf"></div>');
+
+	$.each(bookPages, function(topic, pages){
+		var topicName = bookTopicNames[topic] || topic;
+		var color = bookSpineColors[topic] || '#4a3a2a';
+		var bookPagesLearned = getBookPagesLearned(topic);
+
+		var $book = $('<div class="bookcase-book"></div>');
+		var $spine = $('<div class="bookcase-spine"></div>').css('background', 'linear-gradient(to right, ' + color + ', ' + lightenColor(color, 20) + ', ' + color + ')');
+		var $title = $('<div class="bookcase-spine-title"></div>').text(topicName);
+		$spine.append($title);
+		$book.append($spine);
+		$book.append($('<div class="bookcase-label"></div>').text(topicName));
+		$book.append($('<div class="bookcase-progress"></div>').text(bookPagesLearned + ' / ' + pages.length));
+
+		if(bookPagesLearned > 0) {
+			$book.css('cursor', 'pointer');
+			$book.on('click', function(){ openBookView(topic); });
+		} else {
+			$book.css({ cursor: 'default', opacity: 0.4 });
+		}
+
+		$case.append($book);
+	});
+
+	$page.append($case);
+	$page.append($shelf);
+	$page.append('<div class="library-book-view"></div>');
+}
+
+function getBookPagesLearned(topic) {
+	return (bookProgress[topic + '_book'] || 0);
+}
+
+function lightenColor(hex, amount) {
+	var num = parseInt(hex.replace('#',''), 16);
+	var r = Math.min(255, (num >> 16) + amount);
+	var g = Math.min(255, ((num >> 8) & 0x00FF) + amount);
+	var b = Math.min(255, (num & 0x0000FF) + amount);
+	return '#' + (0x1000000 + r * 0x10000 + g * 0x100 + b).toString(16).slice(1);
+}
+
+function openBookView(topic) {
+	libraryOpenBook = topic;
+	libraryOpenPage = 0;
+	renderLibraryBookPage();
+}
+
+function renderLibraryBookPage() {
+	var topic = libraryOpenBook;
+	var pages = bookPages[topic];
+	var bookPagesLearned = getBookPagesLearned(topic);
+	var topicName = bookTopicNames[topic] || topic;
+	var idx = libraryOpenPage;
+
+	var $view = $('#libraryPage .library-book-view');
+	$view.empty();
+
+	var $pg = $('<div class="library-book-page"></div>');
+	$pg.append('<div class="library-book-close">Close</div>');
+	$pg.append('<div class="library-book-topic">' + topicName + '</div>');
+
+	if(idx < bookPagesLearned && idx < pages.length) {
+		var page = pages[idx];
+		var resultName = itemDisplayName(page.result);
+		$pg.append('<div class="library-book-title">' + resultName + '</div>');
+		$pg.append('<div class="library-book-desc">' + page.desc + '</div>');
+	} else {
+		$pg.append('<div class="library-book-empty">This page has not yet been revealed.</div>');
+	}
+
+	var $footer = $('<div class="library-book-footer"></div>');
+	$footer.append('<div class="library-book-pagenum">Page ' + (idx + 1) + ' of ' + pages.length + '</div>');
+
+	var $nav = $('<div class="library-book-nav"></div>');
+	var $prev = $('<div class="btn">&larr;</div>');
+	var $next = $('<div class="btn">&rarr;</div>');
+
+	if(idx <= 0) $prev.addClass('disabled');
+	else $prev.on('click', function(){ libraryOpenPage--; renderLibraryBookPage(); });
+
+	if(idx >= bookPagesLearned - 1 || idx >= pages.length - 1) $next.addClass('disabled');
+	else $next.on('click', function(){ libraryOpenPage++; renderLibraryBookPage(); });
+
+	$nav.append($prev).append($next);
+	$footer.append($nav);
+	$pg.append($footer);
+
+	$view.append($pg);
+	$view.addClass('open');
+
+	$pg.find('.library-book-close').on('click', function(){
+		$view.removeClass('open').empty();
+		libraryOpenBook = null;
+	});
+}
+
 /* FINAL MACHINES */
 
 var finalMachineStatus = {};
@@ -988,12 +1695,12 @@ var ensoulingActive = false;
 var ensoulingInterval = null;
 
 var essenceColors = {
-	rationalMindEssence: '#a8c8e8',
-	creativeMindEssence: '#d4a8e8',
-	madMindEssence: '#e8a8a8',
-	braveSoulEssence: '#e8cda8',
-	lovingSoulEssence: '#e8a8c8',
-	darkSoulEssence: '#a8a8b8'
+	rationalMind: '#4682B4',
+	creativeMind: '#FF6347',
+	madMind: '#9932CC',
+	braveSoul: '#B22222',
+	lovingSoul: '#FF69B4',
+	darkSoul: '#2F2F2F'
 };
 
 // Particle ray system
@@ -1009,7 +1716,7 @@ function hexToRgb(hex) {
 
 function startParticleRay(fromEl, toEl, color, fromSide) {
 	var canvas = document.getElementById('particleCanvas');
-	var container = document.getElementById('finalMachines');
+	var container = document.getElementById('wrapper');
 	canvas.width = container.offsetWidth;
 	canvas.height = container.offsetHeight;
 
@@ -1031,7 +1738,7 @@ function stopParticleRay(ray) {
 }
 
 function getElPos(el, side) {
-	var container = document.getElementById('finalMachines');
+	var container = document.getElementById('wrapper');
 	var cr = container.getBoundingClientRect();
 	var er = el.getBoundingClientRect();
 	if (side === 'right') {
@@ -1103,11 +1810,30 @@ function tickParticles() {
 	}
 }
 
+var fmColumnMap = {
+	enminder: '#log',
+	altar: '#ideas',
+	ensouler: '#things'
+};
+
 function unlockFinalMachine(id) {
 	finalMachineStatus[id] = "unlocked";
-	$('#finalMachines').show();
 	$('#container').addClass('has-final-machines');
-	$('#' + id).show();
+	// Move particle canvas to wrapper if not already there
+	if ($('#particleCanvas').parent().attr('id') !== 'wrapper') {
+		$('#particleCanvas').appendTo('#wrapper');
+	}
+	// Move final machine into a column with its paired wrapper box
+	var $fm = $('#' + id);
+	var targetBox = fmColumnMap[id];
+	if (targetBox && !$fm.parent().is('.column')) {
+		var $target = $(targetBox);
+		if (!$target.parent().is('.column')) {
+			$target.wrap('<div class="column"></div>');
+		}
+		$target.parent().append($fm);
+	}
+	$fm.show();
 	buildFinalMachine(id);
 }
 
@@ -1136,7 +1862,7 @@ function buildFinalMachine(id) {
 							<polygon points="0,0 87,50 0,100" class="fm-triangle-fill" clip-path="url(#enmindClip)"/>
 						</svg>
 						<div class="fm-triangle-content">
-							<div id="enminderEssence" class="selector custom-select"><div class="selected placeholder">Mind Essence...</div><div class="options"></div></div>
+							<div id="enminderMind" class="selector custom-select"><div class="selected placeholder">Mind...</div><div class="options"></div></div>
 						</div>
 						<div id="enmind" class="button fm-triangle-btn right">Can't Enmind</div>
 					</div>
@@ -1150,7 +1876,7 @@ function buildFinalMachine(id) {
 				</div>
 			</div>
 		`);
-		populateSelector('#enminderEssence', 'enminderEssence');
+		populateSelector('#enminderMind', 'enminderMind');
 		updateEnminderGauge();
 		if (enmindedMind) {
 			$('#enminder').addClass('fm-done');
@@ -1168,11 +1894,11 @@ function buildFinalMachine(id) {
 			updateEnmindButton();
 		});
 
-		$('#enminderEssence').on('customchange', function(){
-			var val = $('#enminderEssence').data('value');
+		$('#enminderMind').on('customchange', function(){
+			var val = $('#enminderMind').data('value');
 			var clipEl = document.querySelector('#enmindClip .fm-triangle-clip');
 			var fillEl = document.querySelector('#enminder .fm-triangle-fill');
-			if (val && val.includes('MindEssence')) {
+			if (val && val.includes('Mind')) {
 				clipEl.setAttribute('x', 0);
 				clipEl.setAttribute('width', 87);
 				fillEl.style.fill = essenceColors[val] || '#b8c4e0';
@@ -1184,9 +1910,9 @@ function buildFinalMachine(id) {
 
 		$('#enmind').on('click', function(){
 			if (enmindingActive) return;
-			var essence = $('#enminderEssence').data('value');
-			if (essence && essence.includes('MindEssence') && enminderFuel.liquor >= enminderFuelSize && enminderFuel.lightning >= enminderFuelSize) {
-				enmind(essence);
+			var mind = $('#enminderMind').data('value');
+			if (mind && mind.includes('Mind') && enminderFuel.liquor >= enminderFuelSize && enminderFuel.lightning >= enminderFuelSize) {
+				enmind(mind);
 			}
 		});
 
@@ -1205,7 +1931,7 @@ function buildFinalMachine(id) {
 							<polygon points="87,0 0,50 87,100" class="fm-triangle-fill" clip-path="url(#ensoulClip)"/>
 						</svg>
 						<div class="fm-triangle-content">
-							<div id="ensoulerEssence" class="selector custom-select"><div class="selected placeholder">Soul Essence...</div><div class="options"></div></div>
+							<div id="ensoulerSoul" class="selector custom-select"><div class="selected placeholder">Soul...</div><div class="options"></div></div>
 						</div>
 						<div id="ensoul" class="button fm-triangle-btn left">Can't Ensoul</div>
 					</div>
@@ -1225,7 +1951,7 @@ function buildFinalMachine(id) {
 				<div class="fm-bottom-gauge-bar"><div class="gaugeDraw"><div class="fuelDraw ensouler-life"></div></div></div>
 			</div>
 		`);
-		populateSelector('#ensoulerEssence', 'ensoulerEssence');
+		populateSelector('#ensoulerSoul', 'ensoulerSoul');
 		updateEnsoulerGauge();
 		if (ensouledSoul) {
 			$('#ensouler').addClass('fm-done');
@@ -1243,11 +1969,11 @@ function buildFinalMachine(id) {
 			updateEnsoulButton();
 		});
 
-		$('#ensoulerEssence').on('customchange', function(){
-			var val = $('#ensoulerEssence').data('value');
+		$('#ensoulerSoul').on('customchange', function(){
+			var val = $('#ensoulerSoul').data('value');
 			var clipEl = document.querySelector('#ensoulClip .fm-triangle-clip');
 			var fillEl = document.querySelector('#ensouler .fm-triangle-fill');
-			if (val && val.includes('SoulEssence')) {
+			if (val && val.includes('Soul')) {
 				clipEl.setAttribute('x', 0);
 				clipEl.setAttribute('width', 87);
 				fillEl.style.fill = essenceColors[val] || '#e0b8b8';
@@ -1259,9 +1985,9 @@ function buildFinalMachine(id) {
 
 		$('#ensoul').on('click', function(){
 			if (ensoulingActive) return;
-			var essence = $('#ensoulerEssence').data('value');
-			if (essence && essence.includes('SoulEssence') && ensoulerFuel.mana >= ensoulerFuelSize && ensoulerFuel.life >= ensoulerFuelSize) {
-				ensoul(essence);
+			var soul = $('#ensoulerSoul').data('value');
+			if (soul && soul.includes('Soul') && ensoulerFuel.mana >= ensoulerFuelSize && ensoulerFuel.life >= ensoulerFuelSize) {
+				ensoul(soul);
 			}
 		});
 
@@ -1335,6 +2061,15 @@ function buildFinalMachine(id) {
 				<div id="createHuman" class="button">Can't Create</div>
 				<div class="fm-create-progress" style="display:none">0%</div>
 			</div>
+			<div class="fm-artifact-slot">
+				<div id="altarArtifactHex" class="altar-artifact-hex${altarArtifact ? ' placed' : ''}">
+					<svg viewBox="0 0 120 100" class="hex-svg">
+						<polygon class="hex-border" points="0,50 30,0 90,0 120,50 90,100 30,100"/>
+						<circle class="hex-circle" cx="60" cy="50" r="28"/>
+					</svg>
+					<div class="hex-artifact-name">${altarArtifact ? items[altarArtifact].thing : ''}</div>
+				</div>
+			</div>
 			<div class="fm-bowl-gauge">
 				<div class="fm-bowl">
 					<div id="dustParticles"></div>
@@ -1347,16 +2082,16 @@ function buildFinalMachine(id) {
 		updateAltarGauge();
 		updateFleshCount();
 		startAltarDecay();
-
 		if (enmindedMind) {
 			$('#altarMind .fm-slot-value').html(enmindedMind);
-			$('#altarMind').css('background', essenceColors[enmindedMind + 'Essence'] || '#b8c4e0');
+			$('#altarMind').css('background', essenceColors[enmindedMind] || '#b8c4e0');
 		}
 		if (ensouledSoul) {
 			$('#altarSoul .fm-slot-value').html(ensouledSoul);
-			$('#altarSoul').css('background', essenceColors[ensouledSoul + 'Essence'] || '#e0b8b8');
+			$('#altarSoul').css('background', essenceColors[ensouledSoul] || '#e0b8b8');
 		}
 		updateCreateButton();
+		checkAlreadyCreated();
 
 		$('#altar .fm-add-fuel').on('click', function(){
 			var fuel = $(this).data('fuel');
@@ -1372,6 +2107,26 @@ function buildFinalMachine(id) {
 			updateCreateButton();
 		});
 
+		$('#altarArtifactHex').on('click', function(){
+			if (creatingHuman) return;
+			if (altarArtifact) {
+				// Remove artifact from slot, return to inventory
+				acquire("things", altarArtifact, 1);
+				altarArtifact = null;
+				$(this).removeClass('placed');
+				$(this).find('.hex-artifact-name').text('');
+				updateCreateButton();
+				return;
+			}
+			var art = getRunArtifact();
+			if (!art || things[art] < 1) return;
+			pay("things", art, 1);
+			altarArtifact = art;
+			$(this).addClass('placed');
+			$(this).find('.hex-artifact-name').text(items[art].thing);
+			updateCreateButton();
+		});
+
 		$('#createHuman').on('click', function(){
 			createHuman();
 		});
@@ -1379,10 +2134,10 @@ function buildFinalMachine(id) {
 }
 
 function updateEnmindButton() {
-	var val = $('#enminderEssence').data('value');
+	var val = $('#enminderMind').data('value');
 	if (enmindingActive) {
 		$('#enmind').html('Enminding...').addClass('disabled');
-	} else if (val && val.includes('MindEssence') && enminderFuel.liquor >= enminderFuelSize && enminderFuel.lightning >= enminderFuelSize) {
+	} else if (val && val.includes('Mind') && enminderFuel.liquor >= enminderFuelSize && enminderFuel.lightning >= enminderFuelSize) {
 		$('#enmind').html('Enmind').removeClass('disabled');
 	} else {
 		$('#enmind').html("Can't Enmind").addClass('disabled');
@@ -1390,31 +2145,30 @@ function updateEnmindButton() {
 }
 
 function updateEnsoulButton() {
-	var val = $('#ensoulerEssence').data('value');
+	var val = $('#ensoulerSoul').data('value');
 	if (ensoulingActive) {
 		$('#ensoul').html('Ensouling...').addClass('disabled');
-	} else if (val && val.includes('SoulEssence') && ensoulerFuel.mana >= ensoulerFuelSize && ensoulerFuel.life >= ensoulerFuelSize) {
+	} else if (val && val.includes('Soul') && ensoulerFuel.mana >= ensoulerFuelSize && ensoulerFuel.life >= ensoulerFuelSize) {
 		$('#ensoul').html('Ensoul').removeClass('disabled');
 	} else {
 		$('#ensoul').html("Can't Ensoul").addClass('disabled');
 	}
 }
 
-function enmind(essence) {
+function enmind(mindId) {
 	if (enmindingActive) return;
 	if (enminderFuel.liquor < enminderFuelSize || enminderFuel.lightning < enminderFuelSize) return;
-	if (!pay("ideas", essence, 1)) return;
+	if (!pay("ideas", mindId, 1)) return;
 
 	enmindingActive = true;
-	var mindKey = essence.replace('Essence', '');
-	$('#enminderEssence').addClass('disabled');
+	$('#enminderMind').addClass('disabled');
 	$('#enmind').hide();
 
 	// Fill triangle gauge
 	var clipEl = document.querySelector('#enmindClip .fm-triangle-clip');
 	clipEl.setAttribute('x', 0);
 	clipEl.setAttribute('width', 87);
-	var fillColor = essenceColors[essence] || '#b8c4e0';
+	var fillColor = essenceColors[mindId] || '#b8c4e0';
 
 	// Start particle ray from triangle tip to altar circle
 	var triSvg = document.querySelector('#enminder .fm-triangle');
@@ -1441,31 +2195,31 @@ function enmind(essence) {
 			enmindingInterval = null;
 			enmindingActive = false;
 			stopParticleRay(ray);
-			enmindedMind = mindKey;
-			$('#altarMind .fm-slot-value').html(mindKey);
+			enmindedMind = mindId;
+			$('#altarMind .fm-slot-value').html(mindId);
 			$('#altarMind').css('background', fillColor);
 			$('#enminder').addClass('fm-done');
 			updateCreateButton();
+			checkAlreadyCreated();
 			logMessage("alchemize");
 		}
 	}, 500);
 }
 
-function ensoul(essence) {
+function ensoul(soulId) {
 	if (ensoulingActive) return;
 	if (ensoulerFuel.mana < ensoulerFuelSize || ensoulerFuel.life < ensoulerFuelSize) return;
-	if (!pay("ideas", essence, 1)) return;
+	if (!pay("ideas", soulId, 1)) return;
 
 	ensoulingActive = true;
-	var soulKey = essence.replace('Essence', '');
-	$('#ensoulerEssence').addClass('disabled');
+	$('#ensoulerSoul').addClass('disabled');
 	$('#ensoul').hide();
 
 	// Fill triangle gauge
 	var clipEl = document.querySelector('#ensoulClip .fm-triangle-clip');
 	clipEl.setAttribute('x', 0);
 	clipEl.setAttribute('width', 87);
-	var fillColor = essenceColors[essence] || '#e0b8b8';
+	var fillColor = essenceColors[soulId] || '#e0b8b8';
 
 	// Start particle ray from triangle tip to altar circle
 	var triSvg = document.querySelector('#ensouler .fm-triangle');
@@ -1490,11 +2244,12 @@ function ensoul(essence) {
 			ensoulingInterval = null;
 			ensoulingActive = false;
 			stopParticleRay(ray);
-			ensouledSoul = soulKey;
-			$('#altarSoul .fm-slot-value').html(soulKey);
+			ensouledSoul = soulId;
+			$('#altarSoul .fm-slot-value').html(soulId);
 			$('#altarSoul').css('background', fillColor);
 			$('#ensouler').addClass('fm-done');
 			updateCreateButton();
+			checkAlreadyCreated();
 			logMessage("alchemize");
 		}
 	}, 500);
@@ -1505,12 +2260,90 @@ var createHumanInterval = null;
 var createHumanProgress = 0;
 var startingFlesh = 0;
 
+function isHumanAlreadyCreated() {
+	if (!enmindedMind || !ensouledSoul) return false;
+	if (!window._stickman) return false;
+	var profile = getProfileForHuman();
+	if (!profile) return false;
+	var created = (typeof prestigeState !== 'undefined' && prestigeState.createdHumans) ? prestigeState.createdHumans : [];
+	return created.indexOf(profile.name) !== -1;
+}
+
+function checkAlreadyCreated() {
+	if (!enmindedMind || !ensouledSoul) {
+		$('#altarWarning').remove();
+		$('.fm-slot-empty').remove();
+		return;
+	}
+	if (isHumanAlreadyCreated()) {
+		var profile = getProfileForHuman();
+		if ($('#altarWarning').length === 0) {
+			$('.fm-create-controls').before('<div id="altarWarning" style="text-align:center;color:#B22222;font-style:italic;margin:4px 0">' + profile.name + ' was already created</div>');
+		}
+		if ($('#altarMind .fm-slot-empty').length === 0) {
+			$('#altarMind').append('<div class="fm-slot-empty button" style="font-size:10px;padding:2px 6px;margin-top:4px">Empty</div>');
+			$('#altarMind .fm-slot-empty').on('click', function() { emptyMind(); });
+		}
+		if ($('#altarSoul .fm-slot-empty').length === 0) {
+			$('#altarSoul').append('<div class="fm-slot-empty button" style="font-size:10px;padding:2px 6px;margin-top:4px">Empty</div>');
+			$('#altarSoul .fm-slot-empty').on('click', function() { emptySoul(); });
+		}
+	} else {
+		$('#altarWarning').remove();
+		$('.fm-slot-empty').remove();
+	}
+}
+
+function emptyMind() {
+	enmindedMind = null;
+	$('#altarMind .fm-slot-value').html('—');
+	$('#altarMind').css('background', '');
+	$('#enminder').removeClass('fm-done');
+	$('#enminderMind').removeClass('disabled');
+	$('#enmind').show();
+	$('#altarWarning').remove();
+	$('.fm-slot-empty').remove();
+	updateCreateButton();
+}
+
+function emptySoul() {
+	ensouledSoul = null;
+	$('#altarSoul .fm-slot-value').html('—');
+	$('#altarSoul').css('background', '');
+	$('#ensouler').removeClass('fm-done');
+	$('#ensoulerSoul').removeClass('disabled');
+	$('#ensoul').show();
+	$('#altarWarning').remove();
+	$('.fm-slot-empty').remove();
+	updateCreateButton();
+}
+
+// Maps each Human to the artifact that uses their prestige resource
+var humanArtifactMap = {
+	'The Commander': 'ember',    // Clarity
+	'The Hero': 'veil',          // Courage
+	'The Berserker': 'root',     // Leather
+	'The Healer': 'tear',        // Elixir
+	'The Saint': 'echo',         // Spirit
+	'The Tyrant': 'crown',       // Gold
+	'The Trickster': 'sigil',    // Beads
+	'The Demon': 'shard',        // Sin
+};
+
+function getRunArtifact() {
+	if (!prestigeState || prestigeState.createdHumans.length === 0) return 'wreath';
+	var lastHuman = prestigeState.createdHumans[prestigeState.createdHumans.length - 1];
+	return humanArtifactMap[lastHuman] || 'wreath';
+}
+
 function canCreateHuman() {
 	return !creatingHuman
 		&& altarFuel.flesh >= altarFleshSize
 		&& altarFuel.dust >= altarFuelSize
 		&& enmindedMind
-		&& ensouledSoul;
+		&& ensouledSoul
+		&& altarArtifact
+		&& !isHumanAlreadyCreated();
 }
 
 function updateCreateButton() {
@@ -1559,6 +2392,13 @@ function createHuman() {
 			createHumanProgress = 0;
 			$('#altar .fm-add-fuel').removeClass('disabled');
 			$('.fm-bowl-gauge .fm-add-fuel').show();
+			// Return artifact to inventory on failed creation
+			if (altarArtifact) {
+				acquire("things", altarArtifact, 1);
+				altarArtifact = null;
+				$('#altarArtifactHex').removeClass('placed');
+				$('#altarArtifactHex .hex-artifact-name').text('');
+			}
 			// Reset tubes and circles
 			$('.mind-flow').css('left', 'auto').css('right', '0').css('width', '0%');
 			$('.soul-flow').css('right', 'auto').css('left', '0').css('width', '0%');
@@ -1600,8 +2440,17 @@ function createHuman() {
 
 			logMessage("alchemize");
 
-			// Save human created state
-			humanCreated = { mind: enmindedMind, soul: ensouledSoul };
+			// Track the artifact (already consumed on placement)
+			if (altarArtifact && prestigeState.craftedArtifacts.indexOf(altarArtifact) === -1) {
+				prestigeState.craftedArtifacts.push(altarArtifact);
+				if (typeof refreshArtifactsButton === 'function') refreshArtifactsButton();
+			}
+
+			// Save human created state and clear artifact slot
+			humanCreated = { mind: enmindedMind, soul: ensouledSoul, artifact: altarArtifact };
+			altarArtifact = null;
+			$('#altarArtifactHex').removeClass('placed');
+			$('#altarArtifactHex .hex-artifact-name').text('');
 
 			// Unlock the human (add to persistent list + spawn walker)
 			var profile = getProfileForHuman();
@@ -1641,7 +2490,7 @@ function humanCreationReveal(instant) {
 	if (fleshDecayInterval) { clearInterval(fleshDecayInterval); fleshDecayInterval = null; }
 
 	function setupStickman() {
-		$content.find('.fm-tank-gauge, .fm-preserver-tube, .fm-flesh-controls, .fm-create-controls, .fm-bowl-gauge, .fm-slot-side, .fm-connector, .fm-gauge-circle-side, .fm-gauge-side, .fm-bottom-gauge, .fm-layout').hide();
+		$content.find('.fm-tank-gauge, .fm-preserver-tube, .fm-flesh-controls, .fm-create-controls, .fm-bowl-gauge, .fm-slot-side, .fm-connector, .fm-gauge-circle-side, .fm-gauge-side, .fm-bottom-gauge, .fm-layout, .fm-artifact-slot').hide();
 
 		var canvas = document.createElement('canvas');
 		canvas.className = 'altar-stickman-canvas';
@@ -1659,7 +2508,7 @@ function humanCreationReveal(instant) {
 		var stickHeight = 180;
 		var man = new S.StickMan(stickHeight, profile);
 		var groundY = h - 10;
-		var walkTarget = 180;
+		var walkTarget = w * 0.35 - 40;
 
 		var posX = instant ? walkTarget : w / 2;
 		var posY = instant ? groundY - stickHeight * 0.6 : h / 2 - stickHeight / 2;
@@ -1669,9 +2518,32 @@ function humanCreationReveal(instant) {
 		man.addAnimation(S.idleAnimation);
 		man.updateBodyPositions();
 
+		var essenceColors = {
+			braveSoul: '#B22222', lovingSoul: '#FF69B4', darkSoul: '#2F2F2F',
+			rationalMind: '#4682B4', creativeMind: '#FF6347', madMind: '#9932CC'
+		};
+		var soulLabel = profile.soul.replace('Soul', '').replace(/^./, function(c) { return c.toUpperCase(); }) + ' Soul';
+		var mindLabel = profile.mind.replace('Mind', '').replace(/^./, function(c) { return c.toUpperCase(); }) + ' Mind';
+		var soulColor = essenceColors[profile.soul] || '#999';
+		var mindColor = essenceColors[profile.mind] || '#999';
+
+		var modifierDescriptions = {
+			'The Commander': 'Base rates set to 5. Generator gauges fill in one click.',
+			'The Hero': 'Start with all Max buttons unlocked.',
+			'The Berserker': 'Pulverize costs no Strength. Randomly wrecks resources, gives Leather.',
+			'The Healer': 'Alchemizer gauges 10x larger. Auto-alchemize when full.',
+			'The Artist': 'Alchemy produces double output. Chance to produce Canvas or Paint.',
+			'The Saint': 'Purify costs 25% Recursion. Chance to produce Blessed Oil.',
+			'The Tyrant': 'Each hour takes 25% of all resources in exchange for Gold.',
+			'The Trickster': 'Randomly offers to swap 2 resources. Decline = both halved.',
+			'The Demon': 'All tree + dropdowns unlocked. 20% chance alchemy fails.'
+		};
+		var modDesc = modifierDescriptions[profile.name] || '';
+
 		var $info = $('<div class="altar-human-info"' + (instant ? '' : ' style="display:none"') + '>' +
 			'<div class="altar-human-name">' + profile.name + '</div>' +
-			'<div class="altar-human-modifiers">Modifiers: —</div>' +
+			'<div class="altar-human-essence"><span style="color:' + soulColor + '">' + soulLabel + '</span> + <span style="color:' + mindColor + '">' + mindLabel + '</span></div>' +
+			(modDesc ? '<div class="altar-human-modifiers">' + modDesc + '</div>' : '') +
 			'<div class="button" id="ascendButton">Ascend</div>' +
 		'</div>');
 		$content.append($info);
@@ -1712,7 +2584,7 @@ function humanCreationReveal(instant) {
 	if (instant) {
 		setupStickman();
 	} else {
-		$content.find('.fm-tank-gauge, .fm-preserver-tube, .fm-flesh-controls, .fm-create-controls, .fm-bowl-gauge, .fm-slot-side, .fm-connector, .fm-gauge-circle-side, .fm-gauge-side, .fm-bottom-gauge').fadeOut(1000);
+		$content.find('.fm-tank-gauge, .fm-preserver-tube, .fm-flesh-controls, .fm-create-controls, .fm-bowl-gauge, .fm-slot-side, .fm-connector, .fm-gauge-circle-side, .fm-gauge-side, .fm-bottom-gauge, .fm-artifact-slot').fadeOut(1000);
 		$content.find('.fm-layout').css('padding', '0');
 		setTimeout(function(){
 			$content.find('.fm-layout').hide();
@@ -2068,7 +2940,16 @@ function acquire(type, item, amount){
 
 function itemBuild(type, id){
 	if ($('.item.' + type + '.' + id).length > 0) return;
-	if (type != "dusts" && type != "liquids"){
+	if (items[id].subtype == "book"){
+		append = '#things #books';
+	} else if (items[id].prestige){
+		append = '#'+type+' #prestige';
+	} else if (items[id].subtype == "essence"){
+		append = id.indexOf('Soul') !== -1 ? '#ideas #souls' : '#ideas #minds';
+	} else if (items[id].subtype == "alchemified"){
+		var isTier2 = items[id].ingredients && items[id].ingredients.some(function(ing){ return items[ing] && items[ing].subtype == "alchemified"; });
+		append = '#'+type+' #' + (isTier2 ? 'alchemized2' : 'alchemized1');
+	} else if (type != "dusts" && type != "liquids"){
 		append = '#'+type+' #'+items[id].type;
 	} else if (type == "dusts"){
 		append = '#things #dusts'

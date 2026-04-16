@@ -387,41 +387,41 @@ const items = {
 		type: "pure",
 		subtype: "alchemified"
 	},
-	rationalMindEssence: {
-		idea: "Rational Mind Essence",
+	rationalMind: {
+		idea: "Rational Mind",
 		ingredients: ["consciousness", "reason", "light"],
 		type: "pure",
-		subtype: "alchemified"
+		subtype: "essence"
 	},
-	creativeMindEssence: {
-		idea: "Creative Mind Essence",
+	creativeMind: {
+		idea: "Creative Mind",
 		ingredients: ["consciousness", "imagination", "fire"],
 		type: "pure",
-		subtype: "alchemified"
+		subtype: "essence"
 	},
-	madMindEssence: {
-		idea: "Mad Mind Essence",
+	madMind: {
+		idea: "Mad Mind",
 		ingredients: ["consciousness", "corruption", "storm"],
 		type: "pure",
-		subtype: "alchemified"
+		subtype: "essence"
 	},
-	braveSoulEssence: {
-		idea: "Brave Soul Essence",
+	braveSoul: {
+		idea: "Brave Soul",
 		ingredients: ["passion", "sacrifice", "magma"],
 		type: "pure",
-		subtype: "alchemified"
+		subtype: "essence"
 	},
-	lovingSoulEssence: {
-		idea: "Loving Soul Essence",
+	lovingSoul: {
+		idea: "Loving Soul",
 		ingredients: ["devotion", "innocence", "air"],
 		type: "pure",
-		subtype: "alchemified"
+		subtype: "essence"
 	},
-	darkSoulEssence: {
-		idea: "Dark Soul Essence",
+	darkSoul: {
+		idea: "Dark Soul",
 		ingredients: ["corruption", "grief", "void"],
 		type: "pure",
-		subtype: "alchemified"
+		subtype: "essence"
 	},
 	life: {
 		idea: "Life",
@@ -577,50 +577,227 @@ const items = {
 		type: "pure",
 		subtype: "alchemified"
 	},
+	// Prestige resources
+	clarity: {
+		idea: "Clarity",
+		type: "pure",
+		prestige: true
+	},
+	courage: {
+		idea: "Courage",
+		type: "pure",
+		prestige: true
+	},
+	leather: {
+		thing: "Leather",
+		type: "pure",
+		prestige: true
+	},
+	elixir: {
+		thing: "Elixir",
+		type: "pure",
+		prestige: true
+	},
+	canvas: {
+		thing: "Canvas",
+		type: "pure",
+		prestige: true
+	},
+	paint: {
+		thing: "Paint",
+		type: "pure",
+		prestige: true
+	},
+	masterpiece: {
+		thing: "Masterpiece",
+		type: "pure",
+		prestige: true
+	},
+	blessedOil: {
+		liquid: "Blessed Oil",
+		type: "pure",
+		prestige: true
+	},
+	spirit: {
+		idea: "Spirit",
+		type: "pure",
+		prestige: true
+	},
+	gold: {
+		thing: "Gold",
+		type: "pure",
+		prestige: true
+	},
+	beads: {
+		thing: "Beads",
+		type: "pure",
+		prestige: true
+	},
+	goo: {
+		thing: "Goo",
+		type: "pure",
+		prestige: true
+	},
+	sin: {
+		thing: "Sin",
+		type: "pure",
+		prestige: true
+	},
+	// Demon failure chain
+	failAlchemize: {
+		idea: "The idea of failing to alchemize",
+		thing: "The reification of the idea of failing",
+		dust: "Faildust",
+		type: "impure",
+		purified: "failure"
+	},
+	failure: {
+		idea: "Failure",
+		type: "pure",
+		prestige: true
+	},
+	// Artifacts
 	ember: {
 		thing: "Ember",
-		ingredients: ["ash", "spark", "thought"],
+		ingredients: ["ash", "spark", "thought", "clarity"],
 		type: "artifact"
 	},
 	echo: {
 		thing: "Echo",
-		ingredients: ["resonance", "dream", "recursion"],
+		ingredients: ["resonance", "dream", "recursion", "spirit"],
 		type: "artifact"
 	},
 	root: {
 		thing: "Root",
-		ingredients: ["soil", "loyalty", "faith"],
+		ingredients: ["soil", "loyalty", "faith", "leather"],
 		type: "artifact"
 	},
 	tear: {
 		thing: "Tear",
-		ingredients: ["dew", "grief", "innocence"],
+		ingredients: ["dew", "grief", "innocence", "elixir"],
 		type: "artifact"
 	},
 	shard: {
 		thing: "Shard",
-		ingredients: ["splinter", "fear", "crystal"],
+		ingredients: ["splinter", "fear", "crystal", "sin"],
 		type: "artifact"
 	},
 	sigil: {
 		thing: "Sigil",
-		ingredients: ["glyph", "evil", "obsidian"],
+		ingredients: ["glyph", "evil", "obsidian", "beads"],
 		type: "artifact"
 	},
 	crown: {
 		thing: "Crown",
-		ingredients: ["halo", "philosophy", "awe"],
+		ingredients: ["halo", "philosophy", "awe", "gold"],
 		type: "artifact"
 	},
 	veil: {
 		thing: "Veil",
-		ingredients: ["mist", "madness", "storm"],
+		ingredients: ["mist", "madness", "storm", "courage"],
 		type: "artifact"
 	},
 	wreath: {
 		thing: "Wreath",
 		ingredients: ["seed", "creation", "mud"],
 		type: "artifact"
+	},
+	// New alchemified items for book crafting
+	plant: {
+		thing: "Plant",
+		ingredients: ["seed", "water"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	paper: {
+		thing: "Paper",
+		ingredients: ["plant", "water"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	ink: {
+		thing: "Ink",
+		ingredients: ["shadow", "water"],
+		type: "pure",
+		subtype: "alchemified"
+	},
+	// Books (produced by Binder: Paper + Leather)
+	book: {
+		thing: "Book",
+		type: "pure",
+		subtype: "book"
+	},
+	// Written books (produced by Writer from Book)
+	bookDistillery: {
+		thing: "Book of Distillation",
+		type: "pure",
+		subtype: "book",
+		bookTopic: "distillery",
+		isBook: true
+	},
+	bookMind: {
+		thing: "Book of Mind",
+		type: "pure",
+		subtype: "book",
+		bookTopic: "mindForge",
+		isBook: true
+	},
+	bookSoul: {
+		thing: "Book of Soul",
+		type: "pure",
+		subtype: "book",
+		bookTopic: "soulForge",
+		isBook: true
+	},
+	bookFlesh: {
+		thing: "Book of Flesh",
+		type: "pure",
+		subtype: "book",
+		bookTopic: "fleshForge",
+		isBook: true
+	},
+	bookArtifacts: {
+		thing: "Book of Artifacts",
+		type: "pure",
+		subtype: "book",
+		bookTopic: "artifacts",
+		isBook: true
+	},
+	// Scrolls (produced by Writer from Paper, consumed after reading)
+	scrollDistillery: {
+		thing: "Scroll of Distillation",
+		type: "pure",
+		subtype: "book",
+		bookTopic: "distillery",
+		isBook: false
+	},
+	scrollMind: {
+		thing: "Scroll of Mind",
+		type: "pure",
+		subtype: "book",
+		bookTopic: "mindForge",
+		isBook: false
+	},
+	scrollSoul: {
+		thing: "Scroll of Soul",
+		type: "pure",
+		subtype: "book",
+		bookTopic: "soulForge",
+		isBook: false
+	},
+	scrollFlesh: {
+		thing: "Scroll of Flesh",
+		type: "pure",
+		subtype: "book",
+		bookTopic: "fleshForge",
+		isBook: false
+	},
+	scrollArtifacts: {
+		thing: "Scroll of Artifacts",
+		type: "pure",
+		subtype: "book",
+		bookTopic: "artifacts",
+		isBook: false
 	}
 }
 const actions = {
@@ -672,6 +849,10 @@ const actions = {
 	},
 	mentAll: {
 		log: "You collapsed something into a generic idea.",
+	},
+	failAlchemize: {
+		log: "You failed to alchemize.",
+		action: "alchemize",
 	},
 }
 
@@ -950,6 +1131,14 @@ const buyables = {
 		machine: "want",
 		unlocks: "lifeForge",
 	},
+	theOracleUnlock: {
+		name: "Unlock The Oracle",
+		class: "unlock",
+		subclass: "submachine",
+		cost: [10, "things", "crystal"],
+		machine: "mentalize",
+		unlocks: "theOracle",
+	},
 	enminderUnlock: {
 		name: "Unlock Enminder",
 		class: "unlock",
@@ -973,6 +1162,62 @@ const buyables = {
 		cost: [10, "things", "monolith"],
 		machine: "reify",
 		unlocks: "altar",
+	},
+	articrafterUnlock: {
+		name: "Unlock Articrafter",
+		class: "unlock",
+		subclass: "submachine",
+		cost: [100, "ideas", "awe"],
+		machine: "reify",
+		unlocks: "articrafter",
+	},
+	atelierUnlock: {
+		name: "Unlock Atelier",
+		class: "unlock",
+		subclass: "submachine",
+		cost: [100, "ideas", "abstraction"],
+		machine: "reify",
+		unlocks: "atelier",
+	},
+	chapelUnlock: {
+		name: "Unlock Chapel",
+		class: "unlock",
+		subclass: "submachine",
+		cost: [100, "ideas", "divinity"],
+		machine: "want",
+		unlocks: "chapel",
+	},
+	abyssUnlock: {
+		name: "Unlock Abyss",
+		class: "unlock",
+		subclass: "submachine",
+		cost: [100, "ideas", "fear"],
+		machine: "want",
+		unlocks: "abyss",
+	},
+	binderUnlock: {
+		name: "Unlock Binder",
+		class: "unlock",
+		subclass: "submachine",
+		cost: [10, "things", "paper"],
+		machine: "reify",
+		unlocks: "binder",
+	},
+	writerUnlock: {
+		name: "Unlock Writer",
+		class: "unlock",
+		subclass: "submachine",
+		cost: [10, "things", "ink"],
+		machine: "mentalize",
+		unlocks: "writer",
+	},
+	learnerUnlock: {
+		name: "Unlock Learner",
+		class: "unlock",
+		subclass: "submachine",
+		cost: [5, "things", "book"],
+		machine: "mentalize",
+		unlocks: "learner",
 	},
 }
 
@@ -1019,7 +1264,7 @@ const subMachines = {
 		name: "Athenaeum",
 		desc: "Study an element to learn what it pairs with.",
 		machine: "mentalize",
-		class: "oracle"
+		class: "athenaeum"
 	},
 	alchematter: {
 		name: "Alchematter",
@@ -1059,13 +1304,13 @@ const subMachines = {
 	},
 	mindForge: {
 		name: "Mind Forge",
-		desc: "Forge Mind Essences from tier 2 ideas.",
+		desc: "Forge Minds from tier 2 ideas.",
 		machine: "mentalize",
 		class: "forge"
 	},
 	soulForge: {
 		name: "Soul Forge",
-		desc: "Forge Soul Essences from tier 2 ideas.",
+		desc: "Forge Souls from tier 2 ideas.",
 		machine: "want",
 		class: "forge"
 	},
@@ -1081,6 +1326,72 @@ const subMachines = {
 		machine: "want",
 		class: "forge"
 	},
+	theOracle: {
+		name: "The Oracle",
+		desc: "Peer into the union of Mind and Soul. The Oracle speaks in riddles.",
+		machine: "mentalize",
+		class: "oracle"
+	},
+	articrafter: {
+		name: "Articrafter",
+		desc: "Craft artifacts from rare materials.",
+		machine: "reify",
+		class: "articrafter"
+	},
+	atelier: {
+		name: "Atelier",
+		desc: "Create masterpieces from canvas and paint.",
+		machine: "reify",
+		class: "atelier"
+	},
+	chapel: {
+		name: "Chapel",
+		desc: "Produce spirit from faith and devotion.",
+		machine: "want",
+		class: "chapel"
+	},
+	abyss: {
+		name: "Abyss",
+		desc: "Forge sin from failure.",
+		machine: "want",
+		class: "abyss"
+	},
+	market: {
+		name: "Market",
+		desc: "Spend gold to buy resources.",
+		machine: "reify",
+		class: "market"
+	},
+	binder: {
+		name: "Binder",
+		desc: "Bind paper and leather into a book.",
+		machine: "reify",
+		class: "binder"
+	},
+	writer: {
+		name: "Writer",
+		desc: "Write a topic onto paper or a book using ink.",
+		machine: "mentalize",
+		class: "writer"
+	},
+	learner: {
+		name: "Learner",
+		desc: "Study a written book to learn recipe secrets.",
+		machine: "mentalize",
+		class: "learner"
+	},
+}
+
+const knowerRiddles = {
+	rationalMind_braveSoul: "One touch fills what once took many -- the well overflows and the stream runs steady.",
+	creativeMind_braveSoul: "All gates stand open from the start -- no toll is asked, no lock to part.",
+	madMind_braveSoul: "Strength is free but nothing is safe -- the beast takes its share and leaves hide in its wake.",
+	rationalMind_lovingSoul: "The vessel grows tenfold deep -- when it brims, the craft begins to reap.",
+	creativeMind_lovingSoul: "Every union bears a twin -- and sometimes color spills from within.",
+	madMind_lovingSoul: "The spiral's price is cut to a quarter -- and golden drops fall into the water.",
+	rationalMind_darkSoul: "Each hour the throne demands its tithe -- your hoard shrinks but gleams with something bright.",
+	creativeMind_darkSoul: "A deal you didn't ask for, a choice you can't ignore -- refuse and lose, accept and gain a little more.",
+	madMind_darkSoul: "Every secret is laid bare, every path revealed -- but one in five attempts will yield nothing to wield.",
 }
 
 const fuelCost = {
