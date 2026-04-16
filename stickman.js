@@ -152,7 +152,7 @@
       for (var key in this.animations) {
         var a = this.animations[key];
         a.elapsedTime += elapsedTime;
-        if (a.elapsedTime > a.sequence[a.sequencePos].time) {
+        if (a.elapsedTime >= a.sequence[a.sequencePos].time) {
           this.bodyAngles[key] = a.lastAngle = a.sequence[a.sequencePos].endAngle;
           if (a.sequencePos === a.sequence.length - 1) {
             if (!(--a.numRuns)) { delete this.animations[key]; continue; }
@@ -160,7 +160,8 @@
           a.elapsedTime -= a.sequence[a.sequencePos].time;
           a.sequencePos = a.sequencePos === a.sequence.length - 1 ? 0 : a.sequencePos + 1;
         } else {
-          this.bodyAngles[key] += (a.sequence[a.sequencePos].endAngle - a.lastAngle) * (elapsedTime / a.sequence[a.sequencePos].time);
+          var t = a.elapsedTime / a.sequence[a.sequencePos].time;
+          this.bodyAngles[key] = a.lastAngle + (a.sequence[a.sequencePos].endAngle - a.lastAngle) * t;
         }
       }
       this.updateBodyPositions();
@@ -273,7 +274,7 @@
     // Athletic, well-proportioned. Fast and energetic. Always jumps — never climbs.
     // Stops occasionally to strike a pose.
     { name: 'The Hero',       mind: 'creativeMind', soul: 'braveSoul',
-      height: 20, speed: 34, color: '#d4880f', headRadius: 0.11, torso: 0.40, upperLeg: 0.22, lowerLeg: 0.23, upperArm: 0.18, lowerArm: 0.17, lineWidth: 0.035, walkTime: 440,
+      height: 20, speed: 34, color: '#3a7d44', headRadius: 0.11, torso: 0.40, upperLeg: 0.22, lowerLeg: 0.23, upperArm: 0.18, lowerArm: 0.17, lineWidth: 0.035, walkTime: 440,
       climbChance: 0, idleMin: 6, idleMax: 12, idleDurMin: 1.5, idleDurMax: 3, item: 'shield', special: 'fistPump' },
 
     // 3. The Berserker — Brave + Mad
@@ -293,36 +294,36 @@
     // Graceful, long arms, thin lines. Purple/violet. Moves expressively.
     // Stops frequently to contemplate. Prefers climbing — takes the scenic route.
     { name: 'The Artist',     mind: 'creativeMind', soul: 'lovingSoul',
-      height: 20, speed: 21, color: '#7d3c98', headRadius: 0.11, torso: 0.40, upperLeg: 0.22, lowerLeg: 0.24, upperArm: 0.22, lowerArm: 0.21, lineWidth: 0.022, walkTime: 700,
+      height: 20, speed: 21, color: '#e8709a', headRadius: 0.11, torso: 0.40, upperLeg: 0.22, lowerLeg: 0.24, upperArm: 0.22, lowerArm: 0.21, lineWidth: 0.022, walkTime: 700,
       climbChance: 0.7, idleMin: 4, idleMax: 10, idleDurMin: 3, idleDurMax: 6, item: 'quill', special: 'bow' },
 
     // 6. The Saint — Loving + Mad
     // Serene, slightly ethereal, teal. Slow wanderer. Stops very often and long.
     // Sometimes climbs — patient and deliberate.
     { name: 'The Saint',      mind: 'madMind', soul: 'lovingSoul',
-      height: 19, speed: 16, color: '#17a589', headRadius: 0.12, torso: 0.41, upperLeg: 0.22, lowerLeg: 0.24, upperArm: 0.18, lowerArm: 0.17, lineWidth: 0.024, walkTime: 800,
+      height: 19, speed: 16, color: '#5cdbbe', headRadius: 0.12, torso: 0.41, upperLeg: 0.22, lowerLeg: 0.24, upperArm: 0.18, lowerArm: 0.17, lineWidth: 0.024, walkTime: 800,
       climbChance: 0.5, idleMin: 3, idleMax: 7, idleDurMin: 4, idleDurMax: 8, item: 'halo', special: 'pray' },
 
     // 7. The Tyrant — Dark + Rational
     // Tall, imposing, sharp thin lines. Dark grey. Walks with deliberate authority.
     // Rarely stops — and only briefly. Never climbs (too proud).
     { name: 'The Tyrant',     mind: 'rationalMind', soul: 'darkSoul',
-      height: 22, speed: 24, color: '#2c2c2c', headRadius: 0.09, torso: 0.46, upperLeg: 0.24, lowerLeg: 0.26, upperArm: 0.18, lowerArm: 0.17, lineWidth: 0.02, walkTime: 640,
+      height: 22, speed: 24, color: '#2c2c2c', headRadius: 0.12, torso: 0.46, upperLeg: 0.24, lowerLeg: 0.26, upperArm: 0.18, lowerArm: 0.17, lineWidth: 0.02, walkTime: 640,
       climbChance: 0, idleMin: 12, idleMax: 20, idleDurMin: 1, idleDurMax: 1.5, item: 'crown', special: 'point' },
 
     // 8. The Trickster — Dark + Creative
     // Wiry, big head, quick and unpredictable. Muted olive. Changes direction a lot.
     // Stops briefly but often. Loves climbing — sneaky route.
     { name: 'The Trickster',  mind: 'creativeMind', soul: 'darkSoul',
-      height: 19, speed: 32, color: '#6c7a3a', headRadius: 0.13, torso: 0.38, upperLeg: 0.21, lowerLeg: 0.22, upperArm: 0.19, lowerArm: 0.18, lineWidth: 0.028, walkTime: 460,
-      climbChance: 0.8, idleMin: 3, idleMax: 6, idleDurMin: 0.8, idleDurMax: 1.5, item: 'jesterHat', special: 'juggle' },
+      height: 19, speed: 32, color: '#ff8c00', headRadius: 0.13, torso: 0.38, upperLeg: 0.21, lowerLeg: 0.22, upperArm: 0.19, lowerArm: 0.18, lineWidth: 0.028, walkTime: 460,
+      climbChance: 0.8, idleMin: 3, idleMax: 6, idleDurMin: 2.5, idleDurMax: 4, item: 'jesterHat', special: 'juggle', alwaysSpecial: true },
 
     // 9. The Demon — Dark + Mad
     // Ghostly, faint, thin lines. Very light grey — almost invisible.
     // Erratic speed. Never stops (restless). Always climbs (lurks in the gaps).
     { name: 'The Demon',      mind: 'madMind', soul: 'darkSoul',
-      height: 20, speed: 28, color: '#aaa',    headRadius: 0.10, torso: 0.42, upperLeg: 0.23, lowerLeg: 0.25, upperArm: 0.17, lowerArm: 0.16, lineWidth: 0.016, walkTime: 500,
-      climbChance: 1.0, neverIdle: true, item: 'horns', special: 'flicker' }
+      height: 20, speed: 28, color: '#ff1a1a',  headRadius: 0.10, torso: 0.42, upperLeg: 0.23, lowerLeg: 0.25, upperArm: 0.17, lowerArm: 0.16, lineWidth: 0.016, walkTime: 500,
+      climbChance: 1.0, neverIdle: true, item: 'horns', special: 'writhe' }
   ];
 
   var walkers = []; // {man, x, dir, segIdx, walkR, walkL, speed}
@@ -350,11 +351,15 @@
   }
 
   function createWalkers() {
-    var unlocked = (typeof humansUnlocked !== 'undefined') ? humansUnlocked : [];
+    var created = (typeof prestigeState !== 'undefined' && prestigeState && prestigeState.createdHumans) ? prestigeState.createdHumans : [];
     for (var i = 0; i < profiles.length; i++) {
-      if (unlocked.indexOf(profiles[i].name) !== -1) {
-        createWalkerFromProfile(profiles[i]);
+      if (created.indexOf(profiles[i].name) === -1) continue;
+      // Skip if already walking
+      var alreadyExists = false;
+      for (var j = 0; j < walkers.length; j++) {
+        if (walkers[j].name === profiles[i].name) { alreadyExists = true; break; }
       }
+      if (!alreadyExists) createWalkerFromProfile(profiles[i]);
     }
   }
 
@@ -728,9 +733,9 @@
       wk.idleTimer = 0;
       var dm = wk.profile.idleDurMin || 1.5, dx = wk.profile.idleDurMax || 4;
       wk.idleDur = dm + Math.random() * (dx - dm);
-      // 50% chance to play special animation during idle
+      // Play special animation during idle
       var sp = wk.profile.special;
-      if (sp && specialAnims[sp] && Math.random() < 0.5) {
+      if (sp && specialAnims[sp] && (wk.profile.alwaysSpecial || Math.random() < 0.5)) {
         wk.specialActive = true;
         wk.man.addAnimation(specialAnims[sp]);
       } else {
@@ -789,6 +794,21 @@
     }
   }
 
+  // ===== Juggle balls drawn above stickman =====
+  function drawJuggle(ctx, profile, man, specialActive, px, py) {
+    if (profile.special !== 'juggle' || !specialActive) return;
+    var now = Date.now() * 0.008;
+    ctx.fillStyle = man.color;
+    for (var j = 0; j < 3; j++) {
+      var phase = now + j * Math.PI * 2 / 3;
+      var jx = px + Math.sin(phase) * 10;
+      var jy = py + man.getMinY() - 10 + Math.cos(phase) * 6;
+      ctx.beginPath();
+      ctx.arc(jx, jy, 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
   // ===== Items drawn on each stickman =====
   function drawItem(ctx, wk, px, py) {
     var man = wk.man, b = man.body, h = man.height;
@@ -824,11 +844,11 @@
         break;
 
       case 'shield':
-        // Filled circle at left hand
-        var shR = h * 0.08;
+        // Empty circle at left hand
+        var shR = h * 0.24;
         ctx.beginPath();
         ctx.arc(lHandX, lHandY, shR, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.stroke();
         break;
 
       case 'axe':
@@ -888,15 +908,21 @@
         break;
 
       case 'crown':
-        // Zigzag triangles above head
-        var cw = headR * 1.2, ch = headR * 0.6;
-        var cy = headY - headR - 1;
+        // Crown with vertical sides and zigzag points
+        var cw = headR * 0.8, ch = headR * 0.4;
+        var cy = headY - headR - 4;
+        var baseY = headY - headR * 0.3 - 1;
         ctx.beginPath();
-        ctx.moveTo(headX - cw, cy);
-        ctx.lineTo(headX - cw * 0.5, cy - ch);
-        ctx.lineTo(headX, cy);
-        ctx.lineTo(headX + cw * 0.5, cy - ch);
-        ctx.lineTo(headX + cw, cy);
+        // Left vertical (into head)
+        ctx.moveTo(headX - cw, baseY);
+        ctx.lineTo(headX - cw, cy - ch);
+        // Inner zigzag (tighter central peak)
+        ctx.lineTo(headX - cw * 0.35, baseY);
+        ctx.lineTo(headX, cy - ch);
+        ctx.lineTo(headX + cw * 0.35, baseY);
+        // Right vertical (into head)
+        ctx.lineTo(headX + cw, cy - ch);
+        ctx.lineTo(headX + cw, baseY);
         ctx.stroke();
         break;
 
@@ -927,16 +953,23 @@
         break;
 
       case 'horns':
-        // Two angled lines from top of head
+        // Two narrow filled triangles
         var hLen = headR * 0.9;
+        var hw = headR * 0.22;
+        // Left horn
         ctx.beginPath();
-        ctx.moveTo(headX - headR * 0.5, headY - headR * 0.7);
-        ctx.lineTo(headX - headR * 0.9, headY - headR - hLen);
-        ctx.stroke();
+        ctx.moveTo(headX - headR * 0.5 - hw, headY - headR * 0.7);
+        ctx.lineTo(headX - headR * 0.7, headY - headR - hLen);
+        ctx.lineTo(headX - headR * 0.5 + hw, headY - headR * 0.7);
+        ctx.closePath();
+        ctx.fill();
+        // Right horn
         ctx.beginPath();
-        ctx.moveTo(headX + headR * 0.5, headY - headR * 0.7);
-        ctx.lineTo(headX + headR * 0.9, headY - headR - hLen);
-        ctx.stroke();
+        ctx.moveTo(headX + headR * 0.5 - hw, headY - headR * 0.7);
+        ctx.lineTo(headX + headR * 0.7, headY - headR - hLen);
+        ctx.lineTo(headX + headR * 0.5 + hw, headY - headR * 0.7);
+        ctx.closePath();
+        ctx.fill();
         break;
     }
   }
@@ -950,13 +983,13 @@
       numRuns: 1,
       'torso': [{ time: T * 0.5, endAngle: Math.PI / 2 }],
       'rightUpperArm': [
-        { time: T, endAngle: -Math.PI / 4 },
-        { time: T * 2, endAngle: -Math.PI / 4 },
+        { time: T, endAngle: -Math.PI / 3 },
+        { time: T * 2, endAngle: -Math.PI / 3 },
         { time: T, endAngle: -4 * Math.PI / 5 }
       ],
       'rightLowerArm': [
-        { time: T, endAngle: Math.PI / 1.5 },
-        { time: T * 2, endAngle: Math.PI / 1.5 },
+        { time: T, endAngle: Math.PI / 2 },
+        { time: T * 2, endAngle: Math.PI / 2 },
         { time: T, endAngle: 0 }
       ],
       'leftUpperLeg': [{ time: T * 0.5, endAngle: -Math.PI / 14 }],
@@ -964,23 +997,23 @@
       'leftLowerLeg': [{ time: T * 0.5, endAngle: 0 }],
       'rightLowerLeg': [{ time: T * 0.5, endAngle: 0 }]
     },
-    // Hero: jump in place, arm thrust up
+    // Hero: shield parry — left arm swings across to block
     fistPump: {
-      numRuns: 1,
-      'torso': [{ time: T * 0.3, endAngle: Math.PI / 2.2 }, { time: T * 0.7, endAngle: Math.PI / 2 }],
-      'rightUpperArm': [
-        { time: T * 0.3, endAngle: -Math.PI / 6 },
-        { time: T * 1.5, endAngle: -Math.PI / 6 },
-        { time: T * 0.5, endAngle: -4 * Math.PI / 5 }
+      numRuns: 2,
+      'torso': [{ time: T * 0.3, endAngle: Math.PI / 2 }],
+      'leftUpperArm': [
+        { time: T * 0.4, endAngle: Math.PI / 3 },
+        { time: T * 0.4, endAngle: Math.PI / 1.8 },
+        { time: T * 0.4, endAngle: 4 * Math.PI / 5 }
       ],
-      'rightLowerArm': [
-        { time: T * 0.3, endAngle: 0 },
-        { time: T * 1.5, endAngle: 0 },
-        { time: T * 0.5, endAngle: 0 }
+      'leftLowerArm': [
+        { time: T * 0.4, endAngle: Math.PI / 4 },
+        { time: T * 0.4, endAngle: Math.PI / 6 },
+        { time: T * 0.4, endAngle: 0 }
       ],
-      'leftUpperLeg': [{ time: T * 0.3, endAngle: Math.PI / 6 }, { time: T * 0.5, endAngle: -Math.PI / 14 }],
-      'rightUpperLeg': [{ time: T * 0.3, endAngle: -Math.PI / 6 }, { time: T * 0.5, endAngle: Math.PI / 14 }],
-      'leftLowerLeg': [{ time: T * 0.3, endAngle: -Math.PI / 4 }, { time: T * 0.5, endAngle: 0 }],
+      'leftUpperLeg': [{ time: T * 0.3, endAngle: -Math.PI / 14 }],
+      'rightUpperLeg': [{ time: T * 0.3, endAngle: Math.PI / 14 }],
+      'leftLowerLeg': [{ time: T * 0.3, endAngle: 0 }],
       'rightLowerLeg': [{ time: T * 0.3, endAngle: -Math.PI / 4 }, { time: T * 0.5, endAngle: 0 }]
     },
     // Berserker: rapid body shake (handled in draw, not keyframes)
@@ -1028,28 +1061,16 @@
         { time: T, endAngle: 0 }
       ]
     },
-    // Artist: torso leans forward, arm sweeps
+    // Artist: painting — arm sweeps back and forth like brushstrokes
     bow: {
-      numRuns: 1,
-      'torso': [
-        { time: T, endAngle: Math.PI / 3 },
-        { time: T * 2, endAngle: Math.PI / 3 },
-        { time: T, endAngle: Math.PI / 2 }
-      ],
-      'neck': [
-        { time: T, endAngle: -Math.PI / 6 },
-        { time: T * 2, endAngle: -Math.PI / 6 },
-        { time: T, endAngle: 0 }
-      ],
+      numRuns: 3,
       'rightUpperArm': [
-        { time: T, endAngle: -Math.PI / 1.5 },
-        { time: T * 2, endAngle: -Math.PI / 1.5 },
-        { time: T, endAngle: -4 * Math.PI / 5 }
+        { time: T * 1.2, endAngle: -Math.PI / 3 },
+        { time: T * 1.2, endAngle: -Math.PI / 1.8 }
       ],
       'rightLowerArm': [
-        { time: T, endAngle: -Math.PI / 6 },
-        { time: T * 2, endAngle: -Math.PI / 6 },
-        { time: T, endAngle: 0 }
+        { time: T * 1.2, endAngle: Math.PI / 6 },
+        { time: T * 1.2, endAngle: -Math.PI / 6 }
       ]
     },
     // Saint: hands together, head bows
@@ -1085,7 +1106,7 @@
     // Tyrant: one arm extends straight forward
     point: {
       numRuns: 1,
-      'torso': [{ time: T * 0.3, endAngle: Math.PI / 2.2 }],
+      'torso': [{ time: T * 0.3, endAngle: Math.PI / 2 }],
       'rightUpperArm': [
         { time: T, endAngle: -Math.PI / 2.2 },
         { time: T * 2, endAngle: -Math.PI / 2.2 },
@@ -1121,8 +1142,40 @@
         { time: T * 0.6, endAngle: 0 }
       ]
     },
-    // Demon: flicker (handled in draw, not keyframes)
-    flicker: null
+    // Demon: writhe — torso twists, limbs contort
+    writhe: {
+      numRuns: 2,
+      'torso': [
+        { time: T * 1.2, endAngle: Math.PI / 2.6 },
+        { time: T * 1.2, endAngle: Math.PI / 1.7 },
+        { time: T * 1.2, endAngle: Math.PI / 2 }
+      ],
+      'neck': [
+        { time: T * 0.8, endAngle: Math.PI / 5 },
+        { time: T * 0.8, endAngle: -Math.PI / 4 },
+        { time: T * 0.8, endAngle: 0 }
+      ],
+      'leftUpperArm': [
+        { time: T, endAngle: Math.PI / 2 },
+        { time: T, endAngle: Math.PI / 1.3 },
+        { time: T, endAngle: 4 * Math.PI / 5 }
+      ],
+      'leftLowerArm': [
+        { time: T, endAngle: -Math.PI / 3 },
+        { time: T, endAngle: Math.PI / 2 },
+        { time: T, endAngle: 0 }
+      ],
+      'rightUpperArm': [
+        { time: T, endAngle: -Math.PI / 1.3 },
+        { time: T, endAngle: -Math.PI / 2 },
+        { time: T, endAngle: -4 * Math.PI / 5 }
+      ],
+      'rightLowerArm': [
+        { time: T, endAngle: Math.PI / 2 },
+        { time: T, endAngle: -Math.PI / 3 },
+        { time: T, endAngle: 0 }
+      ]
+    }
   };
 
   function drawWalker(wk) {
@@ -1152,11 +1205,6 @@
 
     var drawX = wk.x;
 
-    // Demon flicker: randomly skip frames
-    if (wk.profile.special === 'flicker' && wk.specialActive) {
-      if (Math.random() < 0.4) return; // skip this frame
-    }
-
     // Berserker rage: shake position
     if (wk.profile.special === 'rage' && wk.specialActive) {
       drawX += (Math.random() - 0.5) * 4;
@@ -1168,21 +1216,7 @@
     // Draw item
     drawItem(ctx, wk, drawX, posY);
 
-    // Trickster juggle: draw small dots above hands when juggling
-    if (wk.profile.special === 'juggle' && wk.specialActive) {
-      var b = wk.man.body;
-      var now = Date.now() * 0.005;
-      ctx.fillStyle = wk.man.color;
-      // Three dots arc between hands
-      for (var j = 0; j < 3; j++) {
-        var phase = now + j * Math.PI * 2 / 3;
-        var jx = drawX + Math.sin(phase) * 5;
-        var jy = posY + b.torso.startY - 3 + Math.cos(phase) * 3;
-        ctx.beginPath();
-        ctx.arc(jx, jy, 1, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
+    drawJuggle(ctx, wk.profile, wk.man, wk.specialActive, drawX, posY);
 
     // Position tooltip above the walker, clear of the body
     if (wk.hovered && tooltip) {
@@ -1209,11 +1243,11 @@
     attributes: true, attributeFilter: ['style']
   });
 
-  // Expose for debug page
+  // Expose for humans page
   window._stickman = {
     StickMan: StickMan, profiles: profiles, specialAnims: specialAnims,
     makeWalk: makeWalk, reverseAnimationX: reverseAnimationX,
-    idleAnimation: idleAnimation, drawItem: drawItem, SM_AR: function() { return SM_AR; },
+    idleAnimation: idleAnimation, drawItem: drawItem, drawJuggle: drawJuggle, SM_AR: function() { return SM_AR; },
     spawnWalker: function(name) {
       for (var i = 0; i < profiles.length; i++) {
         if (profiles[i].name === name) {
@@ -1225,6 +1259,13 @@
           return;
         }
       }
+    },
+    refreshWalkers: function() {
+      createWalkers();
+      console.log('[stickman] refreshWalkers: walkers=' + walkers.length + ', segments=' + segments.length + ', placed=' + walkers.map(function(w){return w.placed}).join(','));
+      // Force segment rebuild and placement
+      buildSegments();
+      console.log('[stickman] after buildSegments: segments=' + segments.length + ', placed=' + walkers.map(function(w){return w.placed}).join(','));
     }
   };
 })();
