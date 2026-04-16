@@ -135,7 +135,15 @@
 #artifact .name,
 #artifact .counter,
 #liquids .name,
-#liquids .counter {
+#liquids .counter,
+#alchemized1 .name,
+#alchemized1 .counter,
+#alchemized2 .name,
+#alchemized2 .counter,
+#essences .name,
+#essences .counter,
+#prestige .name,
+#prestige .counter {
 	font-weight: 900;
 }
 
@@ -383,13 +391,13 @@
 .grief { color: #696969; }
 .sacrifice { color: #800020; }
 
-/* Essences */
-.rationalMindEssence { color: #4682B4; }
-.creativeMindEssence { color: #FF6347; }
-.madMindEssence { color: #9932CC; }
-.braveSoulEssence { color: #B22222; }
-.lovingSoulEssence { color: #FF69B4; }
-.darkSoulEssence { color: #2F2F2F; }
+/* Souls & Minds */
+.rationalMind { color: #4682B4; }
+.creativeMind { color: #FF6347; }
+.madMind { color: #9932CC; }
+.braveSoul { color: #B22222; }
+.lovingSoul { color: #FF69B4; }
+.darkSoul { color: #2F2F2F; }
 
 .separate { color: OliveDrab; }
 .abstraction { color: CadetBlue; }
@@ -528,6 +536,30 @@
 	-webkit-text-fill-color: transparent;
 }
 
+/* Book crafting */
+.plant {
+	background: linear-gradient(OliveDrab, DeepSkyBlue);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+.paper {
+	background: linear-gradient(AntiqueWhite, Tan);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+.ink {
+	background: linear-gradient(#1a1a2e, #444);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+.book { color: Tan; }
+.boundBook { color: SaddleBrown; }
+.bookDistillery, .boundBookDistillery { color: DeepSkyBlue; }
+.bookMind, .boundBookMind { color: DarkTurquoise; }
+.bookSoul, .boundBookSoul { color: MediumVioletRed; }
+.bookFlesh, .boundBookFlesh { color: IndianRed; }
+.bookArtifacts, .boundBookArtifacts { color: Gold; }
+
 /* Artifacts */
 .ember {
 	background: linear-gradient(OrangeRed, DarkTurquoise, #444);
@@ -573,4 +605,184 @@
 	background: linear-gradient(Sienna, OliveDrab, CadetBlue);
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
+}
+
+/* Prestige resources */
+.clarity {
+	color: #87CEEB;
+	text-shadow: 0 0 4px rgba(135, 206, 235, 0.6);
+}
+.courage {
+	color: #DAA520;
+	text-shadow: 0 0 4px rgba(218, 165, 32, 0.6);
+}
+.leather {
+	color: #8B4513;
+}
+.elixir {
+	background: linear-gradient(#2E86C1, #48C9B0);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+.canvas {
+	color: #F5F5DC;
+	text-shadow: 0 0 2px #999;
+}
+.paint {
+	background: linear-gradient(90deg, OrangeRed, #7D3C98, DodgerBlue, LimeGreen);
+	background-size: 300% 100%;
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	animation: paint-shift 3s ease-in-out infinite;
+}
+@keyframes paint-shift {
+	0% { background-position: 0% 50%; }
+	50% { background-position: 100% 50%; }
+	100% { background-position: 0% 50%; }
+}
+.masterpiece {
+	background: linear-gradient(90deg, #7D3C98, gold, #7D3C98);
+	background-size: 200% 100%;
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	animation: masterpiece-shimmer 4s linear infinite;
+}
+@keyframes masterpiece-shimmer {
+	0% { background-position: 0% 50%; }
+	100% { background-position: 200% 50%; }
+}
+.blessedOil {
+	background: linear-gradient(#17A589, gold);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+.spirit {
+	color: #17A589;
+	text-shadow: 0 0 6px rgba(23, 165, 137, 0.5);
+}
+.gold {
+	color: gold;
+	text-shadow: 0 0 4px rgba(255, 215, 0, 0.8);
+}
+.beads {
+	background: linear-gradient(90deg, #6C7A3A, #DAA520, #6C7A3A);
+	background-size: 200% 100%;
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	animation: beads-roll 2s linear infinite;
+}
+@keyframes beads-roll {
+	0% { background-position: 0% 50%; }
+	100% { background-position: 200% 50%; }
+}
+.goo {
+	color: #556B2F;
+	text-shadow: 0 0 3px rgba(85, 107, 47, 0.7);
+}
+.failAlchemize {
+	color: #8B0000;
+}
+.failure {
+	color: #8B0000;
+	text-shadow: 0 0 3px rgba(139, 0, 0, 0.5);
+}
+.sin {
+	background: linear-gradient(#000, #8B0000, #000);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+
+/* Trickster modal */
+/* Oracle Divination Modal */
+#oracleModal {
+	display: none;
+	position: fixed;
+	top: 0; left: 0; right: 0; bottom: 0;
+	background: rgba(0, 0, 0, 0.9);
+	z-index: 10000;
+	justify-content: center;
+	align-items: center;
+}
+#oracleModal .oracle-modal-content {
+	background: #0d0d1a;
+	border: 2px solid #6a0dad;
+	border-radius: 8px;
+	padding: 30px 40px;
+	text-align: center;
+	max-width: 420px;
+	color: #ccc;
+	font-family: 'EB Garamond', serif;
+}
+#oracleModal .oracle-modal-title {
+	font-size: 1.4em;
+	color: #6a0dad;
+	margin-bottom: 20px;
+}
+#oracleModal .oracle-modal-riddle {
+	font-size: 1.2em;
+	font-style: italic;
+	line-height: 1.6;
+	color: #e0d0f0;
+	margin: 20px 0;
+}
+#oracleModal .oracle-modal-buttons {
+	margin-top: 25px;
+}
+#oracleModalClose {
+	padding: 8px 20px;
+	cursor: pointer;
+	border: 1px solid #6a0dad;
+	border-radius: 4px;
+	background: #1a0a2e;
+	color: #ccc;
+}
+
+#tricksterModal {
+	display: none;
+	position: fixed;
+	top: 0; left: 0; right: 0; bottom: 0;
+	background: rgba(0, 0, 0, 0.85);
+	z-index: 10000;
+	display: none;
+	justify-content: center;
+	align-items: center;
+}
+#tricksterModal .trickster-content {
+	background: #1a1a1a;
+	border: 2px solid #6C7A3A;
+	border-radius: 8px;
+	padding: 30px;
+	text-align: center;
+	max-width: 400px;
+	color: #ccc;
+	font-family: 'EB Garamond', serif;
+}
+#tricksterModal .trickster-title {
+	font-size: 1.4em;
+	color: #6C7A3A;
+	margin-bottom: 15px;
+}
+#tricksterModal .trickster-offer {
+	margin: 15px 0;
+	font-size: 1.1em;
+}
+#tricksterModal .trickster-buttons {
+	display: flex;
+	gap: 15px;
+	justify-content: center;
+	margin-top: 20px;
+}
+#tricksterModal .trickster-buttons .button {
+	padding: 8px 20px;
+	cursor: pointer;
+	border: 1px solid #666;
+	border-radius: 4px;
+}
+#tricksterAccept {
+	background: #2F4F2F;
+	color: #ccc;
+}
+#tricksterDecline {
+	background: #4F2F2F;
+	color: #ccc;
 }

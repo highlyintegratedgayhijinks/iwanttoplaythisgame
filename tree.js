@@ -35,10 +35,12 @@ function tree() {
         if (treeStatus == "hidden") {
             if (typeof closeSettings === 'function') closeSettings();
             if (typeof closeHumans === 'function') closeHumans();
+            if (typeof closeLibrary === 'function') closeLibrary();
             treeStatus = "shown";
             $('#treeButton').removeClass("tree").addClass("back");
             $('#wrapper').hide();
             $('#machines').hide();
+            $('#finalMachines').hide();
             $('#treePage').show();
             $('#stickmanCanvas').hide();
             requestAnimationFrame(function () { initGraph(); });
@@ -47,6 +49,7 @@ function tree() {
             $('#treeButton').addClass("tree").removeClass("back");
             $('#wrapper').show();
             if (showStatus && showStatus.machines === "unlocked") $('#machines').show();
+            if ($('#container').hasClass('has-final-machines')) $('#finalMachines').show();
             $('#treePage').hide();
             $('#stickmanCanvas').show();
         }
@@ -96,6 +99,8 @@ function tree() {
         if (typeof ideas !== "undefined" && ideas[key] > 0) return true;
         // Pure things
         if (typeof things !== "undefined" && things[key] > 0) return true;
+        // Seen via books or athenaeum
+        if (typeof seenNames !== "undefined" && seenNames[key]) return true;
         return false;
     }
 
@@ -166,13 +171,13 @@ function tree() {
         devotion: { color: "#4169E1" },
         grief: { color: "#696969" },
         sacrifice: { color: "#800020" },
-        // Essences
-        rationalMindEssence: { color: "#4682B4" },
-        creativeMindEssence: { color: "#FF6347" },
-        madMindEssence: { color: "#9932CC" },
-        braveSoulEssence: { color: "#B22222" },
-        lovingSoulEssence: { color: "#FF69B4" },
-        darkSoulEssence: { color: "#2F2F2F" },
+        // Souls & Minds
+        rationalMind: { color: "#4682B4" },
+        creativeMind: { color: "#FF6347" },
+        madMind: { color: "#9932CC" },
+        braveSoul: { color: "#B22222" },
+        lovingSoul: { color: "#FF69B4" },
+        darkSoul: { color: "#2F2F2F" },
         // Life
         life: { gradient: ["CadetBlue", "OliveDrab", "MediumVioletRed"] },
         // Tier 1 alchemized things
@@ -334,6 +339,11 @@ function tree() {
             addNode(id, items[id].idea, "pureIdea");
         });
 
+        // Prestige pure ideas
+        ["clarity", "courage", "spirit", "failure"].forEach(function (id) {
+            if (items[id] && items[id].idea) addNode(id, items[id].idea, "pureIdea");
+        });
+
         // -- Pure things (matter + elements + alchemized things) --
         var alchThings = [];
         addNode("matter", items["matter"].thing, "pureThing");
@@ -346,6 +356,32 @@ function tree() {
                 alchThings.push(id);
             }
         });
+
+        // Prestige pure things
+        ["leather", "elixir", "canvas", "paint", "masterpiece", "gold", "beads", "goo", "sin"].forEach(function (id) {
+            if (items[id] && items[id].thing) addNode(id, items[id].thing, "pureThing");
+        });
+
+        // Prestige liquid
+        if (items.blessedOil && items.blessedOil.liquid) {
+            addNode("liquid_blessedOil", items.blessedOil.liquid, "liquid");
+        }
+
+        // Artifacts
+        var artifactIds = [];
+        Object.keys(items).forEach(function (id) {
+            if (items[id].type === "artifact") {
+                addNode(id, items[id].thing, "artifact");
+                artifactIds.push(id);
+            }
+        });
+
+        // failAlchemize impure chain
+        if (items.failAlchemize) {
+            addNode("idea_failAlchemize", items.failAlchemize.idea, "impureIdea");
+            addNode("thing_failAlchemize", items.failAlchemize.thing, "impureThing");
+            addNode("failAlchemizeDust", items.failAlchemize.dust, "dust");
+        }
 
         // === Measure ALL node widths ===
         ctx.save();
@@ -478,6 +514,22 @@ function tree() {
         var t3sorted = sortByIngredientX(tier3);
         layoutRow(t3sorted, 10, 40);
 
+        // L11: Prestige resources + artifacts
+        var prestigeRow = ["clarity", "courage", "spirit", "failure",
+                           "leather", "elixir", "canvas", "paint", "masterpiece",
+                           "gold", "beads", "goo", "sin"].filter(function(id){ return nodeMap[id]; });
+        if (nodeMap["liquid_blessedOil"]) prestigeRow.push("liquid_blessedOil");
+        prestigeRow = prestigeRow.concat(artifactIds.filter(function(id){ return nodeMap[id]; }));
+        if (prestigeRow.length) layoutRow(prestigeRow, 11, 40);
+
+        // failAlchemize impure chain layout (alongside other impure columns)
+        if (nodeMap["idea_failAlchemize"]) {
+            var faX = graphW - 100;
+            nodeMap["idea_failAlchemize"].x = faX; nodeMap["idea_failAlchemize"].y = layerYs[1]; nodeMap["idea_failAlchemize"].layer = 1;
+            nodeMap["thing_failAlchemize"].x = faX; nodeMap["thing_failAlchemize"].y = layerYs[2]; nodeMap["thing_failAlchemize"].layer = 2;
+            nodeMap["failAlchemizeDust"].x = faX; nodeMap["failAlchemizeDust"].y = layerYs[3]; nodeMap["failAlchemizeDust"].layer = 3;
+        }
+
         // L0: Facts — layout as a row, no incoming edges
         layoutRow(factIds.map(function (id) { return "fact_" + id; }), 0);
 
@@ -516,10 +568,20 @@ function tree() {
         // MentAll → idealSubstance
         addEdge("idea_mentAll", "idealSubstance", "produces", "+N");
 
+        // failAlchemize chain edges
+        if (nodeMap["idea_failAlchemize"]) {
+            addEdge("fact_failAlchemize", "idea_failAlchemize", "produces", "mentalize");
+            addEdge("idea_failAlchemize", "thing_failAlchemize", "produces", "reify");
+            addEdge("thing_failAlchemize", "failAlchemizeDust", "dust", "pulverize");
+            addEdge("idea_failAlchemize", "failure", "purify", "purify");
+        }
+
         // Alchemy: ingredients → result
         Object.keys(items).forEach(function (id) {
             if (items[id].ingredients) {
-                items[id].ingredients.forEach(function (ing) { addEdge(ing, id, "alchemy"); });
+                items[id].ingredients.forEach(function (ing) {
+                    if (nodeMap[ing] && nodeMap[id]) addEdge(ing, id, "alchemy");
+                });
             }
         });
 
@@ -1057,4 +1119,9 @@ function tree() {
             }
         });
     }
+
+    // Expose API for modifiers
+    window._tree = {
+        setShowAll: function(val) { showAll = val; if (typeof requestRender === 'function') requestRender(); }
+    };
 }

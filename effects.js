@@ -156,7 +156,7 @@ function applyCrumble(el) {
 
 function initDecayCrumble() {
 	document.querySelectorAll('.decay').forEach(function(el) {
-		if (el.closest('#oracleResult')) return;
+		if (el.closest('#athenaeumResult')) return;
 		if (el.classList.contains('item')) {
 			var name = el.querySelector('.name');
 			var counter = el.querySelector('.counter');

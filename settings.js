@@ -95,6 +95,10 @@ function settings(){
             saveGameSettings();
             applyGameSettings();
         });
+
+        $('#creditsWant').on("click", function(){
+            logMessage("want");
+        });
     }
 
     function wipeSave(){
@@ -182,11 +186,13 @@ function settings(){
             <div class="header"><strong>Credits</strong></div>
             <div class="content">
             <div class="text">
-            I want to play this game
+            <div class="button want" id="creditsWant">I want to play this game</div>
             <br/>
-            made in 2023 by Manfredi Pumo @ <a href="https://high.pumo.mp"><img src="img/highlogo.svg" class="high"></img></a>
-            <br/>
-            <a href="https://galaxy.click/play/105"><img src="img/galaxy.svg" class="galaxy"></a>
+            made by <a href="https://hijinks.uno"><img src="img/highlogo.svg" class="high"></img></a>
+            <div class="credits-links">
+                <a href="https://discord.gg/" target="_blank" class="button credits-link">Join our Discord</a>
+                <a href="https://patreon.com/" target="_blank" class="button credits-link">Support us on Patreon</a>
+            </div>
             </div>
             
             </div>
@@ -243,6 +249,7 @@ function settings(){
             $('#settingsButton').removeClass("settings").addClass("back");
             $('#wrapper').hide();
             $('#machines').hide();
+            $('#finalMachines').hide();
             $('#settings').show();
             updateStats();
             statsInterval = setInterval(updateStats, 1000);
@@ -252,6 +259,7 @@ function settings(){
             $('#settingsButton').addClass("settings").removeClass("back");
             $('#wrapper').show();
             if (showStatus && showStatus.machines === "unlocked") $('#machines').show();
+            if ($('#container').hasClass('has-final-machines')) $('#finalMachines').show();
             $('#settings').hide();
             clearInterval(statsInterval);
     }

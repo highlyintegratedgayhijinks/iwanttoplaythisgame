@@ -82,8 +82,50 @@ $(document).bind('keydown', function (event) {
 });
 
 $(document).bind('keydown', function (event) {
+	if (event.key == "H") {
+		// Unlock all humans
+		if (typeof prestigeState === 'undefined') window.prestigeState = {};
+		if (!prestigeState.createdHumans) prestigeState.createdHumans = [];
+		var profiles = window._stickman ? window._stickman.profiles : [];
+		for (var i = 0; i < profiles.length; i++) {
+			if (prestigeState.createdHumans.indexOf(profiles[i].name) === -1) {
+				prestigeState.createdHumans.push(profiles[i].name);
+			}
+		}
+		if (typeof refreshHumansButton === 'function') refreshHumansButton();
+
+		// Unlock all books
+		$.each(bookPages, function(topic, pages){
+			bookProgress[topic] = pages.length;
+			pages.forEach(function(page){
+				page.ingredients.forEach(function(ing){ seeName(ing); });
+				seeName(page.result);
+			});
+		});
+		$('#libraryButton').show();
+		if(libraryPageStatus === 'shown') renderLibrary();
+
+		// Unlock all artifacts
+		if (!prestigeState.craftedArtifacts) prestigeState.craftedArtifacts = [];
+		var allArtifacts = ['wreath', 'ember', 'echo', 'root', 'tear', 'shard', 'sigil', 'crown', 'veil'];
+		for (var i = 0; i < allArtifacts.length; i++) {
+			if (prestigeState.craftedArtifacts.indexOf(allArtifacts[i]) === -1) {
+				prestigeState.craftedArtifacts.push(allArtifacts[i]);
+			}
+			things[allArtifacts[i]] = (things[allArtifacts[i]] || 0) + 1;
+			seeName(allArtifacts[i]);
+		}
+		buildAllItems();
+		if (typeof refreshArtifactsButton === 'function') refreshArtifactsButton();
+		updateLocalStorage();
+	}
+});
+
+$(document).bind('keydown', function (event) {
 	if (event.key == "0") {
-		startVar();
+		prestigeResetting = true;
+		localStorage.removeItem('gameState');
+		localStorage.removeItem('prestigeState');
 		location.reload();
 	}
 });
