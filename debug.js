@@ -103,7 +103,7 @@ $(document).bind('keydown', function (event) {
 			});
 		});
 		$('#libraryButton').show();
-		if(libraryPageStatus === 'shown') renderLibrary();
+		if(libraryPageStatus === 'shown') renderBookcase();
 
 		// Unlock all artifacts
 		if (!prestigeState.craftedArtifacts) prestigeState.craftedArtifacts = [];

@@ -1316,27 +1316,30 @@ body.no-animations .fuelDraw {
 	box-sizing: border-box;
 }
 
-#enminder .fm-layout {
-	padding-left: 50px;
-	padding-right: 15px;
-}
-
-#enminder .fm-center {
-	margin-left: -60px;
-}
-
+#enminder .fm-layout,
 #ensouler .fm-layout {
-	padding-left: 15px;
-	padding-right: 50px;
+	justify-content: center;
+	padding: 0;
+}
+
+#enminder .fm-layout > *,
+#ensouler .fm-layout > * {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.fm-action-side {
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 #altar .fm-layout {
 	padding-left: 15px;
 	padding-right: 15px;
-}
-
-#ensouler .fm-center {
-	margin-right: -60px;
+	justify-content: center;
 }
 
 
@@ -1363,34 +1366,22 @@ body.no-animations .fuelDraw {
 }
 
 .fm-gauge-circle-side {
-	position: relative;
 	display: flex;
+	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	width: 80px;
-	min-width: 80px;
-	height: 90px;
 }
 
-.fm-gauge-circle-side .fm-gauge-label,
-.fm-gauge-circle-side .fm-gauge-name,
-.fm-gauge-circle-side .button {
-	position: absolute;
-	left: 50%;
-	transform: translateX(-50%);
+.fm-gauge-circle-side::before {
+	content: '';
+	height: 85px;
+}
+
+.fm-circle-info {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
 	white-space: nowrap;
-}
-
-.fm-gauge-circle-side .fm-gauge-label {
-	top: calc(100% + 4px);
-}
-
-.fm-gauge-circle-side .fm-gauge-name {
-	top: calc(100% + 18px);
-}
-
-.fm-gauge-circle-side .button {
-	top: calc(100% + 34px);
 }
 
 .fm-circle-gauge {
@@ -1480,15 +1471,11 @@ body.no-animations .fuelDraw {
 
 .fm-preserver-tube {
 	position: absolute;
-	top: 48px;
-	left: 120px;
-	width: 220px;
 	height: 6px;
 	background: white;
 	border: 1.5px solid black;
 	z-index: 0;
 	transform-origin: left center;
-	transform: rotate(48deg);
 	overflow: hidden;
 }
 
@@ -1536,6 +1523,18 @@ body.no-animations .fuelDraw {
 	width: 100%;
 	height: 100%;
 	overflow: visible;
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+.altar-artifact-hex .hex-artifact-canvas {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	pointer-events: none;
 }
 
 .altar-artifact-hex .hex-border {
@@ -1550,24 +1549,10 @@ body.no-animations .fuelDraw {
 	stroke-width: 1.8;
 }
 
-.altar-artifact-hex.placed .hex-border {
-	stroke: #333;
-}
-
 .altar-artifact-hex.placed .hex-circle {
-	fill: #f5e6c8;
-	stroke: #333;
+	display: none;
 }
 
-.hex-artifact-name {
-	position: absolute;
-	bottom: -16px;
-	left: 50%;
-	transform: translateX(-50%);
-	font-size: 10px;
-	color: #666;
-	white-space: nowrap;
-}
 
 .altar-stickman-canvas {
 	display: block;
@@ -1679,7 +1664,6 @@ body.no-animations .fuelDraw {
 .fm-bowl-gauge .fm-gauge-name,
 .fm-tank-gauge .fm-gauge-label,
 .fm-tank-gauge .fm-gauge-name {
-	margin-top: 2px;
 	white-space: nowrap;
 }
 
@@ -1709,19 +1693,23 @@ body.no-animations .fuelDraw {
 }
 
 .fm-gauge-label {
-	font-size: 11px;
+	font-size: 12px;
 	margin-top: 6px;
 	white-space: nowrap;
 }
 
 .fm-gauge-name {
-	font-size: 12px;
+	font-size: 14px;
 	font-weight: bold;
-	margin-top: 2px;
+	margin-top: 1px;
 }
 
-.fm-gauge-side .button {
-	margin-top: 4px;
+.fm-gauge-side .button,
+.fm-circle-info .button,
+.fm-flesh-controls .button,
+.fm-tank-gauge .button,
+.fm-bowl-gauge .button {
+	margin-top: 8px;
 }
 
 .fm-triangle-btn {
@@ -1730,16 +1718,6 @@ body.no-animations .fuelDraw {
 	transform: translateY(-50%);
 	z-index: 1;
 	white-space: nowrap;
-}
-
-.fm-triangle-btn.right {
-	right: -30px;
-	transform: translate(100%, -50%);
-}
-
-.fm-triangle-btn.left {
-	left: -30px;
-	transform: translate(-100%, -50%);
 }
 
 .fm-center {
@@ -1764,15 +1742,13 @@ body.no-animations .fuelDraw {
 }
 
 .fm-connector {
-	flex: 1;
+	position: absolute;
 	height: 12px;
 	background-color: white;
 	border: 1.5px solid black;
-	margin-left: -40px;
-	margin-right: -40px;
 	z-index: 0;
-	position: relative;
 	overflow: hidden;
+	transform-origin: left center;
 }
 
 .fm-connector-flow {
@@ -1861,11 +1837,6 @@ body.no-animations .fuelDraw {
 	stroke-width: 1;
 }
 
-.fm-flesh-label {
-	font-size: 14px;
-	font-weight: bold;
-	margin-top: 4px;
-}
 
 .fm-triangle-wrap {
 	position: relative;
@@ -1929,42 +1900,23 @@ body.no-animations .fuelDraw {
 }
 
 .enminder-lightning {
-	background: linear-gradient(
-		135deg,
-		#0d2a4a 0%, #1a3a2a 15%, #2a1a0a 25%,
-		#00bfff 30%, #0a1a3a 35%, #ffcc00 40%,
-		#1a0a2a 45%, #7df9ff 50%, #2a2a0a 55%,
-		#ffe066 60%, #0a2a3a 65%, #00bfff 70%,
-		#1a1a0a 75%, #ffcc00 80%, #0a1a2a 85%,
-		#7df9ff 90%, #2a1a0a 95%, #ffe066 100%
-	);
-	background-size: 300% 300%;
-	animation: lightning-bg-chaos 8s linear infinite;
+	background-color: #e8a317;
 	position: relative;
 	overflow: visible;
-}
-
-@keyframes lightning-bg-chaos {
-	0%   { background-position: 0% 0%; }
-	25%  { background-position: 100% 50%; }
-	50%  { background-position: 50% 100%; }
-	75%  { background-position: 100% 0%; }
-	100% { background-position: 0% 0%; }
 }
 
 .enminder-lightning canvas {
 	position: absolute;
 	top: -10px;
 	left: -4px;
-	width: calc(100% + 8px);
-	height: calc(100% + 20px);
 	pointer-events: none;
 }
 
 #enminder .fm-bottom-gauge-bar,
 #enminder .fm-bottom-gauge-bar .gaugeDraw,
 #enminder .fm-bottom-gauge,
-#enminder.box {
+#finalMachines #enminder.box,
+#finalMachines .box {
 	overflow: visible;
 }
 
@@ -2085,6 +2037,10 @@ body.no-animations .fuelDraw {
 
 #libraryButton.libraryIcon:after {
 	content: '\e865';
+}
+
+#libraryButton.back:after {
+	content: '\e5cd';
 }
 
 /* Book Page Modal (study reveal) */
