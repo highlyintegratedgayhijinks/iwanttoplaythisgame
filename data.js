@@ -87,6 +87,94 @@ const items = {
 		rarity: "unique",
 		purified: "abstraction"
 	},
+	forge: {
+		idea: "The idea of forging something",
+		type: "impure",
+		rarity: "unique",
+		purified: "passion"
+	},
+	distill: {
+		idea: "The idea of distilling something",
+		type: "impure",
+		rarity: "unique",
+		purified: "purity"
+	},
+	bind: {
+		idea: "The idea of binding a book",
+		type: "impure",
+		rarity: "unique",
+		purified: "sacrifice"
+	},
+	write: {
+		idea: "The idea of writing something",
+		type: "impure",
+		rarity: "unique",
+		purified: "spark"
+	},
+	consult: {
+		idea: "The idea of consulting the Oracle",
+		type: "impure",
+		rarity: "unique",
+		purified: "dream"
+	},
+	study: {
+		idea: "The idea of studying something",
+		type: "impure",
+		rarity: "unique",
+		purified: "thought"
+	},
+	learn: {
+		idea: "The idea of learning something",
+		type: "impure",
+		rarity: "unique",
+		purified: "consciousness"
+	},
+	enmind: {
+		idea: "The idea of enminding a mind",
+		type: "impure",
+		rarity: "unique",
+		purified: "mind"
+	},
+	ensoul: {
+		idea: "The idea of ensouling a soul",
+		type: "impure",
+		rarity: "unique",
+		purified: "will"
+	},
+	createHuman: {
+		type: "impure",
+		rarity: "unique",
+	},
+	articraft: {
+		idea: "The idea of crafting an artifact",
+		type: "impure",
+		rarity: "unique",
+		purified: "primaMateria"
+	},
+	painting: {
+		idea: "The idea of painting a masterpiece",
+		type: "impure",
+		rarity: "unique",
+		purified: "imagination"
+	},
+	pray: {
+		idea: "The idea of producing spirit",
+		type: "impure",
+		rarity: "unique",
+		purified: "divinity"
+	},
+	sinning: {
+		idea: "The idea of forging a sin",
+		type: "impure",
+		rarity: "unique",
+		purified: "evil"
+	},
+	buy: {
+		idea: "The idea of buying something",
+		type: "impure",
+		rarity: "unique",
+		purified: "progress"
+	},
 	mind: {
 		idea: "Mind",
 		type: "pure",
@@ -853,6 +941,51 @@ const actions = {
 	failAlchemize: {
 		log: "You failed to alchemize.",
 		action: "alchemize",
+	},
+	forge: {
+		log: "You forged something.",
+	},
+	distill: {
+		log: "You distilled something.",
+	},
+	bind: {
+		log: "You bound a book.",
+	},
+	write: {
+		log: "You wrote something.",
+	},
+	consult: {
+		log: "You consulted the Oracle.",
+	},
+	study: {
+		log: "You studied something.",
+	},
+	learn: {
+		log: "You learned something.",
+	},
+	enmind: {
+		log: "You enminded a mind.",
+	},
+	ensoul: {
+		log: "You ensouled a soul.",
+	},
+	createHuman: {
+		log: "You created a human.",
+	},
+	articraft: {
+		log: "You crafted an artifact.",
+	},
+	painting: {
+		log: "You painted a masterpiece.",
+	},
+	pray: {
+		log: "You produced spirit.",
+	},
+	sinning: {
+		log: "You forged a sin.",
+	},
+	buy: {
+		log: "You bought something.",
 	},
 }
 

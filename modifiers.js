@@ -381,7 +381,7 @@ function articraft(item) {
 	if (prestigeState.craftedArtifacts.indexOf(item) === -1) {
 		prestigeState.craftedArtifacts.push(item);
 	}
-	logMessage("alchemize");
+	logMessage("articraft");
 	if (typeof refreshArtifactsButton === 'function') refreshArtifactsButton();
 }
 
@@ -396,7 +396,7 @@ function atelierCraft() {
 	$('.subMachine.atelier .oracle-gauge .fuel').text(atelierFuel.imagination);
 	$('.subMachine.atelier .oracle-gauge .fuelDraw').css('width', (atelierFuel.imagination / 10 * 100) + '%');
 	acquire("things", "masterpiece", 1);
-	logMessage("alchemize");
+	logMessage("painting");
 }
 
 // Chapel: Faith + Devotion + Blessed Oil (fuel) -> Spirit
@@ -409,7 +409,7 @@ function chapelCraft() {
 	$('.subMachine.chapel .oracle-gauge .fuel').text(chapelFuel.blessedOil);
 	$('.subMachine.chapel .oracle-gauge .fuelDraw').css('width', (chapelFuel.blessedOil / 10 * 100) + '%');
 	acquire("ideas", "spirit", 1);
-	logMessage("alchemize");
+	logMessage("pray");
 }
 
 // Abyss: Faildust + Goo + Failure + Evil (fuel) -> Sin
@@ -423,7 +423,7 @@ function abyssCraft() {
 	$('.subMachine.abyss .oracle-gauge .fuel').text(abyssFuel.evil);
 	$('.subMachine.abyss .oracle-gauge .fuelDraw').css('width', (abyssFuel.evil / 10 * 100) + '%');
 	acquire("things", "sin", 1);
-	logMessage("alchemize");
+	logMessage("sinning");
 }
 
 // Market: Spend Gold to buy resources
@@ -440,4 +440,5 @@ function marketBuy(resourceId, amount) {
 	pay("things", "gold", totalCost);
 	var type = evalType(resourceId);
 	acquire(type, resourceId, amount);
+	logMessage("buy");
 }
