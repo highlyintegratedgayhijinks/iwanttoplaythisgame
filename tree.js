@@ -42,6 +42,7 @@ function tree() {
             $('#machines').hide();
             $('#finalMachines').hide();
             $('#treePage').show();
+            if (typeof mobileHideGameUI === 'function') mobileHideGameUI();
             $('#stickmanCanvas').hide();
             requestAnimationFrame(function () { initGraph(); });
         } else {
@@ -51,6 +52,7 @@ function tree() {
             if (showStatus && showStatus.machines === "unlocked") $('#machines').show();
             if ($('#container').hasClass('has-final-machines')) $('#finalMachines').show();
             $('#treePage').hide();
+            if (typeof mobileShowGameUI === 'function') mobileShowGameUI();
             $('#stickmanCanvas').show();
         }
     }
@@ -58,8 +60,8 @@ function tree() {
     // === Constants ===
     var nodeW = 94, nodeH = 26, cornerR = 1.5;
     var graphW = 3200;
-    var layerYs = [40, 170, 300, 430, 560, 690, 820, 940, 1060, 1180, 1300, 1420];
-    //             L0   L1    L2    L3   L4    L5   L6    L7   L8    L9    L10   L11
+    var layerYs = [40, 100, 170, 230, 290, 350, 480, 610, 740, 860, 980, 1100, 1220, 1340, 1460, 1580, 1700, 1820];
+    //             L0   L1   L2   L3   L4   L5   L6    L7    L8   L9   L10   L11   L12   L13   L14   L15   L16   L17
 
     // === State ===
     var nodeList = [], nodeMap = {}, edgeList = [];
@@ -204,16 +206,47 @@ function tree() {
         halo: { gradient: ["OrangeRed", "gold"] },
         mist: { gradient: ["DeepSkyBlue", "LightSkyBlue"] },
         seed: { gradient: ["Sienna", "MediumVioletRed"] },
+        // Book crafting
+        plant: { gradient: ["OliveDrab", "DeepSkyBlue"] },
+        paper: { gradient: ["AntiqueWhite", "Tan"] },
+        ink: { gradient: ["#1a1a2e", "#444"] },
+        book: { color: "Tan" },
+        bookDistillery: { color: "DeepSkyBlue" },
+        bookMind: { color: "DarkTurquoise" },
+        bookSoul: { color: "MediumVioletRed" },
+        bookFlesh: { color: "IndianRed" },
+        bookArtifacts: { color: "Gold" },
+        scrollDistillery: { color: "DeepSkyBlue" },
+        scrollMind: { color: "DarkTurquoise" },
+        scrollSoul: { color: "MediumVioletRed" },
+        scrollFlesh: { color: "IndianRed" },
+        scrollArtifacts: { color: "Gold" },
         // Artifacts
-        ember: { gradient: ["OrangeRed", "DarkTurquoise", "#444"] },
-        echo: { gradient: ["LightSkyBlue", "rgb(200,170,255)", "magenta"] },
-        root: { gradient: ["Sienna", "BlueViolet", "OliveDrab"] },
-        tear: { gradient: ["DeepSkyBlue", "#696969", "#FFD700"] },
-        shard: { gradient: ["Sienna", "#4B0082", "gold"] },
-        sigil: { gradient: ["DarkTurquoise", "rgb(226,14,84)", "OrangeRed"] },
-        crown: { gradient: ["OrangeRed", "DarkTurquoise", "Blue"] },
-        veil: { gradient: ["DeepSkyBlue", "DodgerBlue", "#4A6FA5"] },
-        wreath: { gradient: ["Sienna", "OliveDrab", "CadetBlue"] },
+        ember: { gradient: ["#FF4500", "#CC3300", "#5C1A00"] },
+        echo: { gradient: ["#B0C4DE", "#8899AA", "#A8B8C8"] },
+        root: { gradient: ["#6B4226", "#8B5E3C", "#4A2F1A"] },
+        tear: { gradient: ["#87CEEB", "#5B9BD5", "#B0D4E8"] },
+        shard: { gradient: ["#7B68EE", "#4B0082", "#9370DB"] },
+        sigil: { gradient: ["#8B0000", "#4A0010", "#2A0008"] },
+        crown: { gradient: ["#DAA520", "#B8860B", "#6A0DAD"] },
+        veil: { gradient: ["#C8C8DC", "#9A8FBF", "#B0A8C8"] },
+        wreath: { gradient: ["#6B8E23", "#3A5F0B", "#2E8B57"] },
+        // Prestige resources
+        clarity: { color: "#87CEEB", shadowColor: "rgba(135,206,235,0.6)", shadowBlur: 4 },
+        courage: { color: "#DAA520", shadowColor: "rgba(218,165,32,0.6)", shadowBlur: 4 },
+        leather: { color: "#8B4513" },
+        elixir: { gradient: ["#2E86C1", "#48C9B0"] },
+        canvas: { color: "#F5F5DC", shadowColor: "#999", shadowBlur: 2 },
+        paint: { gradient: ["OrangeRed", "#7D3C98", "DodgerBlue", "LimeGreen"] },
+        masterpiece: { gradient: ["#7D3C98", "gold", "#7D3C98"] },
+        blessedOil: { gradient: ["#17A589", "gold"] },
+        spirit: { color: "#17A589", shadowColor: "rgba(23,165,137,0.5)", shadowBlur: 6 },
+        gold: { color: "gold", shadowColor: "rgba(255,215,0,0.8)", shadowBlur: 4 },
+        beads: { gradient: ["#6C7A3A", "#DAA520", "#6C7A3A"] },
+        goo: { color: "#556B2F", shadowColor: "rgba(85,107,47,0.7)", shadowBlur: 3 },
+        failAlchemize: { color: "#8B0000" },
+        failure: { color: "#8B0000", shadowColor: "rgba(139,0,0,0.5)", shadowBlur: 3 },
+        sin: { gradient: ["#000", "#8B0000", "#000"] },
     };
 
     function getColorKey(id) {
@@ -293,11 +326,16 @@ function tree() {
         });
 
         // -- L1: Impure ideas --
-        var impureIds = ["want", "mentalize", "reify", "pulverize", "purify", "alchemize", "separate", "destroy"];
+        var impureIds = ["want", "mentalize", "reify", "pulverize", "purify", "alchemize", "separate", "destroy", "failAlchemize"];
         impureIds.forEach(function (id) {
             addNode("idea_" + id, items[id].idea, "impureIdea");
         });
         addNode("idea_mentAll", items["mentAll"].idea, "impureIdea");
+
+        var uniqueImpureIds = ["forge", "distill", "bind", "write", "consult", "study", "learn", "enmind", "ensoul", "articraft", "painting", "pray", "sinning", "buy"];
+        uniqueImpureIds.forEach(function (id) {
+            if (items[id] && items[id].idea) addNode("idea_" + id, items[id].idea, "impureIdea");
+        });
 
         // -- L1: Impure things --
         impureIds.forEach(function (id) {
@@ -339,6 +377,16 @@ function tree() {
             addNode(id, items[id].idea, "pureIdea");
         });
 
+        // Minds & Souls (essence)
+        var mindIds = [], soulIds = [];
+        Object.keys(items).forEach(function (id) {
+            if (items[id].subtype === "essence" && items[id].idea) {
+                addNode(id, items[id].idea, "essence");
+                if (id.indexOf("Mind") > -1) mindIds.push(id);
+                else if (id.indexOf("Soul") > -1) soulIds.push(id);
+            }
+        });
+
         // Prestige pure ideas
         ["clarity", "courage", "spirit", "failure"].forEach(function (id) {
             if (items[id] && items[id].idea) addNode(id, items[id].idea, "pureIdea");
@@ -376,12 +424,15 @@ function tree() {
             }
         });
 
-        // failAlchemize impure chain
-        if (items.failAlchemize) {
-            addNode("idea_failAlchemize", items.failAlchemize.idea, "impureIdea");
-            addNode("thing_failAlchemize", items.failAlchemize.thing, "impureThing");
-            addNode("failAlchemizeDust", items.failAlchemize.dust, "dust");
-        }
+        // Books
+        var bookIds = [];
+        Object.keys(items).forEach(function (id) {
+            if (items[id].subtype === "book" && items[id].thing) {
+                addNode(id, items[id].thing, "book");
+                bookIds.push(id);
+            }
+        });
+
 
         // === Measure ALL node widths ===
         ctx.save();
@@ -412,16 +463,29 @@ function tree() {
             var ni = nodeMap["idea_" + id];
             var nt = nodeMap["thing_" + id];
             var nd = nodeMap[id + "Dust"];
-            ni.x = cx - ni.w / 2; ni.y = layerYs[1]; ni.layer = 1;
-            nt.x = cx - nt.w / 2; nt.y = layerYs[2]; nt.layer = 2;
-            nd.x = cx - nd.w / 2; nd.y = layerYs[3]; nd.layer = 3;
+            ni.x = cx - ni.w / 2; ni.y = layerYs[2]; ni.layer = 2;
+            nt.x = cx - nt.w / 2; nt.y = layerYs[4]; nt.layer = 4;
+            nd.x = cx - nd.w / 2; nd.y = layerYs[5]; nd.layer = 5;
             colCenters[id] = cx;
             x += slotW + gap;
         });
         var nm = nodeMap["idea_mentAll"];
         nm.x = x + nm.w / 2 - nm.w / 2;
-        nm.y = layerYs[1];
-        nm.layer = 1;
+        nm.y = layerYs[2];
+        nm.layer = 2;
+        x += nm.w + gap;
+
+        // L3: Unique impure ideas (no thing/dust) — laid out as a centered row
+        var uniqueNodes = uniqueImpureIds.filter(function (id) { return nodeMap["idea_" + id]; });
+        var uniqueTotalW = 0;
+        uniqueNodes.forEach(function (id) { uniqueTotalW += nodeMap["idea_" + id].w; });
+        uniqueTotalW += (uniqueNodes.length - 1) * gap;
+        var ux = (graphW - uniqueTotalW) / 2;
+        uniqueNodes.forEach(function (id) {
+            var ni = nodeMap["idea_" + id];
+            ni.x = ux; ni.y = layerYs[3]; ni.layer = 3;
+            ux += ni.w + gap;
+        });
 
         // L4: Liquids — positioned by averaging the x of their dust ingredients
         function sortLiquidsByIngredientX(ids) {
@@ -438,10 +502,10 @@ function tree() {
             }).sort(function (a, b) { return a.avgX - b.avgX; }).map(function (a) { return a.id; });
         }
         var sortedLiquidNodeIds = sortLiquidsByIngredientX(liquidIds);
-        layoutRow(sortedLiquidNodeIds, 4, 40);
+        layoutRow(sortedLiquidNodeIds, 6, 40);
 
         // L5: Base pure ideas
-        layoutRow(baseIdeas, 5, 40);
+        layoutRow(baseIdeas, 7, 40);
 
         // Separate alchemized ideas into tiers by ingredient depth
         var baseIdeaSet = {};
@@ -496,42 +560,80 @@ function tree() {
 
         // L6: Tier 1 alchemized
         var t1sorted = sortByIngredientX(tier1);
-        layoutRow(t1sorted, 6, 40);
+        layoutRow(t1sorted, 8, 40);
 
-        // L7: Tier 2 alchemized + luck/abstraction/technology/progress
-        var t2sorted = sortByIngredientX(tier2);
+        // L9: Tier 2+ alchemized + luck/abstraction/technology/progress
+        var t2sorted = sortByIngredientX(tier2.concat(tier3));
         t2sorted.push("luck", "abstraction", "technology", "progress");
-        layoutRow(t2sorted, 7, 40);
+        layoutRow(t2sorted, 9, 40);
 
-        // L8: Matter
-        layoutRow(["matter"], 8, 40);
+        // L10: Pure things (matter + elements)
+        layoutRow(["matter", "fire", "earth", "water", "air"], 10, 40);
 
-        // L9: Elements + alchemized things
-        var elemIds = ["fire", "earth", "water", "air"].concat(alchThings);
-        layoutRow(elemIds, 9, 40);
+        // Tier alchemized things like ideas
+        var baseThingSet = {};
+        ["matter", "fire", "earth", "water", "air"].forEach(function (id) { baseThingSet[id] = true; });
+        var thingTier1 = [], thingTier2 = [];
+        var thingPlaced = {};
+        var thingRemaining = alchThings.slice();
+        var thingPass = 0;
+        while (thingRemaining.length > 0 && thingPass < 10) {
+            var thingNext = [];
+            var thingPlacedThisPass = [];
+            thingRemaining.forEach(function (id) {
+                var ings = items[id].ingredients || [];
+                var allPlaced = ings.every(function (ing) {
+                    return baseThingSet[ing] || thingPlaced[ing] || baseIdeaSet[ing] || placed[ing] || !nodeMap[ing];
+                });
+                if (allPlaced) {
+                    if (thingPass === 0) thingTier1.push(id);
+                    else thingTier2.push(id);
+                    thingPlacedThisPass.push(id);
+                } else {
+                    thingNext.push(id);
+                }
+            });
+            thingPlacedThisPass.forEach(function (id) { thingPlaced[id] = true; });
+            thingRemaining = thingNext;
+            thingPass++;
+        }
+        thingTier2 = thingTier2.concat(thingRemaining);
 
-        // L10: Tier 3 — minds, souls, life (below everything else)
-        var t3sorted = sortByIngredientX(tier3);
-        layoutRow(t3sorted, 10, 40);
+        // L9: Alchemized things Tier I
+        var tt1sorted = sortByIngredientX(thingTier1);
+        layoutRow(tt1sorted, 11, 40);
 
-        // L11: Prestige resources + artifacts
+        // L12: Alchemized things Tier II
+        var tt2sorted = sortByIngredientX(thingTier2);
+        layoutRow(tt2sorted, 12, 40);
+
+        // L13: Minds
+        var mindsSorted = sortByIngredientX(mindIds);
+        if (mindsSorted.length) layoutRow(mindsSorted, 13, 40);
+
+        // L14: Souls
+        var soulsSorted = sortByIngredientX(soulIds);
+        if (soulsSorted.length) layoutRow(soulsSorted, 14, 40);
+
+        // L15: Books
+        if (bookIds.length) layoutRow(bookIds, 15, 40);
+
+        // L16: Prestige resources
         var prestigeRow = ["clarity", "courage", "spirit", "failure",
                            "leather", "elixir", "canvas", "paint", "masterpiece",
                            "gold", "beads", "goo", "sin"].filter(function(id){ return nodeMap[id]; });
         if (nodeMap["liquid_blessedOil"]) prestigeRow.push("liquid_blessedOil");
-        prestigeRow = prestigeRow.concat(artifactIds.filter(function(id){ return nodeMap[id]; }));
-        if (prestigeRow.length) layoutRow(prestigeRow, 11, 40);
+        if (prestigeRow.length) layoutRow(prestigeRow, 16, 40);
 
-        // failAlchemize impure chain layout (alongside other impure columns)
-        if (nodeMap["idea_failAlchemize"]) {
-            var faX = graphW - 100;
-            nodeMap["idea_failAlchemize"].x = faX; nodeMap["idea_failAlchemize"].y = layerYs[1]; nodeMap["idea_failAlchemize"].layer = 1;
-            nodeMap["thing_failAlchemize"].x = faX; nodeMap["thing_failAlchemize"].y = layerYs[2]; nodeMap["thing_failAlchemize"].layer = 2;
-            nodeMap["failAlchemizeDust"].x = faX; nodeMap["failAlchemizeDust"].y = layerYs[3]; nodeMap["failAlchemizeDust"].layer = 3;
-        }
+        // L17: Artifacts
+        var artifactRow = artifactIds.filter(function(id){ return nodeMap[id]; });
+        if (artifactRow.length) layoutRow(artifactRow, 17, 40);
 
-        // L0: Facts — layout as a row, no incoming edges
-        layoutRow(factIds.map(function (id) { return "fact_" + id; }), 0);
+        // L0-L1: Facts — split across two rows
+        var factNodeIds = factIds.map(function (id) { return "fact_" + id; });
+        var halfFacts = Math.ceil(factNodeIds.length / 2);
+        layoutRow(factNodeIds.slice(0, halfFacts), 0);
+        layoutRow(factNodeIds.slice(halfFacts), 1);
 
         // === Edges ===
 
@@ -553,7 +655,7 @@ function tree() {
         });
 
         // Purification: impure idea → purified pure (costs 1 Recursion)
-        impureIds.concat(["mentAll"]).forEach(function (id) {
+        impureIds.concat(["mentAll"]).concat(uniqueImpureIds).forEach(function (id) {
             if (items[id].purified && nodeMap[items[id].purified]) {
                 addEdge("idea_" + id, items[id].purified, "purify", "purify (costs 1 Recursion)");
             }
@@ -568,13 +670,7 @@ function tree() {
         // MentAll → idealSubstance
         addEdge("idea_mentAll", "idealSubstance", "produces", "+N");
 
-        // failAlchemize chain edges
-        if (nodeMap["idea_failAlchemize"]) {
-            addEdge("fact_failAlchemize", "idea_failAlchemize", "produces", "mentalize");
-            addEdge("idea_failAlchemize", "thing_failAlchemize", "produces", "reify");
-            addEdge("thing_failAlchemize", "failAlchemizeDust", "dust", "pulverize");
-            addEdge("idea_failAlchemize", "failure", "purify", "purify");
-        }
+
 
         // Alchemy: ingredients → result
         Object.keys(items).forEach(function (id) {
@@ -603,6 +699,24 @@ function tree() {
                 items[id].ingredients.forEach(function (ing) {
                     addEdge(ing + "Dust", "liquid_" + id, "distill", "distill (costs Water)");
                 });
+            }
+        });
+
+        // Book system: paper + leather → book, book/paper + ingredient → written book/scroll
+        if (nodeMap["book"]) {
+            if (nodeMap["paper"]) addEdge("paper", "book", "produces", "bind");
+            if (nodeMap["leather"]) addEdge("leather", "book", "produces", "bind");
+        }
+        if (typeof writerTopicMap === "undefined") writerTopicMap = {};
+        Object.keys(writerTopicMap).forEach(function (topic) {
+            var info = writerTopicMap[topic];
+            if (nodeMap[info.bookKey]) {
+                if (nodeMap["book"]) addEdge("book", info.bookKey, "produces", "write (costs Ink)");
+                if (nodeMap[info.ingredient]) addEdge(info.ingredient, info.bookKey, "produces", "write");
+            }
+            if (nodeMap[info.scrollKey]) {
+                if (nodeMap["paper"]) addEdge("paper", info.scrollKey, "produces", "write (costs Ink)");
+                if (nodeMap[info.ingredient]) addEdge(info.ingredient, info.scrollKey, "produces", "write");
             }
         });
 
@@ -875,6 +989,62 @@ function tree() {
         }
 
 
+        // === Row category labels & dividers ===
+        var rowCategories = [
+            { label: "Facts",                layers: [0, 1] },
+            { label: "Impure",               layers: [2, 3, 4, 5] },
+            { label: "Liquids",              layers: [6] },
+            { label: "Pure Ideas",           layers: [7] },
+            { label: "Alchemized Ideas I",   layers: [8] },
+            { label: "Alchemized Ideas II",  layers: [9] },
+            { label: "Pure Things",          layers: [10] },
+            { label: "Alchemized Things I",  layers: [11] },
+            { label: "Alchemized Things II", layers: [12] },
+            { label: "Minds",               layers: [13] },
+            { label: "Souls",               layers: [14] },
+            { label: "Books",               layers: [15] },
+            { label: "Prestige",             layers: [16] },
+            { label: "Artifacts",            layers: [17] }
+        ];
+
+        // Only draw categories that have visible nodes
+        var visibleLayers = {};
+        nodeList.forEach(function (n) {
+            if (n.layer >= 0 && isNodeVisible(n)) visibleLayers[n.layer] = true;
+        });
+
+        var labelX = 12;
+        ctx.save();
+        rowCategories.forEach(function (cat) {
+            // Check if any layer in this category has visible nodes
+            var hasVisible = cat.layers.some(function (l) { return visibleLayers[l]; });
+            if (!hasVisible) return;
+
+            var topY = layerYs[cat.layers[0]];
+            var botY = layerYs[cat.layers[cat.layers.length - 1]] + nodeH;
+            var midY = (topY + botY) / 2;
+
+            // Divider line above this category band
+            ctx.beginPath();
+            ctx.moveTo(0, topY - 16);
+            ctx.lineTo(graphW, topY - 16);
+            ctx.strokeStyle = "rgba(0,0,0,0.06)";
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            // Rotated category label on the left
+            ctx.save();
+            ctx.translate(labelX, midY);
+            ctx.rotate(-Math.PI / 2);
+            ctx.font = "600 10px 'EB Garamond'";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillStyle = "rgba(0,0,0,0.25)";
+            ctx.fillText(cat.label.toUpperCase(), 0, 0);
+            ctx.restore();
+        });
+        ctx.restore();
+
         // Track which edge types are visible for legend
         var visibleEdgeTypes = {};
 
@@ -1110,6 +1280,64 @@ function tree() {
             camera.y = my - (my - camera.y) * (camera.zoom / oldZoom);
             requestRender();
         }, { passive: false });
+
+        // Touch: pan and pinch-to-zoom
+        var touch = { active: false, lastDist: 0, lastMid: null };
+
+        canvas.addEventListener("touchstart", function (e) {
+            if (e.touches.length === 1) {
+                drag.active = true;
+                drag.sx = e.touches[0].clientX; drag.sy = e.touches[0].clientY;
+                drag.cx = camera.x; drag.cy = camera.y;
+            } else if (e.touches.length === 2) {
+                drag.active = false;
+                touch.active = true;
+                var dx = e.touches[1].clientX - e.touches[0].clientX;
+                var dy = e.touches[1].clientY - e.touches[0].clientY;
+                touch.lastDist = Math.sqrt(dx * dx + dy * dy);
+                touch.lastMid = {
+                    x: (e.touches[0].clientX + e.touches[1].clientX) / 2,
+                    y: (e.touches[0].clientY + e.touches[1].clientY) / 2
+                };
+            }
+            e.preventDefault();
+        }, { passive: false });
+
+        canvas.addEventListener("touchmove", function (e) {
+            if (e.touches.length === 1 && drag.active) {
+                camera.x = drag.cx + (e.touches[0].clientX - drag.sx);
+                camera.y = drag.cy + (e.touches[0].clientY - drag.sy);
+                requestRender();
+            } else if (e.touches.length === 2 && touch.active) {
+                var dx = e.touches[1].clientX - e.touches[0].clientX;
+                var dy = e.touches[1].clientY - e.touches[0].clientY;
+                var dist = Math.sqrt(dx * dx + dy * dy);
+                var mid = {
+                    x: (e.touches[0].clientX + e.touches[1].clientX) / 2,
+                    y: (e.touches[0].clientY + e.touches[1].clientY) / 2
+                };
+                var rect = canvas.getBoundingClientRect();
+                var mx = mid.x - rect.left, my = mid.y - rect.top;
+                // Pinch zoom
+                var scale = dist / touch.lastDist;
+                var oldZoom = camera.zoom;
+                camera.zoom = Math.max(0.15, Math.min(3, camera.zoom * scale));
+                camera.x = mx - (mx - camera.x) * (camera.zoom / oldZoom);
+                camera.y = my - (my - camera.y) * (camera.zoom / oldZoom);
+                // Pan from midpoint movement
+                camera.x += mid.x - touch.lastMid.x;
+                camera.y += mid.y - touch.lastMid.y;
+                touch.lastDist = dist;
+                touch.lastMid = mid;
+                requestRender();
+            }
+            e.preventDefault();
+        }, { passive: false });
+
+        canvas.addEventListener("touchend", function (e) {
+            if (e.touches.length < 2) touch.active = false;
+            if (e.touches.length < 1) drag.active = false;
+        });
 
         $(document).on("keydown.tree", function (e) {
             // T: toggle show all nodes (debug)
