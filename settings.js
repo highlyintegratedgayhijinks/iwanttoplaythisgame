@@ -251,6 +251,8 @@ function settings(){
             $('#machines').hide();
             $('#finalMachines').hide();
             $('#settings').show();
+            if (typeof mobileHideGameUI === 'function') mobileHideGameUI();
+            if (typeof mobileShowSettings === 'function') mobileShowSettings();
             updateStats();
             statsInterval = setInterval(updateStats, 1000);
     } else if
@@ -261,6 +263,7 @@ function settings(){
             if (showStatus && showStatus.machines === "unlocked") $('#machines').show();
             if ($('#container').hasClass('has-final-machines')) $('#finalMachines').show();
             $('#settings').hide();
+            if (typeof mobileShowGameUI === 'function') mobileShowGameUI();
             clearInterval(statsInterval);
     }
     }

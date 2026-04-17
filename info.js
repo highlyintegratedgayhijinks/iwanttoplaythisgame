@@ -117,13 +117,13 @@ function info(){
     function showInfo(id){
         if (infoStatus[id] == "hidden"){
             infoStatus[id] = "shown";
-            $(`#wrapper .${id}.main`).hide();
-            $(`#wrapper .${id}.infobox`).show();
+            $(`#wrapper .${id}.main`).hide().removeClass('mobile-active');
+            $(`#wrapper .${id}.infobox`).show().addClass('mobile-active');
                 } else if
             (infoStatus[id] == "shown"){
             infoStatus[id] = "hidden";
-            $(`#wrapper .${id}.infobox`).hide();
-            $(`#wrapper .${id}.main`).show();
+            $(`#wrapper .${id}.infobox`).hide().removeClass('mobile-active');
+            $(`#wrapper .${id}.main`).show().addClass('mobile-active');
     }
 }
 }

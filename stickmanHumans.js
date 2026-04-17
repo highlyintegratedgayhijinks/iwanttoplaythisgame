@@ -79,6 +79,7 @@
     $('#finalMachines').hide();
     $('#humansPage').show();
     $('#stickmanCanvas').hide();
+    if (typeof mobileHideGameUI === 'function') mobileHideGameUI();
     startLoop();
   }
 
@@ -90,6 +91,7 @@
     if (typeof showStatus !== 'undefined' && showStatus.machines === 'unlocked') $('#machines').show();
     if ($('#container').hasClass('has-final-machines')) $('#finalMachines').show();
     $('#stickmanCanvas').show();
+    if (typeof mobileShowGameUI === 'function') mobileShowGameUI();
     if (animFrame) { cancelAnimationFrame(animFrame); animFrame = null; }
   }
 
@@ -202,6 +204,7 @@
           ctx.stroke();
         }
 
+        var mob = window.innerWidth <= 768;
         if (entry.unlocked) {
           var man = entry.man;
 
@@ -231,7 +234,7 @@
           S.drawItem(ctx, entry, drawX, drawY);
           S.drawJuggle(ctx, p, man, true, drawX, drawY);
 
-          ctx.font = "700 18px 'EB Garamond'";
+          ctx.font = (mob ? "700 14px" : "700 18px") + " 'EB Garamond'";
           ctx.fillStyle = '#333';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'top';
@@ -243,7 +246,7 @@
             braveSoul: '#B22222', lovingSoul: '#FF69B4', darkSoul: '#2F2F2F',
             rationalMind: '#4682B4', creativeMind: '#FF6347', madMind: '#9932CC'
           };
-          ctx.font = "400 14px 'EB Garamond'";
+          ctx.font = (mob ? "400 11px" : "400 14px") + " 'EB Garamond'";
           var plusW = ctx.measureText(' + ').width;
           var soulW = ctx.measureText(soulLabel).width;
           var mindW = ctx.measureText(mindLabel).width;
@@ -262,13 +265,13 @@
           // Modifier description
           var modDesc = modifierDescriptions[entry.name];
           if (modDesc) {
-            ctx.font = "italic 12px 'EB Garamond'";
+            ctx.font = (mob ? "italic 10px" : "italic 12px") + " 'EB Garamond'";
             ctx.fillStyle = '#bbb';
-            wrapText(ctx, modDesc, cx, cellH * row + cellH * 0.98 - 40, cellW - 20, 16);
+            wrapText(ctx, modDesc, cx, cellH * row + cellH * 0.98 - 40, cellW - 20, mob ? 12 : 16);
           }
         } else {
           // Locked slot — show placeholder
-          ctx.font = "700 24px 'EB Garamond'";
+          ctx.font = (mob ? "700 18px" : "700 24px") + " 'EB Garamond'";
           ctx.fillStyle = '#ddd';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';

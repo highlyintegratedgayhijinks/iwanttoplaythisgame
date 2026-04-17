@@ -487,11 +487,21 @@
     if (window.getComputedStyle(wrapper).display === 'none') return;
 
     var newSegs = [];
-    var boxes = wrapper.querySelectorAll('.box.main');
-    for (var i = 0; i < boxes.length; i++) {
-      if (window.getComputedStyle(boxes[i]).display === 'none') continue;
-      var br = boxes[i].getBoundingClientRect();
-      newSegs.push({ x1: br.left, x2: br.right, groundY: br.top, bottomY: br.bottom });
+
+    // On mobile, walk above the column tabs
+    var tabStrip = document.querySelector('.mobile-column-tabs');
+    if (tabStrip && window.innerWidth <= 768) {
+      var br = tabStrip.getBoundingClientRect();
+      if (br.width > 0) {
+        newSegs.push({ x1: br.left, x2: br.right, groundY: br.top, bottomY: br.top });
+      }
+    } else {
+      var boxes = wrapper.querySelectorAll('.box.main');
+      for (var i = 0; i < boxes.length; i++) {
+        if (window.getComputedStyle(boxes[i]).display === 'none') continue;
+        var br = boxes[i].getBoundingClientRect();
+        newSegs.push({ x1: br.left, x2: br.right, groundY: br.top, bottomY: br.bottom });
+      }
     }
     if (newSegs.length === 0) return; // keep old segments
     segments = newSegs;

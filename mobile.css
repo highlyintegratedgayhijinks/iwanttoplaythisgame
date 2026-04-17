@@ -1,0 +1,584 @@
+/* Mobile layout — tabs for columns, bottom tabs for machines */
+
+@media (max-width: 768px) {
+
+	body {
+		margin: 0;
+		padding: 0;
+		overflow-x: hidden;
+	}
+
+	/* ── Header: left / center / right layout ── */
+
+	#header {
+		height: 30px;
+		padding-top: 10px;
+		padding-bottom: 10px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		position: relative;
+	}
+
+	#headerButtons {
+		position: static !important;
+		transform: none !important;
+		display: contents !important;
+	}
+
+	#header > .button.want {
+		order: 0;
+	}
+
+	#libraryButton,
+	#artifactsButton,
+	#humansButton {
+		position: absolute !important;
+		left: 5px;
+	}
+
+	#artifactsButton { left: 35px !important; }
+	#humansButton { left: 65px !important; }
+
+	#treeButton,
+	#settingsButton {
+		position: absolute !important;
+		right: 5px;
+	}
+
+	#treeButton { right: 35px !important; }
+
+	/* ── Column tabs ── */
+
+	.mobile-column-tabs {
+		display: flex;
+		gap: 0;
+		margin: 0;
+		margin-top: 5px;
+		margin-bottom: -1px;
+		position: relative;
+		z-index: 2;
+	}
+
+	.mobile-column-tabs .mobile-tab {
+		flex: 1;
+		text-align: center;
+		padding: 8px 0 10px;
+		font-family: 'EB Garamond';
+		font-size: 16px;
+		font-variant: small-caps;
+		font-weight: 700;
+		cursor: pointer;
+		color: #999;
+		background: #e8e8e8;
+		border: 1px solid #333;
+		border-bottom: 1px solid #333;
+		border-radius: 4px 4px 0 0;
+		transition: 0.15s;
+		margin-right: -1px;
+	}
+
+	.mobile-column-tabs .mobile-tab:last-child {
+		margin-right: 0;
+	}
+
+	.mobile-column-tabs .mobile-tab.active {
+		color: #333;
+		background: #FAFBFA;
+		border-color: #333;
+		border-bottom-color: #FAFBFA;
+		z-index: 1;
+		position: relative;
+		margin-bottom: -1px;
+	}
+
+	/* ── Wrapper ── */
+
+	#container {
+		display: flex !important;
+		flex-direction: column !important;
+		height: calc(100vh - 30px) !important;
+		box-sizing: border-box;
+		padding-bottom: 50px;
+		gap: 0 !important;
+	}
+
+	#wrapper {
+		flex-direction: column !important;
+		gap: 0 !important;
+		overflow: hidden !important;
+		border: none !important;
+		margin-top: 0 !important;
+		padding: 0 !important;
+		background: transparent !important;
+		flex: 1 !important;
+		height: 0 !important;
+		min-height: 0 !important;
+	}
+
+	#wrapper .column {
+		width: 100% !important;
+		height: auto !important;
+		display: contents !important;
+	}
+
+	/* Hide column header titles — tab titles are enough */
+	#wrapper .box.main > .header > strong {
+		display: none !important;
+	}
+
+	#wrapper .box.main > .header .right {
+		flex: 1 !important;
+		justify-content: space-between !important;
+	}
+
+	#wrapper .box:not(.finalMachine) {
+		width: 100% !important;
+		display: none !important;
+		margin-top: 0 !important;
+		border: none !important;
+		border-top: 1px solid #333 !important;
+		border-left: 1px solid #333 !important;
+		border-right: 1px solid #333 !important;
+		border-radius: 0 !important;
+		padding: 10px !important;
+		min-height: 0 !important;
+		height: 100% !important;
+		background: #FAFBFA !important;
+		box-sizing: border-box !important;
+	}
+
+	#wrapper .box:not(.finalMachine).mobile-active {
+		display: block !important;
+		overflow-y: auto !important;
+	}
+
+	/* FMs inside #wrapper are hidden on mobile */
+	#wrapper .finalMachine.box {
+		display: none !important;
+	}
+
+	#wrapper > #particleCanvas {
+		display: none !important;
+	}
+
+	#finalMachines {
+		display: none !important;
+	}
+
+	/* ── FM bar (separate fixed container, above machine bar) ── */
+
+	#mobileFmBar {
+		position: fixed;
+		left: 0;
+		right: 0;
+		z-index: 201;
+		display: none;
+	}
+
+	#mobileFmBar.visible {
+		display: block;
+	}
+
+	#mobileFmBar .mobile-fm-tabs {
+		display: flex;
+		gap: 0;
+		margin-bottom: -1px;
+		position: relative;
+		z-index: 2;
+	}
+
+	#mobileFmBar .mobile-fm-tabs .mobile-tab {
+		flex: 1;
+		text-align: center;
+		padding: 6px 0 8px;
+		font-family: 'EB Garamond';
+		font-size: 14px;
+		font-variant: small-caps;
+		font-weight: 700;
+		cursor: pointer;
+		color: #666;
+		border: 1px solid #333;
+		border-bottom: 1px solid #333;
+		border-radius: 4px 4px 0 0;
+		transition: 0.15s;
+		margin-right: -1px;
+	}
+
+	#mobileFmBar .mobile-fm-tabs .mobile-tab:last-child {
+		margin-right: 0;
+	}
+
+	#mobileFmBar .mobile-fm-tabs .mobile-tab.enminder {
+		background: #eef0fa;
+	}
+
+	#mobileFmBar .mobile-fm-tabs .mobile-tab.altar {
+		background: #eefaef;
+	}
+
+	#mobileFmBar .mobile-fm-tabs .mobile-tab.ensouler {
+		background: #faeeee;
+	}
+
+	#mobileFmBar .mobile-fm-tabs .mobile-tab:not(.active) {
+	}
+
+	#mobileFmBar .mobile-fm-tabs .mobile-tab.active {
+		color: #333;
+		opacity: 1;
+		position: relative;
+		z-index: 1;
+		margin-bottom: -1px;
+	}
+
+	#mobileFmBar .mobile-fm-tabs .mobile-tab.active.enminder {
+		border-bottom-color: #eef0fa;
+	}
+
+	#mobileFmBar .mobile-fm-tabs .mobile-tab.active.altar {
+		border-bottom-color: #eefaef;
+	}
+
+	#mobileFmBar .mobile-fm-tabs .mobile-tab.active.ensouler {
+		border-bottom-color: #faeeee;
+	}
+
+	#mobileFmBar .mobile-fm-content {
+		background: #FAFBFA;
+	}
+
+	#mobileFmBar .mobile-fm-content > .finalMachine {
+		display: none !important;
+		width: 100% !important;
+		height: 380px !important;
+		padding: 15px !important;
+		box-sizing: border-box !important;
+		overflow-y: auto !important;
+		overflow-x: hidden !important;
+		position: relative !important;
+		margin: 0 !important;
+		border: none !important;
+		border-top: 1px solid #333 !important;
+		border-left: 1px solid #333 !important;
+		border-right: 1px solid #333 !important;
+		border-radius: 0 !important;
+		flex: none !important;
+	}
+
+	#mobileFmBar .mobile-fm-content > .finalMachine.mobile-active {
+		display: block !important;
+	}
+
+	#mobileFmBar .mobile-fm-content > .finalMachine.mobile-active.fm-collapsed {
+		height: 50px !important;
+		overflow: hidden !important;
+		padding: 10px 15px !important;
+	}
+
+	/* ── Machine bottom bar ── */
+
+	#machines {
+		position: fixed !important;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		height: auto !important;
+		z-index: 200;
+		background: #F1F1F0;
+		border: none !important;
+		margin: 0 !important;
+		overflow: visible !important;
+		display: flex !important;
+		flex-direction: column !important;
+	}
+
+	.mobile-machine-tabs {
+		display: flex;
+		gap: 0;
+		margin-bottom: -1px;
+		position: relative;
+		z-index: 2;
+	}
+
+	.mobile-machine-tabs .mobile-tab {
+		flex: 1;
+		text-align: center;
+		padding: 8px 0 6px;
+		font-family: 'EB Garamond';
+		font-size: 14px;
+		font-variant: small-caps;
+		font-weight: 700;
+		cursor: pointer;
+		color: rgba(255,255,255,0.6);
+		border: 1px solid #333;
+		border-bottom: 1px solid #333;
+		border-radius: 4px 4px 0 0;
+		transition: 0.15s;
+		margin-right: -1px;
+	}
+
+	.mobile-machine-tabs .mobile-tab:last-child {
+		margin-right: 0;
+	}
+
+	.mobile-machine-tabs .mobile-tab.mentalize {
+		background: linear-gradient(0deg, navy 0%, dodgerblue 100%);
+	}
+
+	.mobile-machine-tabs .mobile-tab.reify {
+		background: linear-gradient(0deg, forestgreen 0%, limegreen 100%);
+	}
+
+	.mobile-machine-tabs .mobile-tab.want {
+		background: linear-gradient(0deg, firebrick 0%, MediumVioletRed 100%);
+	}
+
+	.mobile-machine-tabs .mobile-tab.active {
+		color: #FFF;
+		opacity: 1;
+		border-bottom-color: transparent;
+		background-clip: padding-box;
+	}
+
+	.mobile-machine-tabs .mobile-tab:not(.active) {
+	}
+
+	#machines .content {
+		flex-direction: column !important;
+		height: auto !important;
+		overflow: visible !important;
+	}
+
+	#machines .machine.box,
+	#machines .machineUnlock.box {
+		width: 100% !important;
+		display: none !important;
+		margin-top: 0 !important;
+		border-radius: 0;
+		border: none !important;
+		max-height: 50vh;
+		overflow-y: auto !important;
+		overflow-x: auto !important;
+	}
+
+	#machines .machine.box.mobile-active,
+	#machines .machineUnlock.box.mobile-active {
+		display: block !important;
+	}
+
+	/* Left spacing on machine strip via padding-left on the scrollable container */
+	#machines .machine.box {
+		padding: 10px 0 !important;
+	}
+
+	#machines .machine.box .title {
+		display: none !important;
+	}
+
+	#machines .machine.box .container {
+		overflow-x: auto;
+		padding-left: 10px;
+	}
+
+	#machines .machine.box:hover,
+	#machines .machine.box.dropdown-open {
+		width: 100% !important;
+	}
+
+	#machines .machineUnlock.box {
+		padding: 20px 10px;
+	}
+
+	/* ── Final machine layout adjustments ── */
+
+	.fm-layout {
+		padding: 0 15px !important;
+		flex-wrap: wrap;
+	}
+
+	.fm-gauge-side:first-child,
+	.fm-gauge-circle-side:first-child {
+		left: 5px !important;
+	}
+
+	.fm-gauge-side:last-child,
+	.fm-gauge-circle-side:last-child {
+		right: 5px !important;
+	}
+
+	/* Hide FM header — the tab replaces both title and chevron */
+	#mobileFmBar .finalMachine > .header {
+		display: none !important;
+	}
+
+	/* ── Submachines ── */
+
+	.submachine {
+		width: 160px;
+		min-width: 160px;
+	}
+
+	.submachine.forge {
+		width: 320px;
+		min-width: 320px;
+	}
+
+	.submachine.articrafter {
+		width: 400px;
+		min-width: 400px;
+	}
+
+	.tile {
+		width: 85px;
+		height: 55px;
+		padding: 8px;
+	}
+
+	.tile.small {
+		width: 65px;
+		padding: 8px;
+	}
+
+	#btn-tooltip {
+		font-size: 11px;
+	}
+
+	#stickmanTooltip {
+		display: none !important;
+	}
+
+	/* ── Settings page: tabbed layout ── */
+
+	#settings {
+		flex-direction: column !important;
+		gap: 0 !important;
+		height: calc(100vh - 30px - 8px) !important;
+	}
+
+	.mobile-settings-tabs {
+		display: flex;
+		gap: 0;
+		margin: 0;
+		margin-top: 5px;
+		margin-bottom: -1px;
+		position: relative;
+		z-index: 2;
+	}
+
+	.mobile-settings-tabs .mobile-tab {
+		flex: 1;
+		text-align: center;
+		padding: 8px 0 10px;
+		font-family: 'EB Garamond';
+		font-size: 15px;
+		font-variant: small-caps;
+		font-weight: 700;
+		cursor: pointer;
+		color: #999;
+		background: #e8e8e8;
+		border: 1px solid #333;
+		border-bottom: 1px solid #333;
+		border-radius: 4px 4px 0 0;
+		transition: 0.15s;
+		margin-right: -1px;
+	}
+
+	.mobile-settings-tabs .mobile-tab:last-child {
+		margin-right: 0;
+	}
+
+	.mobile-settings-tabs .mobile-tab.active {
+		color: #333;
+		background: #FAFBFA;
+		border-color: #333;
+		border-bottom-color: #FAFBFA;
+		z-index: 1;
+		position: relative;
+		margin-bottom: -1px;
+	}
+
+	#settings .box {
+		display: none !important;
+		height: 0 !important;
+		max-height: none !important;
+		overflow-y: auto !important;
+		border: none !important;
+		border-top: 1px solid #333 !important;
+		border-left: 1px solid #333 !important;
+		border-right: 1px solid #333 !important;
+		border-radius: 0 !important;
+		margin-top: 0 !important;
+		flex: 1 !important;
+		min-height: 0 !important;
+	}
+
+	#settings .box.mobile-active {
+		display: flex !important;
+	}
+
+	/* Hide settings box headers — tabs replace them */
+	#settings .box > .header {
+		display: none !important;
+	}
+
+	/* ── Tree / Humans / Artifacts / Library: no box, content on grey ── */
+
+	#treePage {
+		touch-action: none;
+	}
+
+	#treePage, #humansPage, #artifactsPage, #libraryPage {
+		height: calc(100vh - 45px) !important;
+		max-height: calc(100vh - 45px) !important;
+		margin-top: 0 !important;
+		border: none !important;
+		border-radius: 0 !important;
+		background: #F1F1F0 !important;
+	}
+
+	.bookcase {
+		padding: 0 15px 60px;
+		gap: 12px;
+		flex-wrap: wrap;
+		justify-content: center;
+		align-items: flex-end;
+		overflow-y: auto;
+	}
+
+	.bookcase-book { width: 55px; }
+	.bookcase-spine { width: 40px; height: 160px; }
+
+	#bookPageModal .book-page-content,
+	.library-book-page {
+		width: calc(100vw - 40px);
+		max-width: 300px;
+		padding: 30px 24px 24px;
+	}
+
+	.dialog-box { max-width: calc(100vw - 40px); }
+
+	.altar-human-info {
+		right: 10px;
+		top: auto;
+		bottom: 5px;
+		transform: none;
+	}
+
+	.altar-human-name { font-size: 16px; }
+	.altar-human-modifiers { max-width: 150px; font-size: 11px; }
+
+	#oracleModal .oracle-modal-content,
+	#tricksterModal .trickster-content {
+		max-width: calc(100vw - 40px);
+	}
+}
+
+/* Hide mobile-only elements on desktop */
+@media (min-width: 769px) {
+	.mobile-column-tabs,
+	.mobile-machine-tabs,
+	#mobileFmBar {
+		display: none !important;
+	}
+}

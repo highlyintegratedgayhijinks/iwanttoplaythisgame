@@ -424,4 +424,57 @@ function startup(){
 		window._stickman.refreshWalkers();
 	}
 	if (typeof refreshHumansButton === 'function') refreshHumansButton();
+	// Auto-unlock everything on mobile for testing
+	if (window.innerWidth <= 768) {
+		// "u" key logic
+		$('#wrapper .box.main').show();
+		$('.machineUnlock').show();
+		$('#machines').show();
+		$.each(showStatus, function(id){ showStatus[id] = "unlocked"; });
+		$.each(buyables, function(id){ buyableStatus[id] = "unlocked"; });
+		$.each(itemUnlock, function(type){ $.each(itemUnlock[type], function(id){ itemUnlock[type][id] = "unlocked"; }); });
+		$.each(items, function(id, item){
+			if (item.idea && item.type === "pure") ideas[id] = (ideas[id] || 0) + 100;
+			if (item.thing && item.type === "pure") things[id] = (things[id] || 0) + 100;
+			if (item.dust && item.type === "impure") dusts[id] = (dusts[id] || 0) + 100;
+			if (item.liquid && item.type === "pure") liquids[id] = (liquids[id] || 0) + 100;
+		});
+		if (typeof seenFacts !== "undefined") { $.each(actions, function(id){ seenFacts[id] = true; }); }
+		$.each(machineStatus, function(id){ machineStatus[id] = "unlocked"; });
+		unlock();
+		buildAllItems();
+		// "H" key logic
+		if (typeof prestigeState === 'undefined') window.prestigeState = {};
+		if (!prestigeState.createdHumans) prestigeState.createdHumans = [];
+		var profiles = window._stickman ? window._stickman.profiles : [];
+		for (var i = 0; i < profiles.length; i++) {
+			if (prestigeState.createdHumans.indexOf(profiles[i].name) === -1) {
+				prestigeState.createdHumans.push(profiles[i].name);
+			}
+		}
+		if (typeof refreshHumansButton === 'function') refreshHumansButton();
+		$.each(bookPages, function(topic, pages){
+			bookProgress[topic] = pages.length;
+			pages.forEach(function(page){
+				page.ingredients.forEach(function(ing){ seeName(ing); });
+				seeName(page.result);
+			});
+		});
+		$('#libraryButton').show();
+		if (!prestigeState.craftedArtifacts) prestigeState.craftedArtifacts = [];
+		var allArtifacts = ['wreath', 'ember', 'echo', 'root', 'tear', 'shard', 'sigil', 'crown', 'veil'];
+		for (var i = 0; i < allArtifacts.length; i++) {
+			if (prestigeState.craftedArtifacts.indexOf(allArtifacts[i]) === -1) {
+				prestigeState.craftedArtifacts.push(allArtifacts[i]);
+			}
+			things[allArtifacts[i]] = (things[allArtifacts[i]] || 0) + 1;
+			seeName(allArtifacts[i]);
+		}
+		buildAllItems();
+		if (typeof refreshArtifactsButton === 'function') refreshArtifactsButton();
+		// Unlock final machines
+		$.each(finalMachineStatus, function(id){ if(finalMachineStatus[id] !== "unlocked") unlockFinalMachine(id); });
+		updateLocalStorage();
+	}
+	if (typeof initMobile === 'function') initMobile();
 }
