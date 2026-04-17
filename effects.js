@@ -423,6 +423,119 @@ function cleanupStaleEffects() {
 	});
 }
 
+// Lightning beam effect for the enminder lightning gauge
+// Adapted from diwsi/Javascript-Lightning-Effect (MIT)
+// https://github.com/diwsi/Javascript-Lightning-Effect
+
+var LightningVector = function(x, y, x1, y1) {
+	this.X = x; this.Y = y; this.X1 = x1; this.Y1 = y1;
+};
+LightningVector.prototype.dX = function() { return this.X1 - this.X; };
+LightningVector.prototype.dY = function() { return this.Y1 - this.Y; };
+LightningVector.prototype.Length = function() { return Math.sqrt(this.dX()*this.dX() + this.dY()*this.dY()); };
+LightningVector.prototype.Multiply = function(n) { return new LightningVector(this.X, this.Y, this.X + this.dX()*n, this.Y + this.dY()*n); };
+
+function lightningCast(ctx, from, to, cfg) {
+	ctx.save();
+	var v = new LightningVector(from.X1, from.Y1, to.X1, to.Y1);
+	var vLen = v.Length();
+	var lR = vLen / ctx.canvas.width;
+	var segments = Math.floor(cfg.Segments * lR);
+	if (segments < 2) segments = 2;
+	var l = vLen / segments;
+	var refv = from;
+	for (var i = 1; i <= segments; i++) {
+		var dv = v.Multiply((1 / segments) * i);
+		if (i != segments) {
+			dv.Y1 += l * (Math.random() - 0.5) * 2;
+			dv.X1 += l * (Math.random() - 0.5);
+		}
+		var r = new LightningVector(refv.X1, refv.Y1, dv.X1, dv.Y1);
+		// glow
+		ctx.beginPath();
+		ctx.strokeStyle = cfg.GlowColor;
+		ctx.lineWidth = cfg.GlowWidth * lR;
+		ctx.globalAlpha = (Math.floor(Math.random() * cfg.GlowAlpha) + cfg.GlowAlpha) / 100;
+		ctx.shadowBlur = cfg.GlowBlur * lR;
+		ctx.shadowColor = cfg.GlowColor;
+		ctx.moveTo(r.X, r.Y);
+		ctx.lineTo(r.X1, r.Y1);
+		ctx.stroke();
+		// core
+		ctx.beginPath();
+		ctx.strokeStyle = cfg.Color;
+		ctx.lineWidth = cfg.Width;
+		ctx.globalAlpha = cfg.Alpha;
+		ctx.shadowBlur = cfg.Blur;
+		ctx.shadowColor = cfg.BlurColor;
+		ctx.moveTo(r.X, r.Y);
+		ctx.lineTo(r.X1, r.Y1);
+		ctx.stroke();
+		refv = r;
+	}
+	ctx.restore();
+}
+
+var lightningCyan = {
+	Segments: 20, Color: '#fff', Width: 1, Blur: 2, BlurColor: '#7df9ff',
+	Alpha: 0.8, GlowColor: '#00bfff', GlowWidth: 6, GlowBlur: 8, GlowAlpha: 15
+};
+var lightningYellow = {
+	Segments: 20, Color: '#fff', Width: 1, Blur: 2, BlurColor: '#ffe066',
+	Alpha: 0.8, GlowColor: '#ffcc00', GlowWidth: 6, GlowBlur: 8, GlowAlpha: 15
+};
+
+function initLightningBeams() {
+	var el = document.querySelector('.enminder-lightning');
+	if (!el || el.dataset.lightningInit) return;
+	el.dataset.lightningInit = '1';
+
+	var canvas = document.createElement('canvas');
+	el.appendChild(canvas);
+	var ctx = canvas.getContext('2d');
+	var PAD_X = 4, PAD_Y = 10;
+	var timer = 0;
+
+	var dpr = window.devicePixelRatio || 1;
+
+	function animate(ts) {
+		var w = el.offsetWidth;
+		var h = el.offsetHeight;
+		var cw = w + PAD_X * 2;
+		var ch = h + PAD_Y * 2;
+		if (canvas.width !== Math.round(cw * dpr) || canvas.height !== Math.round(ch * dpr)) {
+			canvas.width = Math.round(cw * dpr);
+			canvas.height = Math.round(ch * dpr);
+			canvas.style.width = cw + 'px';
+			canvas.style.height = ch + 'px';
+			ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+		}
+
+		// fade previous frame
+		ctx.globalCompositeOperation = 'destination-out';
+		ctx.fillStyle = 'rgba(0,0,0,0.3)';
+		ctx.fillRect(0, 0, cw, ch);
+		ctx.globalCompositeOperation = 'source-over';
+
+		var fillWidth = parseFloat(el.style.width) || 0;
+		if (fillWidth > 0 && ts - timer > 80) {
+			timer = ts;
+			// cyan bolt
+			var from = new LightningVector(0, 0, Math.random() * cw * 0.2, Math.random() * ch);
+			var to = new LightningVector(0, 0, cw * 0.8 + Math.random() * cw * 0.2, Math.random() * ch);
+			lightningCast(ctx, from, to, lightningCyan);
+			// yellow bolt
+			var from2 = new LightningVector(0, 0, Math.random() * cw * 0.2, Math.random() * ch);
+			var to2 = new LightningVector(0, 0, cw * 0.8 + Math.random() * cw * 0.2, Math.random() * ch);
+			lightningCast(ctx, from2, to2, lightningYellow);
+		}
+
+		requestAnimationFrame(animate);
+	}
+
+	requestAnimationFrame(animate);
+}
+
 // Watch for elements appearing in the DOM
 var effectsObserver = new MutationObserver(function() {
 	cleanupStaleEffects();
@@ -433,5 +546,6 @@ var effectsObserver = new MutationObserver(function() {
 	initAbstractionEffects();
 	initMadnessEffects();
 	initMagmaEffects();
+	initLightningBeams();
 });
 effectsObserver.observe(document.body, { childList: true, subtree: true });

@@ -144,6 +144,7 @@ function machineUnlockClick(){
 		$(`#${id}.main`).hide();
 	}
 });
+		if (typeof mobileRefreshColumns === 'function') mobileRefreshColumns();
 	}
 
 	function buildBuyables(){
@@ -1114,6 +1115,7 @@ function consult(element) {
 					seeName(p.partner);
 					$('.subMachine.oracle #oracleResult').html(`<span class="oracle-label">Pairs with</span> <span class="${p.partner}">${name}</span>`);
 				}
+				logMessage("consult");
 				consultingActive = null;
 				$('.subMachine.oracle .selector').removeClass('disabled');
 				$('#consult').removeClass('disabled');
@@ -1175,6 +1177,7 @@ function consultAthenaeum(element) {
 					seeName(p.partner);
 					$('#oracle #athenaeumResult').html(`<span class="oracle-label">Pairs with</span> <span class="${p.partner}">${name}</span>`);
 				}
+				logMessage("study");
 				athenaeumConsultingActive = null;
 				$('#oracle .selector').removeClass('disabled');
 				$('#oracle #athenaeumStudy').removeClass('disabled');
@@ -1255,7 +1258,7 @@ function forge(item) {
 		var ing = items[item].ingredients;
 		if (pay(evalType(ing[0]), ing[0], 1) && pay(evalType(ing[1]), ing[1], 1) && pay(evalType(ing[2]), ing[2], 1)) {
 			acquire(evalType(item), item, 1);
-			logMessage("alchemize");
+			logMessage("forge");
 		}
 	}
 }
@@ -1296,7 +1299,7 @@ function distill(item) {
 					clearInterval(distillingInterval);
 					distillingInterval = null;
 					acquire("liquids", distillingActive, 1);
-					logMessage("alchemize");
+					logMessage("distill");
 					distillingActive = null;
 					$('.subMachine.distillery .selector').removeClass('disabled');
 					$('#distill').removeClass('disabled');
@@ -1396,7 +1399,7 @@ var bookProgress = {};
 function bindBook() {
 	if(pay("things", "paper", 1) && pay("things", "leather", 1)) {
 		acquire("things", "book", 1);
-		logMessage("alchemize");
+		logMessage("bind");
 	}
 }
 
@@ -1423,7 +1426,7 @@ function writeBook(baseId, topic) {
 				var isBook = (writingActive.baseId == "book");
 				var resultKey = isBook ? topicInfo.bookKey : topicInfo.scrollKey;
 				acquire("things", resultKey, 1);
-				logMessage("alchemize");
+				logMessage("write");
 				writingActive = null;
 				$('.subMachine.writer .selector').removeClass('disabled');
 				$('#writeBook').removeClass('disabled');
@@ -1491,6 +1494,7 @@ function learnFromBook(bookId) {
 					}
 					$('.subMachine.learner #learnerResult').html('<span class="athenaeum-label">Page learned!</span>');
 				}
+				logMessage("learn");
 				// Consume scrolls but not books
 				if(!isBook) {
 					pay("things", learningActive, 1);
@@ -1556,6 +1560,7 @@ function openLibrary() {
 	if(typeof closeSettings === 'function') closeSettings();
 	if(typeof closeTree === 'function') closeTree();
 	if(typeof closeHumans === 'function') closeHumans();
+	if(typeof closeArtifacts === 'function') closeArtifacts();
 	libraryPageStatus = 'shown';
 	$('#libraryButton').removeClass('libraryIcon').addClass('back');
 	$('#wrapper').hide();
@@ -1563,6 +1568,7 @@ function openLibrary() {
 	$('#finalMachines').hide();
 	$('#stickmanCanvas').hide();
 	$('#libraryPage').show();
+	if (typeof mobileHideGameUI === 'function') mobileHideGameUI();
 	renderBookcase();
 }
 
@@ -1574,6 +1580,7 @@ function closeLibrary() {
 	if(typeof showStatus !== 'undefined' && showStatus.machines === 'unlocked') $('#machines').show();
 	if($('#container').hasClass('has-final-machines')) $('#finalMachines').show();
 	$('#stickmanCanvas').show();
+	if (typeof mobileShowGameUI === 'function') mobileShowGameUI();
 }
 
 window.closeLibrary = closeLibrary;
@@ -1693,6 +1700,31 @@ var ensoulerFuel = { mana: 0, life: 0 };
 var ensoulerFuelSize = 100;
 var ensoulingActive = false;
 var ensoulingInterval = null;
+var altarMindBuzz = null;
+var altarSoulBuzz = null;
+
+function updateAltarBuzzes() {
+	var mindEl = document.getElementById('altarMind');
+	var soulEl = document.getElementById('altarSoul');
+	// Mind circle buzz
+	if (enmindedMind && !creatingHuman && mindEl) {
+		if (!altarMindBuzz || !altarMindBuzz.active) {
+			altarMindBuzz = startParticleBuzz(mindEl, essenceColors[enmindedMind] || '#b8c4e0');
+		}
+	} else if (altarMindBuzz) {
+		stopParticleBuzz(altarMindBuzz);
+		altarMindBuzz = null;
+	}
+	// Soul circle buzz
+	if (ensouledSoul && !creatingHuman && soulEl) {
+		if (!altarSoulBuzz || !altarSoulBuzz.active) {
+			altarSoulBuzz = startParticleBuzz(soulEl, essenceColors[ensouledSoul] || '#e0b8b8');
+		}
+	} else if (altarSoulBuzz) {
+		stopParticleBuzz(altarSoulBuzz);
+		altarSoulBuzz = null;
+	}
+}
 
 var essenceColors = {
 	rationalMind: '#4682B4',
@@ -1705,6 +1737,7 @@ var essenceColors = {
 
 // Particle ray system
 var particleRays = [];
+var particleBuzzes = [];
 var particleAnimFrame = null;
 
 function hexToRgb(hex) {
@@ -1735,6 +1768,27 @@ function startParticleRay(fromEl, toEl, color, fromSide) {
 
 function stopParticleRay(ray) {
 	ray.active = false;
+}
+
+function startParticleBuzz(el, color) {
+	var canvas = document.getElementById('particleCanvas');
+	var container = document.getElementById('wrapper');
+	canvas.width = container.offsetWidth;
+	canvas.height = container.offsetHeight;
+
+	var buzz = {
+		el: el,
+		color: hexToRgb(color),
+		particles: [],
+		active: true
+	};
+	particleBuzzes.push(buzz);
+	if (!particleAnimFrame) tickParticles();
+	return buzz;
+}
+
+function stopParticleBuzz(buzz) {
+	buzz.active = false;
 }
 
 function getElPos(el, side) {
@@ -1802,6 +1856,88 @@ function tickParticles() {
 		}
 	}
 
+	// Update and draw buzz particles
+	for (var b = 0; b < particleBuzzes.length; b++) {
+		var buzz = particleBuzzes[b];
+		var container = document.getElementById('wrapper');
+		var cr = container.getBoundingClientRect();
+		var er = buzz.el.getBoundingClientRect();
+		var cx = er.left + er.width / 2 - cr.left;
+		var cy = er.top + er.height / 2 - cr.top;
+		var rx = er.width / 2 + 6;
+		var ry = er.height / 2 + 6;
+
+		// Spawn new particles while active
+		if (buzz.active) {
+			var spawnCount = buzz.spawnRate !== undefined ? buzz.spawnRate : 2;
+			// Handle fractional spawn rates with random chance
+			var whole = Math.floor(spawnCount);
+			if (Math.random() < (spawnCount - whole)) whole++;
+			for (var i = 0; i < whole; i++) {
+				var angle = Math.random() * Math.PI * 2;
+				var dist = 0.4 + Math.random() * 0.6;
+				buzz.particles.push({
+					angle: angle,
+					dist: dist,
+					angSpeed: (0.02 + Math.random() * 0.03) * (Math.random() < 0.5 ? 1 : -1),
+					wobbleX: (Math.random() - 0.5) * 4,
+					wobbleY: (Math.random() - 0.5) * 4,
+					wobbleSpeed: 0.05 + Math.random() * 0.08,
+					wobbleT: Math.random() * Math.PI * 2,
+					life: 0,
+					maxLife: 40 + Math.random() * 60,
+					size: 1.2 + Math.random() * 2
+				});
+			}
+		}
+
+		// Compute drift target if set
+		var hasDrift = buzz.driftTo != null;
+		var driftX, driftY;
+		if (hasDrift) {
+			var dr = buzz.driftTo.getBoundingClientRect();
+			driftX = dr.left + dr.width / 2 - cr.left;
+			driftY = dr.top + dr.height / 2 - cr.top;
+		}
+
+		// Update and draw
+		for (var j = buzz.particles.length - 1; j >= 0; j--) {
+			var p = buzz.particles[j];
+			p.life++;
+			if (p.life >= p.maxLife) {
+				buzz.particles.splice(j, 1);
+				continue;
+			}
+			anyAlive = true;
+			p.angle += p.angSpeed;
+			p.wobbleT += p.wobbleSpeed;
+			var bx = cx + Math.cos(p.angle) * rx * p.dist + Math.sin(p.wobbleT) * p.wobbleX;
+			var by = cy + Math.sin(p.angle) * ry * p.dist + Math.cos(p.wobbleT) * p.wobbleY;
+			var lifeRatio = p.life / p.maxLife;
+			// Drift toward target over lifetime
+			var x, y;
+			if (hasDrift) {
+				x = bx + (driftX - bx) * lifeRatio;
+				y = by;
+			} else {
+				x = bx;
+				y = by;
+			}
+			var alpha = lifeRatio < 0.15 ? lifeRatio / 0.15 : (lifeRatio > 0.7 ? (1 - lifeRatio) / 0.3 : 1);
+			ctx.beginPath();
+			ctx.arc(x, y, p.size, 0, Math.PI * 2);
+			ctx.fillStyle = 'rgba(' + buzz.color.r + ',' + buzz.color.g + ',' + buzz.color.b + ',' + (alpha * 0.75) + ')';
+			ctx.fill();
+		}
+
+		if (!buzz.active && buzz.particles.length === 0) {
+			particleBuzzes.splice(b, 1);
+			b--;
+		} else {
+			anyAlive = true;
+		}
+	}
+
 	if (anyAlive) {
 		particleAnimFrame = requestAnimationFrame(tickParticles);
 	} else {
@@ -1835,6 +1971,7 @@ function unlockFinalMachine(id) {
 	}
 	$fm.show();
 	buildFinalMachine(id);
+	if (typeof mobileRefreshFinalMachines === 'function') mobileRefreshFinalMachines();
 }
 
 function buildFinalMachine(id) {
@@ -1846,9 +1983,11 @@ function buildFinalMachine(id) {
 			<div class="fm-layout">
 				<div class="fm-gauge-circle-side">
 					<div class="fm-circle-gauge"><div class="fm-circle-fill liquor-fill"></div></div>
-					<div class="fm-gauge-label"><span class="fm-fuel-amount liquor-amount">${enminderFuel.liquor}</span>/${enminderFuelSize}</div>
-					<div class="fm-gauge-name">Liquor</div>
-					<div class="button fm-add-fuel" data-fuel="liquor">+10</div>
+					<div class="fm-circle-info">
+						<div class="fm-gauge-label"><span class="fm-fuel-amount liquor-amount">${enminderFuel.liquor}</span>/${enminderFuelSize}</div>
+						<div class="fm-gauge-name">Liquor</div>
+						<div class="button fm-add-fuel" data-fuel="liquor">+10</div>
+					</div>
 				</div>
 				<div class="fm-center">
 					<div class="fm-triangle-wrap">
@@ -1864,8 +2003,10 @@ function buildFinalMachine(id) {
 						<div class="fm-triangle-content">
 							<div id="enminderMind" class="selector custom-select"><div class="selected placeholder">Mind...</div><div class="options"></div></div>
 						</div>
-						<div id="enmind" class="button fm-triangle-btn right">Can't Enmind</div>
 					</div>
+				</div>
+				<div class="fm-action-side">
+					<div id="enmind" class="button">Can't Enmind</div>
 				</div>
 			</div>
 			<div class="fm-bottom-gauge right">
@@ -1919,6 +2060,9 @@ function buildFinalMachine(id) {
 	} else if (id == "ensouler") {
 		$content.append(`
 			<div class="fm-layout">
+				<div class="fm-action-side">
+					<div id="ensoul" class="button">Can't Ensoul</div>
+				</div>
 				<div class="fm-center">
 					<div class="fm-triangle-wrap">
 						<svg class="fm-triangle left" viewBox="-2 -2 91 104" preserveAspectRatio="xMidYMid meet">
@@ -1933,14 +2077,15 @@ function buildFinalMachine(id) {
 						<div class="fm-triangle-content">
 							<div id="ensoulerSoul" class="selector custom-select"><div class="selected placeholder">Soul...</div><div class="options"></div></div>
 						</div>
-						<div id="ensoul" class="button fm-triangle-btn left">Can't Ensoul</div>
 					</div>
 				</div>
 				<div class="fm-gauge-circle-side">
 					<div class="fm-circle-gauge"><div class="fm-circle-fill mana-fill"></div></div>
-					<div class="fm-gauge-label"><span class="fm-fuel-amount mana-amount">${ensoulerFuel.mana}</span>/${ensoulerFuelSize}</div>
-					<div class="fm-gauge-name">Mana</div>
-					<div class="button fm-add-fuel" data-fuel="mana">+10</div>
+					<div class="fm-circle-info">
+						<div class="fm-gauge-label"><span class="fm-fuel-amount mana-amount">${ensoulerFuel.mana}</span>/${ensoulerFuelSize}</div>
+						<div class="fm-gauge-name">Mana</div>
+						<div class="button fm-add-fuel" data-fuel="mana">+10</div>
+					</div>
 				</div>
 			</div>
 			<div class="fm-bottom-gauge left">
@@ -2010,7 +2155,7 @@ function buildFinalMachine(id) {
 			</div>
 			<div class="fm-layout">
 				<div class="fm-slot-side">
-					<div id="altarMind" class="fm-slot"><div class="fm-slot-label">Mind</div><div class="fm-slot-value">—</div></div>
+					<div id="altarMind" class="fm-slot"></div>
 				</div>
 				<div class="fm-connector"><div class="fm-connector-flow mind-flow"></div></div>
 				<div class="fm-center">
@@ -2050,11 +2195,12 @@ function buildFinalMachine(id) {
 				</div>
 				<div class="fm-connector"><div class="fm-connector-flow soul-flow"></div></div>
 				<div class="fm-slot-side">
-					<div id="altarSoul" class="fm-slot"><div class="fm-slot-label">Soul</div><div class="fm-slot-value">—</div></div>
+					<div id="altarSoul" class="fm-slot"></div>
 				</div>
 			</div>
 			<div class="fm-flesh-controls">
-				<div class="fm-gauge-label">Flesh <span id="fleshCount">${altarFuel.flesh}</span>/${altarFleshSize}</div>
+				<div class="fm-gauge-label"><span id="fleshCount">${altarFuel.flesh}</span>/${altarFleshSize}</div>
+				<div class="fm-gauge-name">Flesh</div>
 				<div class="button fm-add-fuel" data-fuel="flesh">+1</div>
 			</div>
 			<div class="fm-create-controls">
@@ -2064,10 +2210,13 @@ function buildFinalMachine(id) {
 			<div class="fm-artifact-slot">
 				<div id="altarArtifactHex" class="altar-artifact-hex${altarArtifact ? ' placed' : ''}">
 					<svg viewBox="0 0 120 100" class="hex-svg">
+						<defs>
+							<linearGradient id="hexGrad" x1="0" y1="0" x2="0" y2="1"></linearGradient>
+						</defs>
 						<polygon class="hex-border" points="0,50 30,0 90,0 120,50 90,100 30,100"/>
 						<circle class="hex-circle" cx="60" cy="50" r="28"/>
 					</svg>
-					<div class="hex-artifact-name">${altarArtifact ? items[altarArtifact].thing : ''}</div>
+					<canvas class="hex-artifact-canvas" width="120" height="100"></canvas>
 				</div>
 			</div>
 			<div class="fm-bowl-gauge">
@@ -2082,16 +2231,20 @@ function buildFinalMachine(id) {
 		updateAltarGauge();
 		updateFleshCount();
 		startAltarDecay();
+		if (altarArtifact) {
+			drawAltarArtifact(altarArtifact);
+			setHexGradient(altarArtifact);
+		}
 		if (enmindedMind) {
-			$('#altarMind .fm-slot-value').html(enmindedMind);
 			$('#altarMind').css('background', essenceColors[enmindedMind] || '#b8c4e0');
 		}
 		if (ensouledSoul) {
-			$('#altarSoul .fm-slot-value').html(ensouledSoul);
 			$('#altarSoul').css('background', essenceColors[ensouledSoul] || '#e0b8b8');
 		}
+		updateAltarBuzzes();
 		updateCreateButton();
 		checkAlreadyCreated();
+		positionAltarTubes();
 
 		$('#altar .fm-add-fuel').on('click', function(){
 			var fuel = $(this).data('fuel');
@@ -2114,7 +2267,9 @@ function buildFinalMachine(id) {
 				acquire("things", altarArtifact, 1);
 				altarArtifact = null;
 				$(this).removeClass('placed');
-				$(this).find('.hex-artifact-name').text('');
+
+				clearAltarArtifact();
+			clearHexGradient();
 				updateCreateButton();
 				return;
 			}
@@ -2123,7 +2278,9 @@ function buildFinalMachine(id) {
 			pay("things", art, 1);
 			altarArtifact = art;
 			$(this).addClass('placed');
-			$(this).find('.hex-artifact-name').text(items[art].thing);
+
+			drawAltarArtifact(art);
+			setHexGradient(art);
 			updateCreateButton();
 		});
 
@@ -2174,36 +2331,45 @@ function enmind(mindId) {
 	var triSvg = document.querySelector('#enminder .fm-triangle');
 	var ray = startParticleRay(triSvg, document.getElementById('altarMind'), fillColor, 'right');
 
-	var drainRate = 5;
-	enmindingInterval = setInterval(function(){
-		enminderFuel.liquor = Math.max(0, enminderFuel.liquor - drainRate);
-		enminderFuel.lightning = Math.max(0, enminderFuel.lightning - drainRate);
+	var totalDrainTime = enminderFuelSize / 5 * 500; // same total duration as before
+	var enmindStart = performance.now();
+	var startLiquor = enminderFuel.liquor;
+	var startLightning = enminderFuel.lightning;
+
+	function enmindTick(now) {
+		var elapsed = now - enmindStart;
+		var t = Math.min(elapsed / totalDrainTime, 1);
+
+		enminderFuel.liquor = Math.max(0, Math.round(startLiquor * (1 - t)));
+		enminderFuel.lightning = Math.max(0, Math.round(startLightning * (1 - t)));
 		updateEnminderGauge();
 
 		// Drain triangle from base toward point (left to right)
-		var pct = enminderFuel.liquor / enminderFuelSize;
+		var pct = 1 - t;
 		var w = 87 * pct;
 		clipEl.setAttribute('x', 87 - w);
 		clipEl.setAttribute('width', w);
 
 		// Fill altar circle from below
-		var fillPct = Math.round((1 - pct) * 100);
+		var fillPct = Math.round(t * 100);
 		$('#altarMind').css('background', 'linear-gradient(to top, ' + fillColor + ' ' + fillPct + '%, white ' + fillPct + '%)');
 
-		if (enminderFuel.liquor <= 0 && enminderFuel.lightning <= 0) {
-			clearInterval(enmindingInterval);
+		if (t >= 1) {
 			enmindingInterval = null;
 			enmindingActive = false;
 			stopParticleRay(ray);
 			enmindedMind = mindId;
-			$('#altarMind .fm-slot-value').html(mindId);
 			$('#altarMind').css('background', fillColor);
 			$('#enminder').addClass('fm-done');
+			updateAltarBuzzes();
 			updateCreateButton();
 			checkAlreadyCreated();
-			logMessage("alchemize");
+			logMessage("enmind");
+		} else {
+			enmindingInterval = requestAnimationFrame(enmindTick);
 		}
-	}, 500);
+	}
+	enmindingInterval = requestAnimationFrame(enmindTick);
 }
 
 function ensoul(soulId) {
@@ -2225,34 +2391,43 @@ function ensoul(soulId) {
 	var triSvg = document.querySelector('#ensouler .fm-triangle');
 	var ray = startParticleRay(triSvg, document.getElementById('altarSoul'), fillColor, 'left');
 
-	var drainRate = 5;
-	ensoulingInterval = setInterval(function(){
-		ensoulerFuel.mana = Math.max(0, ensoulerFuel.mana - drainRate);
-		ensoulerFuel.life = Math.max(0, ensoulerFuel.life - drainRate);
+	var totalDrainTime = ensoulerFuelSize / 5 * 500; // same total duration as before
+	var ensoulStart = performance.now();
+	var startMana = ensoulerFuel.mana;
+	var startLife = ensoulerFuel.life;
+
+	function ensoulTick(now) {
+		var elapsed = now - ensoulStart;
+		var t = Math.min(elapsed / totalDrainTime, 1);
+
+		ensoulerFuel.mana = Math.max(0, Math.round(startMana * (1 - t)));
+		ensoulerFuel.life = Math.max(0, Math.round(startLife * (1 - t)));
 		updateEnsoulerGauge();
 
 		// Drain triangle from base toward point (right to left)
-		var pct = ensoulerFuel.mana / ensoulerFuelSize;
+		var pct = 1 - t;
 		clipEl.setAttribute('width', 87 * pct);
 
 		// Fill altar circle from below
-		var fillPct = Math.round((1 - pct) * 100);
+		var fillPct = Math.round(t * 100);
 		$('#altarSoul').css('background', 'linear-gradient(to top, ' + fillColor + ' ' + fillPct + '%, white ' + fillPct + '%)');
 
-		if (ensoulerFuel.mana <= 0 && ensoulerFuel.life <= 0) {
-			clearInterval(ensoulingInterval);
+		if (t >= 1) {
 			ensoulingInterval = null;
 			ensoulingActive = false;
 			stopParticleRay(ray);
 			ensouledSoul = soulId;
-			$('#altarSoul .fm-slot-value').html(soulId);
 			$('#altarSoul').css('background', fillColor);
 			$('#ensouler').addClass('fm-done');
+			updateAltarBuzzes();
 			updateCreateButton();
 			checkAlreadyCreated();
-			logMessage("alchemize");
+			logMessage("ensoul");
+		} else {
+			ensoulingInterval = requestAnimationFrame(ensoulTick);
 		}
-	}, 500);
+	}
+	ensoulingInterval = requestAnimationFrame(ensoulTick);
 }
 
 var creatingHuman = false;
@@ -2272,53 +2447,165 @@ function isHumanAlreadyCreated() {
 function checkAlreadyCreated() {
 	if (!enmindedMind || !ensouledSoul) {
 		$('#altarWarning').remove();
-		$('.fm-slot-empty').remove();
 		return;
 	}
 	if (isHumanAlreadyCreated()) {
 		var profile = getProfileForHuman();
 		if ($('#altarWarning').length === 0) {
-			$('.fm-create-controls').before('<div id="altarWarning" style="text-align:center;color:#B22222;font-style:italic;margin:4px 0">' + profile.name + ' was already created</div>');
+			$('.fm-artifact-slot').before('<div id="altarWarning" style="position:absolute;top:45px;right:15px;text-align:center;color:#B22222;font-style:italic;z-index:3">' + profile.name + ' was already created</div>');
 		}
-		if ($('#altarMind .fm-slot-empty').length === 0) {
-			$('#altarMind').append('<div class="fm-slot-empty button" style="font-size:10px;padding:2px 6px;margin-top:4px">Empty</div>');
-			$('#altarMind .fm-slot-empty').on('click', function() { emptyMind(); });
-		}
-		if ($('#altarSoul .fm-slot-empty').length === 0) {
-			$('#altarSoul').append('<div class="fm-slot-empty button" style="font-size:10px;padding:2px 6px;margin-top:4px">Empty</div>');
-			$('#altarSoul .fm-slot-empty').on('click', function() { emptySoul(); });
-		}
+		// Auto-empty everything with animation
+		altarReject();
 	} else {
 		$('#altarWarning').remove();
-		$('.fm-slot-empty').remove();
 	}
 }
 
-function emptyMind() {
-	enmindedMind = null;
-	$('#altarMind .fm-slot-value').html('—');
-	$('#altarMind').css('background', '');
-	$('#enminder').removeClass('fm-done');
-	$('#enminderMind').removeClass('disabled');
-	$('#enmind').show();
-	$('#altarWarning').remove();
-	$('.fm-slot-empty').remove();
-	updateCreateButton();
-}
+var altarRejecting = false;
 
-function emptySoul() {
-	ensouledSoul = null;
-	$('#altarSoul .fm-slot-value').html('—');
-	$('#altarSoul').css('background', '');
-	$('#ensouler').removeClass('fm-done');
-	$('#ensoulerSoul').removeClass('disabled');
-	$('#ensoul').show();
-	$('#altarWarning').remove();
-	$('.fm-slot-empty').remove();
-	updateCreateButton();
+function altarReject() {
+	if (altarRejecting) return;
+	altarRejecting = true;
+
+	var duration = 1500;
+	var startPreserver = altarFuel.preserver;
+	var startDust = altarFuel.dust;
+	var startFlesh = altarFuel.flesh;
+	var startTime = Date.now();
+
+	// Fade mind and soul circles
+	var mindBg = $('#altarMind').css('background-color') || '#b8c4e0';
+	var soulBg = $('#altarSoul').css('background-color') || '#e0b8b8';
+
+	var rejectInterval = setInterval(function() {
+		var elapsed = Date.now() - startTime;
+		var t = Math.min(elapsed / duration, 1);
+		var ease = t * t; // ease-in
+
+		// Drain fuels
+		altarFuel.preserver = Math.round(startPreserver * (1 - ease));
+		altarFuel.dust = Math.round(startDust * (1 - ease));
+		altarFuel.flesh = Math.round(startFlesh * (1 - ease));
+		updateAltarGauge();
+		updateFleshCount();
+
+		// Fade circles to white
+		var fadePct = Math.round((1 - ease) * 100);
+		$('#altarMind').css('background', 'linear-gradient(to top, ' + mindBg + ' ' + fadePct + '%, white ' + fadePct + '%)');
+		$('#altarSoul').css('background', 'linear-gradient(to top, ' + soulBg + ' ' + fadePct + '%, white ' + fadePct + '%)');
+
+		if (t >= 1) {
+			clearInterval(rejectInterval);
+
+			// Empty mind
+			enmindedMind = null;
+			updateAltarBuzzes();
+			$('#altarMind').css('background', '');
+			$('#altarMind .fm-slot-value').html('—');
+			$('#enminder').removeClass('fm-done');
+			$('#enminderMind').removeClass('disabled');
+			$('#enmind').show();
+
+			// Empty soul
+			ensouledSoul = null;
+			updateAltarBuzzes();
+			$('#altarSoul').css('background', '');
+			$('#altarSoul .fm-slot-value').html('—');
+			$('#ensouler').removeClass('fm-done');
+			$('#ensoulerSoul').removeClass('disabled');
+			$('#ensoul').show();
+
+			// Empty artifact
+			if (altarArtifact) {
+				acquire("things", altarArtifact, 1);
+				altarArtifact = null;
+				$('#altarArtifactHex').removeClass('placed');
+				clearAltarArtifact();
+				clearHexGradient();
+			}
+
+			// Zero fuels
+			altarFuel.preserver = 0;
+			altarFuel.dust = 0;
+			altarFuel.flesh = 0;
+			updateAltarGauge();
+			updateFleshCount();
+
+			$('#altarWarning').remove();
+			updateCreateButton();
+			altarRejecting = false;
+		}
+	}, 30);
 }
 
 // Maps each Human to the artifact that uses their prestige resource
+function drawAltarArtifact(artKey) {
+	var canvas = document.querySelector('.hex-artifact-canvas');
+	if (!canvas) return;
+	var dpr = window.devicePixelRatio || 1;
+	canvas.width = 120 * dpr;
+	canvas.height = 100 * dpr;
+	var ctx = canvas.getContext('2d');
+	ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+	ctx.clearRect(0, 0, 120, 100);
+	if (!artKey || typeof artifactDrawers === 'undefined' || !artifactDrawers[artKey]) return;
+	// Clip to hexagon
+	ctx.save();
+	ctx.beginPath();
+	ctx.moveTo(0, 50);
+	ctx.lineTo(30, 0);
+	ctx.lineTo(90, 0);
+	ctx.lineTo(120, 50);
+	ctx.lineTo(90, 100);
+	ctx.lineTo(30, 100);
+	ctx.closePath();
+	ctx.clip();
+	// Draw artifact centered in hex, scale to fit
+	drawArtifact(artifactDrawers[artKey], ctx, 60, 50, 1);
+	ctx.restore();
+}
+
+function clearAltarArtifact() {
+	var canvas = document.querySelector('.hex-artifact-canvas');
+	if (!canvas) return;
+	canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+}
+
+var artifactGradients = {
+	wreath: ['#6B8E23', '#3A5F0B', '#2E8B57'],
+	ember: ['#FF4500', '#CC3300', '#5C1A00'],
+	echo: ['#B0C4DE', '#8899AA', '#A8B8C8'],
+	root: ['#6B4226', '#8B5E3C', '#4A2F1A'],
+	tear: ['#87CEEB', '#5B9BD5', '#B0D4E8'],
+	shard: ['#7B68EE', '#4B0082', '#9370DB'],
+	sigil: ['#8B0000', '#4A0010', '#2A0008'],
+	crown: ['#DAA520', '#B8860B', '#6A0DAD'],
+	veil: ['#C8C8DC', '#9A8FBF', '#B0A8C8']
+};
+
+function setHexGradient(artKey) {
+	var grad = document.getElementById('hexGrad');
+	if (!grad) return;
+	while (grad.firstChild) grad.removeChild(grad.firstChild);
+	var colors = artifactGradients[artKey];
+	if (!colors) return;
+	var ns = 'http://www.w3.org/2000/svg';
+	for (var i = 0; i < colors.length; i++) {
+		var stop = document.createElementNS(ns, 'stop');
+		stop.setAttribute('offset', (i / (colors.length - 1) * 100) + '%');
+		stop.setAttribute('stop-color', colors[i]);
+		stop.setAttribute('stop-opacity', '0.25');
+		grad.appendChild(stop);
+	}
+	$('.hex-border').css('fill', 'url(#hexGrad)');
+}
+
+function clearHexGradient() {
+	$('.hex-border').css('fill', '');
+	var grad = document.getElementById('hexGrad');
+	if (grad) while (grad.firstChild) grad.removeChild(grad.firstChild);
+}
+
 var humanArtifactMap = {
 	'The Commander': 'ember',    // Clarity
 	'The Hero': 'veil',          // Courage
@@ -2383,6 +2670,26 @@ function createHuman() {
 	// Hide dust add button during creation
 	$('.fm-bowl-gauge .fm-add-fuel').hide();
 
+	// Keep circle buzzes alive, add tube and body buzzes
+	// Circle buzzes are already running from updateAltarBuzzes
+	var fleshEl = document.querySelector('#altar .fm-flesh-gauge');
+	var mindBuzzColor = essenceColors[enmindedMind] || '#b8c4e0';
+	var soulBuzzColor = essenceColors[ensouledSoul] || '#e0b8b8';
+
+	// Start tube buzzes that drift toward the body
+	var mindTubeEl = document.querySelector('#altar .mind-flow');
+	var soulTubeEl = document.querySelector('#altar .soul-flow');
+	var mindTubeBuzz = mindTubeEl ? startParticleBuzz(mindTubeEl, mindBuzzColor) : null;
+	var soulTubeBuzz = soulTubeEl ? startParticleBuzz(soulTubeEl, soulBuzzColor) : null;
+	if (mindTubeBuzz) mindTubeBuzz.driftTo = fleshEl;
+	if (soulTubeBuzz) soulTubeBuzz.driftTo = fleshEl;
+
+	// Start body buzzes at 0 spawn rate, will ramp up
+	var mindBodyBuzz = startParticleBuzz(fleshEl, mindBuzzColor);
+	mindBodyBuzz.spawnRate = 0;
+	var soulBodyBuzz = startParticleBuzz(fleshEl, soulBuzzColor);
+	soulBodyBuzz.spawnRate = 0;
+
 	createHumanInterval = setInterval(function(){
 		// Check if flesh decayed during process
 		if (altarFuel.flesh < startingFlesh) {
@@ -2397,8 +2704,17 @@ function createHuman() {
 				acquire("things", altarArtifact, 1);
 				altarArtifact = null;
 				$('#altarArtifactHex').removeClass('placed');
-				$('#altarArtifactHex .hex-artifact-name').text('');
+	
+				clearAltarArtifact();
+			clearHexGradient();
 			}
+			// Stop all particle buzzes
+			stopParticleBuzz(mindBodyBuzz);
+			stopParticleBuzz(soulBodyBuzz);
+			if (mindTubeBuzz) stopParticleBuzz(mindTubeBuzz);
+			if (soulTubeBuzz) stopParticleBuzz(soulTubeBuzz);
+			if (altarMindBuzz) { stopParticleBuzz(altarMindBuzz); altarMindBuzz = null; }
+			if (altarSoulBuzz) { stopParticleBuzz(altarSoulBuzz); altarSoulBuzz = null; }
 			// Reset tubes and circles
 			$('.mind-flow').css('left', 'auto').css('right', '0').css('width', '0%');
 			$('.soul-flow').css('right', 'auto').css('left', '0').css('width', '0%');
@@ -2421,16 +2737,34 @@ function createHuman() {
 		$('#altarMind').css('background', 'linear-gradient(to top, ' + mindBg + ' ' + drainPct + '%, white ' + drainPct + '%)');
 		$('#altarSoul').css('background', 'linear-gradient(to top, ' + soulBg + ' ' + drainPct + '%, white ' + drainPct + '%)');
 
+		// Ramp: circle buzzes fade out, body buzzes ramp up
+		var t = createHumanProgress;
+		var circleRate = Math.max(0, 2 * (1 - t));
+		var bodyRate = 2 * t;
+		if (altarMindBuzz) altarMindBuzz.spawnRate = circleRate;
+		if (altarSoulBuzz) altarSoulBuzz.spawnRate = circleRate;
+		mindBodyBuzz.spawnRate = bodyRate;
+		soulBodyBuzz.spawnRate = bodyRate;
+
 		if (createHumanProgress >= 1) {
 			clearInterval(createHumanInterval);
 			createHumanInterval = null;
 			creatingHuman = false;
 			createHumanProgress = 0;
 
-			altarFuel.flesh = 0;
 			altarFuel.dust = 0;
-			updateAltarGauge();
-			updateFleshCount();
+
+			// Stop all particle buzzes
+			stopParticleBuzz(mindBodyBuzz);
+			stopParticleBuzz(soulBodyBuzz);
+			if (mindTubeBuzz) stopParticleBuzz(mindTubeBuzz);
+			if (soulTubeBuzz) stopParticleBuzz(soulTubeBuzz);
+			if (altarMindBuzz) { stopParticleBuzz(altarMindBuzz); altarMindBuzz = null; }
+			if (altarSoulBuzz) { stopParticleBuzz(altarSoulBuzz); altarSoulBuzz = null; }
+
+			// Change flesh silhouette to created human's color
+			var profile = getProfileForHuman();
+			$('#altar .fm-flesh-fill').css('fill', profile ? profile.color : '#c4756b');
 
 			// Empty circles and drain tubes
 			$('#altarMind').css('background', 'white');
@@ -2438,7 +2772,7 @@ function createHuman() {
 			$('.mind-flow').css('left', 'auto').css('right', '0').css('width', '0%');
 			$('.soul-flow').css('right', 'auto').css('left', '0').css('width', '0%');
 
-			logMessage("alchemize");
+			logMessage("createHuman");
 
 			// Track the artifact (already consumed on placement)
 			if (altarArtifact && prestigeState.craftedArtifacts.indexOf(altarArtifact) === -1) {
@@ -2450,20 +2784,22 @@ function createHuman() {
 			humanCreated = { mind: enmindedMind, soul: ensouledSoul, artifact: altarArtifact };
 			altarArtifact = null;
 			$('#altarArtifactHex').removeClass('placed');
-			$('#altarArtifactHex .hex-artifact-name').text('');
 
-			// Unlock the human (add to persistent list + spawn walker)
+			clearAltarArtifact();
+			clearHexGradient();
+
+			// Unlock the human (add to persistent list, walker spawns after ascend/reload)
 			var profile = getProfileForHuman();
 			if (profile && humansUnlocked.indexOf(profile.name) === -1) {
 				humansUnlocked.push(profile.name);
-				if (window._stickman && window._stickman.spawnWalker) {
-					window._stickman.spawnWalker(profile.name);
-				}
 				if (typeof refreshHumansButton === 'function') refreshHumansButton();
 			}
 
 			// Wait for tubes to empty, then start the reveal
-			setTimeout(function(){ humanCreationReveal(false); }, 1200);
+			setTimeout(function(){
+				altarFuel.flesh = 0;
+				humanCreationReveal(false);
+			}, 1200);
 		}
 
 		updateCreateButton();
@@ -2547,6 +2883,10 @@ function humanCreationReveal(instant) {
 			'<div class="button" id="ascendButton">Ascend</div>' +
 		'</div>');
 		$content.append($info);
+
+		$info.on('click', '#ascendButton', function() {
+			prestigeReset();
+		});
 
 		function animate() {
 			ctx.clearRect(0, 0, w, h);
@@ -2789,6 +3129,74 @@ function animateDust() {
 	requestAnimationFrame(animateDust);
 }
 
+function positionAltarTubes() {
+	var container = document.querySelector('#altar .content');
+	if (!container) return;
+	var containerRect = container.getBoundingClientRect();
+
+	function positionTube(tubeEl, startRect, startX, startY, endRect, endX, endY) {
+		if (!tubeEl || !startRect || !endRect) return;
+		var x1 = startX - containerRect.left;
+		var y1 = startY - containerRect.top;
+		var x2 = endX - containerRect.left;
+		var y2 = endY - containerRect.top;
+		var dx = x2 - x1;
+		var dy = y2 - y1;
+		var length = Math.sqrt(dx * dx + dy * dy);
+		var angle = Math.atan2(dy, dx) * (180 / Math.PI);
+		tubeEl.style.left = x1 + 'px';
+		tubeEl.style.top = y1 + 'px';
+		tubeEl.style.width = length + 'px';
+		tubeEl.style.transform = 'rotate(' + angle + 'deg)';
+	}
+
+	var slab = document.querySelector('#altar .fm-flesh-silhouette');
+	if (!slab) return;
+	var slabRect = slab.getBoundingClientRect();
+	var slabCX = slabRect.left + slabRect.width / 2;
+	var slabCY = slabRect.top + slabRect.height / 2;
+
+	// Preserver tube: tank bottom-right corner (offset 30px down) → slab center
+	var tube = document.querySelector('.fm-preserver-tube');
+	var tank = document.querySelector('#altar .fm-tank');
+	if (tube && tank) {
+		var tankRect = tank.getBoundingClientRect();
+		positionTube(tube, tankRect, tankRect.right, tankRect.bottom + 30, slabRect, slabCX, slabCY);
+	}
+
+	// Mind connector: horizontal from mind circle center to slab vertical center
+	var connectors = document.querySelectorAll('#altar .fm-connector');
+	var mindSlot = document.querySelector('#altarMind');
+	if (connectors[0] && mindSlot) {
+		var mindRect = mindSlot.getBoundingClientRect();
+		var mindCX = mindRect.left + mindRect.width / 2;
+		var mindCY = mindRect.top + mindRect.height / 2;
+		var tubeH = connectors[0].offsetHeight;
+		var x1 = mindCX - containerRect.left;
+		var x2 = slabCX - containerRect.left;
+		connectors[0].style.left = (x1 + 20) + 'px';
+		connectors[0].style.top = (mindCY - containerRect.top - tubeH / 2 + 48) + 'px';
+		connectors[0].style.width = (x2 - x1) + 'px';
+		connectors[0].style.transform = 'none';
+	}
+
+	// Soul connector: horizontal from soul circle center to slab vertical center
+	var soulSlot = document.querySelector('#altarSoul');
+	if (connectors[1] && soulSlot) {
+		var soulRect = soulSlot.getBoundingClientRect();
+		var soulCX = soulRect.left + soulRect.width / 2;
+		var soulCY = soulRect.top + soulRect.height / 2;
+		var tubeH = connectors[1].offsetHeight;
+		var x1 = slabCX - containerRect.left;
+		var x2 = soulCX - containerRect.left;
+		connectors[1].style.left = x1 + 'px';
+		connectors[1].style.top = (soulCY - containerRect.top - tubeH / 2 + 48) + 'px';
+		connectors[1].style.width = (x2 - x1) + 'px';
+		connectors[1].style.transform = 'none';
+	}
+}
+window.addEventListener('resize', positionAltarTubes);
+
 function updateAltarGauge() {
 	$('#altar .preserver-amount').html(altarFuel.preserver);
 	$('.altar-preserver-fill').css("height", (altarFuel.preserver / altarFuelSize * 100) + "%");
@@ -2877,6 +3285,7 @@ function mentalizeMax(){
 	if(showStatus.ideas == "locked"){
 		showStatus.ideas = "unlocked";
 		$('#ideas').fadeIn();
+		if (typeof mobileRefreshColumns === 'function') mobileRefreshColumns();
 	}
 	$.each(items, function(id, name){
 		var amount = $('.logMessage.active.'+id).length;
@@ -3020,6 +3429,7 @@ function unlockMachine(id){
 		$('.machine.'+id).show();
 		machineStatus[id] = "unlocked";
 		logMessage("machineU");
+		if (typeof mobileRefreshMachines === 'function') mobileRefreshMachines();
 	}
 }
 
@@ -3030,7 +3440,7 @@ function logMessage(id){
 	logEntries.push({ id: id, count: logCount, active: true, tooMany: false });
 	updateActiveLogCounter();
 	$('#log .content').prepend('<div class="item logMessage '+ id +' logCount-'+logCount+' active"><span class="count">'+logCount+' </span><span class="name">'+ actions[id].log+'</span></div>');
-	button('.logCount-' + logCount, id, "mentalize");
+	if (items[id] && items[id].idea) button('.logCount-' + logCount, id, "mentalize");
 }
 
 function logMessageTooMany(id){
@@ -3047,6 +3457,7 @@ function mentalize(id, instance, amount){
 	if(showStatus.ideas == "locked"){
 		showStatus.ideas = "unlocked"
 		$('#ideas').fadeIn();
+		if (typeof mobileRefreshColumns === 'function') mobileRefreshColumns();
 	}
 	if (pay("ideas", "mind", amount) == true){
 		logMessage("mentalize");
@@ -3070,6 +3481,7 @@ function reify(id, amount){
 	if(showStatus.things == "locked"){
 		showStatus.things = "unlocked"
 		$('#things').fadeIn();
+		if (typeof mobileRefreshColumns === 'function') mobileRefreshColumns();
 	}
 	if (pay("things", "matter", amount) && pay("ideas", id, amount) == true){
 		
@@ -3090,7 +3502,8 @@ function reify(id, amount){
 function pulverize(id, amount){
 	if (showStatus.machines == "locked"){
 		showStatus.machines = "unlocked";
-		$('#machines').delay(2000).fadeIn();;
+		$('#machines').delay(2000).fadeIn();
+		if (typeof mobileRefreshMachines === 'function') mobileRefreshMachines();
 	}
 
 	if (pay("ideas", "strength", amount) && pay("things", id, amount) == true){
@@ -3274,6 +3687,7 @@ function button(appendTo, itemType, buttonType){
 		updatePowerCounter("mind");
 		updatePowerCounter("matter");
 		updatePowerCounter("strength");
+		if (typeof mobileRefreshColumns === 'function') mobileRefreshColumns();
 	}
 }
 if(buttons[buttonType].action == "mentalize"){
