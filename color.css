@@ -561,48 +561,48 @@
 .bookArtifacts, .boundBookArtifacts { color: Gold; }
 
 /* Artifacts */
+.wreath {
+	background: linear-gradient(#6B8E23, #3A5F0B, #2E8B57);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
 .ember {
-	background: linear-gradient(OrangeRed, DarkTurquoise, #444);
+	background: linear-gradient(#FF4500, #CC3300, #5C1A00);
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
 }
 .echo {
-	background: linear-gradient(LightSkyBlue, rgba(200, 170, 255, 0.8), magenta);
+	background: linear-gradient(#B0C4DE, #8899AA, #A8B8C8);
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
 }
 .root {
-	background: linear-gradient(Sienna, BlueViolet, OliveDrab);
+	background: linear-gradient(#6B4226, #8B5E3C, #4A2F1A);
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
 }
 .tear {
-	background: linear-gradient(DeepSkyBlue, #696969, #FFD700);
+	background: linear-gradient(#87CEEB, #5B9BD5, #B0D4E8);
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
 }
 .shard {
-	background: linear-gradient(Sienna, #4B0082, gold);
+	background: linear-gradient(#7B68EE, #4B0082, #9370DB);
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
 }
 .sigil {
-	background: linear-gradient(DarkTurquoise, rgb(226, 14, 84), OrangeRed);
+	background: linear-gradient(#8B0000, #4A0010, #2A0008);
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
 }
 .crown {
-	background: linear-gradient(OrangeRed, DarkTurquoise, Blue);
+	background: linear-gradient(#DAA520, #B8860B, #6A0DAD);
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
 }
 .veil {
-	background: linear-gradient(DeepSkyBlue, DodgerBlue, #4A6FA5);
-	-webkit-background-clip: text;
-	-webkit-text-fill-color: transparent;
-}
-.wreath {
-	background: linear-gradient(Sienna, OliveDrab, CadetBlue);
+	background: linear-gradient(#C8C8DC, #9A8FBF, #B0A8C8);
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
 }
